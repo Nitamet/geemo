@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"github.com/wailsapp/wails/v2/pkg/options/linux"
 	"log"
 
 	"github.com/wailsapp/wails/v2"
@@ -78,6 +79,11 @@ func main() {
 				Message: "",
 				Icon:    icon,
 			},
+		},
+		Linux: &linux.Options{
+			Icon:                icon,
+			WindowIsTranslucent: false,
+			WebviewGpuPolicy:    linux.WebviewGpuPolicyAlways,
 		},
 	})
 
