@@ -1,6 +1,7 @@
 package main
 
 import (
+	"changeme/internal/lcu"
 	"context"
 	"fmt"
 )
@@ -8,6 +9,7 @@ import (
 // App struct
 type App struct {
 	ctx context.Context
+	LCU *lcu.Client
 }
 
 // NewApp creates a new App application struct
@@ -22,7 +24,7 @@ func (a *App) startup(ctx context.Context) {
 }
 
 // domReady is called after front-end resources have been loaded
-func (a App) domReady(ctx context.Context) {
+func (a *App) domReady(ctx context.Context) {
 	// Add your action here
 }
 
@@ -41,4 +43,18 @@ func (a *App) shutdown(ctx context.Context) {
 // Greet returns a greeting for the given name
 func (a *App) Greet(name string) string {
 	return fmt.Sprintf("Hello %s, It's show time!", name)
+}
+
+// GetLCUState returns the current state of the LCU
+func (a *App) GetLCUState() string {
+	if a.LCU != nil {
+		return a.LCU.UpdateState()
+	}
+
+	instance := lcu.TryToGetLCU()
+	if instance == nil {
+		return "NotLaunched"
+	}
+
+	return a.LCU.UpdateState()
 }

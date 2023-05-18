@@ -26,12 +26,10 @@ func main() {
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:             "geemo",
-		Width:             1024,
-		Height:            768,
-		MinWidth:          1024,
-		MinHeight:         768,
-		MaxWidth:          1280,
-		MaxHeight:         800,
+		Width:             1600,
+		Height:            900,
+		MinWidth:          1280,
+		MinHeight:         720,
 		DisableResize:     false,
 		Fullscreen:        false,
 		Frameless:         false,
@@ -81,9 +79,8 @@ func main() {
 			},
 		},
 		Linux: &linux.Options{
-			Icon:                icon,
-			WindowIsTranslucent: false,
-			WebviewGpuPolicy:    linux.WebviewGpuPolicyAlways,
+			Icon:             icon,
+			WebviewGpuPolicy: linux.WebviewGpuPolicyAlways,
 		},
 	})
 
