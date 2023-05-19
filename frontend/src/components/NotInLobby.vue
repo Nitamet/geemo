@@ -1,5 +1,5 @@
 <template>
-    <div class="league-state">
+    <div class="league-state row items-center justify-evenly">
         <q-img
             src="~assets/lol-icon.jpg"
             :class="[

@@ -6,6 +6,10 @@ export function GetLCUState() {
   return window['go']['main']['App']['GetLCUState']();
 }
 
+export function GetSummoner() {
+  return window['go']['main']['App']['GetSummoner']();
+}
+
 export function Greet(arg1) {
   return window['go']['main']['App']['Greet'](arg1);
 }

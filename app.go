@@ -56,5 +56,15 @@ func (a *App) GetLCUState() string {
 		return "NotLaunched"
 	}
 
+	a.LCU = instance
+
 	return a.LCU.UpdateState()
+}
+
+func (a *App) GetSummoner() lcu.Summoner {
+	if a.LCU == nil {
+		return lcu.Summoner{}
+	}
+
+	return a.LCU.CurrentSummoner()
 }
