@@ -65,7 +65,7 @@ func getPortFromArgs(args string) (int, bool) {
 }
 
 func getTokenFromArgs(args string) (string, bool) {
-	pattern := regexp.MustCompile("--remoting-auth-token=([a-zA-Z0-9-]+)")
+	pattern := regexp.MustCompile("--remoting-auth-token=([a-zA-Z0-9-_]+)")
 	tokenArg := pattern.FindStringSubmatch(args)
 
 	if len(tokenArg) < 2 {
@@ -81,10 +81,15 @@ func (c *Client) UpdateState() string {
 		return "NotLaunched"
 	}
 
+	/*_, ok := c.SelectedChampion()
+	if ok {
+		return "InLobby"
+	}*/
+
 	return "NotInLobby"
 }
 
-func (c *Client) get(path string) []byte {
+func (c *Client) get(path string) *http.Response {
 	req, err := http.NewRequest("GET", fmt.Sprintf("https://127.0.0.1:%d/%s", c.port, path), nil)
 	if err != nil {
 		log.Fatal(err)
@@ -101,12 +106,7 @@ func (c *Client) get(path string) []byte {
 		log.Fatalln(err)
 	}
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	return body
+	return resp
 }
 
 type Summoner struct {
@@ -117,11 +117,37 @@ type Summoner struct {
 func (c *Client) CurrentSummoner() Summoner {
 	var summoner Summoner
 
-	data := c.get("lol-summoner/v1/current-summoner")
-	err := json.Unmarshal(data, &summoner)
+	resp := c.get("lol-summoner/v1/current-summoner")
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	err = json.Unmarshal(body, &summoner)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	return summoner
+}
+
+func (c *Client) SelectedChampion() (int, bool) {
+	resp := c.get("lol-champ-select/v1/current-champion")
+
+	if resp.StatusCode != 200 {
+		return -1, false
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var championId int
+	err = json.Unmarshal(body, &championId)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	return championId, true
 }

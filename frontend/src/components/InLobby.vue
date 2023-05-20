@@ -8,14 +8,21 @@
                 </div>
             </div>
             <div class="main-container q-mt-lg row items-stretch">
-                <div class="champion-and-builds"></div>
                 <div class="build-info"></div>
+                <ChampionBuilds />
             </div>
         </div>
     </div>
 </template>
 
+<script setup lang="ts">
+import ChampionBuilds from 'components/Lobby/ChampionBuilds.vue';
+import SummonerInfo from 'components/Lobby/SummonerInfo.vue';
+</script>
+
 <style lang="scss">
+@import '../css/variables.scss';
+
 .lobby-info {
     width: 80%;
     max-width: 1600px;
@@ -25,15 +32,6 @@
 .main-container {
     min-height: 600px;
     width: 100%;
-    background-color: red;
-}
-
-.champion-and-builds {
-    width: 30%;
-    max-width: 300px;
-    background-color: green;
+    background-color: $build-info-background-color;
 }
 </style>
-<script setup lang="ts">
-import SummonerInfo from 'components/Lobby/SummonerInfo.vue';
-</script>

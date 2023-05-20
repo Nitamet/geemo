@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { GetLCUState } from 'app/wailsjs/go/main/App';
+import { delay } from 'src/util/misc';
 
 export enum LeagueState {
     NotLaunched = 'NotLaunched',
@@ -29,10 +30,7 @@ export const useApplicationStore = defineStore('application', {
     },
     actions: {
         async startCheckingLeagueState() {
-            async function delay(ms: number) {
-                return await new Promise((resolve) => setTimeout(resolve, ms));
-            }
-            await delay(2000);
+            await delay(1000);
             console.log('checking');
             const newState = await GetLCUState();
             this.leagueState =

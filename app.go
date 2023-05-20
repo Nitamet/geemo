@@ -68,3 +68,12 @@ func (a *App) GetSummoner() lcu.Summoner {
 
 	return a.LCU.CurrentSummoner()
 }
+
+func (a *App) GetCurrentChampion() int {
+	if a.LCU == nil {
+		return 0
+	}
+
+	championId, _ := a.LCU.SelectedChampion()
+	return championId
+}
