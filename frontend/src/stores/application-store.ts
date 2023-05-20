@@ -6,7 +6,7 @@ export enum LeagueState {
     NotLaunched = 'NotLaunched',
     NotInLobby = 'NotInLobby',
     InLobby = 'InLobby',
-    Playing = 'Playing',
+    //  Playing = 'Playing',
     Unknown = 'Unknown',
 }
 

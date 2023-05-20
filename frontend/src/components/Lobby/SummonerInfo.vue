@@ -11,9 +11,9 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue';
+import { onMounted, reactive } from 'vue';
 import { GetSummoner } from 'app/wailsjs/go/main/App';
-import { LeagueState, useApplicationStore } from 'stores/application-store';
+import { useApplicationStore } from 'stores/application-store';
 import { storeToRefs } from 'pinia';
 import { whenever } from '@vueuse/core';
 
@@ -22,14 +22,20 @@ const data = reactive({
     profileIconId: 0,
 });
 
+const updateSummoner = async () => {
+    const summoner = await GetSummoner();
+    if (!summoner) return;
+    data.displayName = summoner.displayName;
+    data.profileIconId = summoner.profileIconId;
+};
+
 const application = useApplicationStore();
 const { leagueState } = storeToRefs(application);
 whenever(leagueState, async () => {
-    if (leagueState.value === LeagueState.NotInLobby) {
-        const summoner = await GetSummoner();
-        if (!summoner) return;
-        data.displayName = summoner.displayName;
-        data.profileIconId = summoner.profileIconId;
-    }
+    await updateSummoner();
+});
+
+onMounted(async () => {
+    await updateSummoner();
 });
 </script>

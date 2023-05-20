@@ -81,10 +81,10 @@ func (c *Client) UpdateState() string {
 		return "NotLaunched"
 	}
 
-	/*_, ok := c.SelectedChampion()
+	ok := c.IsInLobby()
 	if ok {
 		return "InLobby"
-	}*/
+	}
 
 	return "NotInLobby"
 }
@@ -116,7 +116,7 @@ type Summoner struct {
 
 func (c *Client) CurrentSummoner() Summoner {
 	var summoner Summoner
-
+	println("Get current summoner")
 	resp := c.get("lol-summoner/v1/current-summoner")
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -127,8 +127,13 @@ func (c *Client) CurrentSummoner() Summoner {
 	if err != nil {
 		log.Fatalln(err)
 	}
-
+	println(fmt.Sprintf("Summoner: %v", summoner))
 	return summoner
+}
+
+func (c *Client) IsInLobby() bool {
+	resp := c.get("lol-lobby/v2/lobby")
+	return resp.StatusCode == 200
 }
 
 func (c *Client) SelectedChampion() (int, bool) {
