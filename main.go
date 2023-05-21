@@ -1,6 +1,7 @@
 package main
 
 import (
+	"changeme/internal/lolbuild"
 	"embed"
 	"github.com/wailsapp/wails/v2/pkg/options/linux"
 	"log"
@@ -22,6 +23,7 @@ var icon []byte
 func main() {
 	// Create an instance of the app structure
 	app := NewApp()
+	loader := &lolbuild.Loader{}
 
 	// Create application with options
 	err := wails.Run(&options.App{
@@ -49,6 +51,7 @@ func main() {
 		WindowStartState: options.Normal,
 		Bind: []interface{}{
 			app,
+			loader,
 		},
 		// Windows platform specific options
 		Windows: &windows.Options{
