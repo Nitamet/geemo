@@ -11,6 +11,7 @@ import (
 	"os/exec"
 	"regexp"
 	"strconv"
+	"time"
 )
 
 type Client struct {
@@ -35,7 +36,7 @@ func TryToGetLCU() *Client {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
-	httpClient := &http.Client{Transport: tr}
+	httpClient := &http.Client{Transport: tr, Timeout: 5 * time.Second}
 
 	return &Client{
 		port:  port,
