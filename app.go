@@ -77,3 +77,11 @@ func (a *App) GetCurrentChampion() int {
 	championId, _ := a.LCU.SelectedChampion()
 	return championId
 }
+
+func (a *App) ApplyRunes(runes lcu.RunePage) error {
+	if a.LCU == nil {
+		return fmt.Errorf("LCU not found")
+	}
+
+	return a.LCU.ApplyRunes(runes)
+}

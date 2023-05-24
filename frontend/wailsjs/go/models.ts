@@ -1,5 +1,25 @@
 export namespace lcu {
 	
+	export class RunePage {
+	    name: string;
+	    primaryStyleId: number;
+	    subStyleId: number;
+	    selectedPerkIds: number[];
+	    current: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new RunePage(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.primaryStyleId = source["primaryStyleId"];
+	        this.subStyleId = source["subStyleId"];
+	        this.selectedPerkIds = source["selectedPerkIds"];
+	        this.current = source["current"];
+	    }
+	}
 	export class Summoner {
 	    displayName: string;
 	    profileIconId: number;

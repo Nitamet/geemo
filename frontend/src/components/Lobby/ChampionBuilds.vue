@@ -16,6 +16,7 @@
                         v-for="build in buildCollection.runes"
                         :key="build.name"
                         :build="build"
+                        :champion-name="currentChampionName"
                     />
                 </div>
             </div>
