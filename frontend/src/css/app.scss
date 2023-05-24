@@ -3,6 +3,10 @@
     STYLES
 */
 
+* {
+    box-sizing: border-box;
+}
+
 body {
     background: linear-gradient(109deg, #243748 17%, #42658a 89%);
 }

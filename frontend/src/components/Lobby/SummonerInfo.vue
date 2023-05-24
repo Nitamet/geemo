@@ -6,7 +6,7 @@
                 alt="Summoner Icon"
             />
         </q-avatar>
-        <span class="text-h3">{{ data.displayName }}</span>
+        <span class="text-h5">{{ data.displayName }}</span>
     </div>
 </template>
 

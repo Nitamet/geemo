@@ -19,9 +19,70 @@ export namespace lcu {
 
 export namespace lolbuild {
 	
+	export class Item {
+	    id: number;
+	    name: string;
+	    slug: string;
+	    iconUrl: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Item(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.name = source["name"];
+	        this.slug = source["slug"];
+	        this.iconUrl = source["iconUrl"];
+	    }
+	}
+	export class Items {
+	    starting: Item[];
+	    core: Item[];
+	    mythic: Item;
+	    fourth: Item[];
+	    fifth: Item[];
+	    sixth: Item[];
+	
+	    static createFrom(source: any = {}) {
+	        return new Items(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.starting = this.convertValues(source["starting"], Item);
+	        this.core = this.convertValues(source["core"], Item);
+	        this.mythic = this.convertValues(source["mythic"], Item);
+	        this.fourth = this.convertValues(source["fourth"], Item);
+	        this.fifth = this.convertValues(source["fifth"], Item);
+	        this.sixth = this.convertValues(source["sixth"], Item);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class Rune {
 	    id: number;
 	    name: string;
+	    slug: string;
+	    iconUrl: string;
+	    path?: Rune;
 	
 	    static createFrom(source: any = {}) {
 	        return new Rune(source);
@@ -31,26 +92,9 @@ export namespace lolbuild {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.id = source["id"];
 	        this.name = source["name"];
-	    }
-	}
-	export class RuneData {
-	    name: string;
-	    winrate: string;
-	    primary: Rune;
-	    secondary: Rune;
-	    selectedPerks: Rune[];
-	
-	    static createFrom(source: any = {}) {
-	        return new RuneData(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.name = source["name"];
-	        this.winrate = source["winrate"];
-	        this.primary = this.convertValues(source["primary"], Rune);
-	        this.secondary = this.convertValues(source["secondary"], Rune);
-	        this.selectedPerks = this.convertValues(source["selectedPerks"], Rune);
+	        this.slug = source["slug"];
+	        this.iconUrl = source["iconUrl"];
+	        this.path = this.convertValues(source["path"], Rune);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -72,7 +116,13 @@ export namespace lolbuild {
 		}
 	}
 	export class Build {
-	    runes: RuneData[];
+	    name: string;
+	    winrate: string;
+	    matches: string;
+	    primary: Rune;
+	    secondary: Rune;
+	    selectedPerks: Rune[];
+	    items: Items;
 	
 	    static createFrom(source: any = {}) {
 	        return new Build(source);
@@ -80,7 +130,13 @@ export namespace lolbuild {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.runes = this.convertValues(source["runes"], RuneData);
+	        this.name = source["name"];
+	        this.winrate = source["winrate"];
+	        this.matches = source["matches"];
+	        this.primary = this.convertValues(source["primary"], Rune);
+	        this.secondary = this.convertValues(source["secondary"], Rune);
+	        this.selectedPerks = this.convertValues(source["selectedPerks"], Rune);
+	        this.items = this.convertValues(source["items"], Items);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -101,6 +157,39 @@ export namespace lolbuild {
 		    return a;
 		}
 	}
+	export class BuildCollection {
+	    runes: Build[];
+	    source: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new BuildCollection(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.runes = this.convertValues(source["runes"], Build);
+	        this.source = source["source"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	
 	
 
 }

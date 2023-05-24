@@ -4,6 +4,22 @@
             :champion-name="currentChampionName"
             :champion-icon-url="currentChampionIconUrl"
         />
+        <q-separator class="q-mt-md separator" />
+        <div class="sources q-mt-sm">
+            <div
+                v-for="buildCollection in builds"
+                :key="buildCollection.source"
+            >
+                <span class="text-subtitle2">{{ buildCollection.source }}</span>
+                <div class="builds q-gutter-y-md">
+                    <Build
+                        v-for="build in buildCollection.runes"
+                        :key="build.name"
+                        :build="build"
+                    />
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -16,8 +32,9 @@ import { whenever } from '@vueuse/core';
 import { LeagueState, useApplicationStore } from 'stores/application-store';
 import { storeToRefs } from 'pinia';
 import { lolbuild } from 'app/wailsjs/go/models';
-import Build = lolbuild.Build;
+import BuildCollection = lolbuild.BuildCollection;
 import { LoadBuilds } from 'app/wailsjs/go/lolbuild/Loader';
+import Build from 'components/Lobby/ChampionBuilds/Build.vue';
 
 let currentChampion = ref(-1);
 let currentChampionName = ref('Champion');
@@ -40,7 +57,7 @@ const startCheckingCurrentChampion = async () => {
 };
 startCheckingCurrentChampion();
 
-let builds: Ref<Build[] | null> = ref(null);
+let builds: Ref<BuildCollection[]> = ref([]);
 
 whenever(currentChampion, async () => {
     const resp = await fetch(
@@ -58,8 +75,14 @@ whenever(currentChampion, async () => {
 
 .champion-builds {
     width: 30%;
-    max-width: 300px;
+    max-width: 380px;
     background-color: $build-selection-background-color;
     border-right: 2px solid $divider-color;
+}
+
+.separator {
+    width: 100%;
+    height: 1px;
+    background-color: $divider-color;
 }
 </style>
