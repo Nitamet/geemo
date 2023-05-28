@@ -5,3 +5,7 @@
 export function LoadBuilds(arg1, arg2) {
   return window['go']['lolbuild']['Loader']['LoadBuilds'](arg1, arg2);
 }
+
+export function LoadRuneTree(arg1) {
+  return window['go']['lolbuild']['Loader']['LoadRuneTree'](arg1);
+}

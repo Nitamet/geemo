@@ -8,8 +8,14 @@
                 </div>
             </div>
             <div class="main-container q-mt-lg row items-stretch">
-                <div class="build-info"></div>
                 <ChampionBuilds />
+                <div class="build-info q-pa-lg">
+                    <span class="text-h5 text-weight-bold">RUNES</span>
+                    <div class="rune-trees row no-wrap q-mt-lg q-gutter-x-sm">
+                        <RuneTree />
+                        <RuneTree secondary />
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -18,10 +24,17 @@
 <script setup lang="ts">
 import ChampionBuilds from 'components/Lobby/ChampionBuilds.vue';
 import SummonerInfo from 'components/Lobby/SummonerInfo.vue';
+import RuneTree from 'components/Lobby/RuneCollection/RuneTree.vue';
 </script>
 
 <style lang="scss">
 @import '../css/variables.scss';
+
+.main-container {
+    min-height: 600px;
+    width: 100%;
+    background-color: $build-info-background-color;
+}
 
 .lobby-info {
     width: 80%;
@@ -29,9 +42,7 @@ import SummonerInfo from 'components/Lobby/SummonerInfo.vue';
     min-width: 1200px;
 }
 
-.main-container {
-    min-height: 600px;
-    width: 100%;
-    background-color: $build-info-background-color;
+.build-info {
+    flex: 1;
 }
 </style>

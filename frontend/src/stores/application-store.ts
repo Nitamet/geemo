@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia';
 import { GetLCUState } from 'app/wailsjs/go/main/App';
 import { delay } from 'src/util/misc';
+import { lolbuild } from 'app/wailsjs/go/models';
+import Build = lolbuild.Build;
 
 export enum LeagueState {
     NotLaunched = 'NotLaunched',
@@ -13,6 +15,7 @@ export enum LeagueState {
 export const useApplicationStore = defineStore('application', {
     state: () => ({
         leagueState: LeagueState.NotLaunched,
+        selectedBuild: null as Build | null,
     }),
     getters: {
         getLeagueStateMessage(): string {

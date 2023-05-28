@@ -1,7 +1,14 @@
 <template>
     <div
-        class="row q-gutter-x-sm items-center q-mt-lg"
-        @click="applyRunesToClient(props.build)"
+        :class="[
+            'build',
+            'row',
+            'q-gutter-x-sm',
+            'items-center',
+            'q-py-sm',
+            isSelected ? 'selected' : '',
+        ]"
+        @click="selectBuild(props.build)"
     >
         <q-avatar size="42px" rounded>
             <img :src="getCoreItem().iconUrl" :alt="getCoreItem().name" />
@@ -22,8 +29,17 @@ import { lolbuild } from 'app/wailsjs/go/models';
 
 import Build = lolbuild.Build;
 import { ApplyRunes } from 'app/wailsjs/go/main/App';
+import { useApplicationStore } from 'stores/application-store';
+import { storeToRefs } from 'pinia';
+import { ref } from 'vue';
+import { whenever } from '@vueuse/core';
 
 const props = defineProps<{ build: Build; championName: string }>();
+
+const application = useApplicationStore();
+const { selectedBuild } = storeToRefs(application);
+
+let isSelected = ref(false);
 
 const getCoreItem = () => {
     if ('' !== props.build.items.mythic.name) {
@@ -35,7 +51,9 @@ const getCoreItem = () => {
     return props.build.items.core[1];
 };
 
-const applyRunesToClient = (build: Build) => {
+const selectBuild = (build: Build) => {
+    isSelected.value = true;
+    selectedBuild.value = build;
     const selectedPerks = build.selectedPerks.map((perk) => perk.id);
 
     const runePage = {
@@ -46,6 +64,29 @@ const applyRunesToClient = (build: Build) => {
         current: true,
     };
 
-    ApplyRunes(runePage);
+    //ApplyRunes(runePage);
 };
+
+whenever(selectedBuild, () => {
+    if (selectedBuild.value !== props.build) {
+        isSelected.value = false;
+    }
+});
 </script>
+
+<style scoped lang="scss">
+@import '../../../css/variables.scss';
+
+.build {
+    border-radius: 4px;
+    transition: background-color 0.1s ease-in-out;
+}
+
+.build:hover {
+    cursor: pointer;
+}
+
+.selected {
+    background-color: $divider-color;
+}
+</style>

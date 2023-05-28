@@ -211,6 +211,43 @@ export namespace lolbuild {
 	}
 	
 	
+	
+	export class RuneTree {
+	    name: string;
+	    keystones: Rune[];
+	    perks: Rune[];
+	    iconUrl: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new RuneTree(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.keystones = this.convertValues(source["keystones"], Rune);
+	        this.perks = this.convertValues(source["perks"], Rune);
+	        this.iconUrl = source["iconUrl"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 
 }
 

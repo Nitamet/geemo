@@ -185,6 +185,7 @@ func (c *Client) IsInLobby() bool {
 }
 
 func (c *Client) SelectedChampion() (int, bool) {
+	return 24, true
 	resp, _ := c.get("lol-champ-select/v1/current-champion")
 
 	if resp.StatusCode != 200 {

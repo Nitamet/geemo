@@ -3,3 +3,5 @@
 import {lolbuild} from '../models';
 
 export function LoadBuilds(arg1:string,arg2:Array<string>):Promise<Array<lolbuild.BuildCollection>>;
+
+export function LoadRuneTree(arg1:string):Promise<lolbuild.RuneTree>;
