@@ -28,21 +28,27 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    isStatMod: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const application = useApplicationStore();
 const { selectedBuild } = storeToRefs(application);
 
-const size = props.isKeystone ? '96px' : '64px';
+let size = '64px';
+if (props.isKeystone) {
+    size = '96px';
+} else if (props.isStatMod) {
+    size = '32px';
+}
+
 const findPerk = () => {
     if (selectedBuild.value) {
-        console.log(
-            selectedBuild.value.selectedPerks.find(
-                (perk) => perk.id === props.id
-            )
-        );
+        console.log(selectedBuild.value.selectedPerks);
         return selectedBuild.value.selectedPerks.find(
-            (perk) => perk.id === props.id
+            (perk) => perk.id == props.id
         );
     }
 
