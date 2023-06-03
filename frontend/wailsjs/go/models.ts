@@ -97,6 +97,22 @@ export namespace lolbuild {
 		    return a;
 		}
 	}
+	export class SummonerSpell {
+	    id: number;
+	    iconUrl: string;
+	    name: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new SummonerSpell(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.iconUrl = source["iconUrl"];
+	        this.name = source["name"];
+	    }
+	}
 	export class Rune {
 	    id: number;
 	    name: string;
@@ -142,6 +158,7 @@ export namespace lolbuild {
 	    primary: Rune;
 	    secondary: Rune;
 	    selectedPerks: Rune[];
+	    summonerSpells: SummonerSpell[];
 	    items: Items;
 	
 	    static createFrom(source: any = {}) {
@@ -156,6 +173,7 @@ export namespace lolbuild {
 	        this.primary = this.convertValues(source["primary"], Rune);
 	        this.secondary = this.convertValues(source["secondary"], Rune);
 	        this.selectedPerks = this.convertValues(source["selectedPerks"], Rune);
+	        this.summonerSpells = this.convertValues(source["summonerSpells"], SummonerSpell);
 	        this.items = this.convertValues(source["items"], Items);
 	    }
 	

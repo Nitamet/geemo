@@ -1,5 +1,5 @@
 <template>
-    <div class="keystones row justify-between">
+    <div class="keystones row justify-between no-wrap">
         <Rune
             v-for="keystone in props.keystones"
             :id="keystone.id"

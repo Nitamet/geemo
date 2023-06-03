@@ -42,13 +42,20 @@ const tree: Ref<RuneTreeData | null> = ref(null);
 
 const application = useApplicationStore();
 const { selectedBuild } = storeToRefs(application);
-whenever(selectedBuild, async () => {
+
+const loadTree = async () => {
     if (selectedBuild.value) {
         const name = props.secondary
             ? selectedBuild.value.secondary.name
             : selectedBuild.value.primary.name;
         tree.value = await LoadRuneTree(name);
     }
+};
+
+loadTree();
+
+whenever(selectedBuild, async () => {
+    await loadTree();
 });
 </script>
 

@@ -31,7 +31,7 @@ import BuildInfo from 'components/Lobby/BuildInfo.vue';
 }
 
 .lobby-info {
-    width: 80%;
+    width: 95%;
     max-width: 1600px;
     min-width: 1200px;
 }

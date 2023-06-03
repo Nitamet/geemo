@@ -28,20 +28,14 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
-    isStatMod: {
-        type: Boolean,
-        default: false,
-    },
 });
 
 const application = useApplicationStore();
 const { selectedBuild } = storeToRefs(application);
 
-let size = '64px';
+let size = '54px';
 if (props.isKeystone) {
-    size = '96px';
-} else if (props.isStatMod) {
-    size = '32px';
+    size = '84px';
 }
 
 const findPerk = () => {

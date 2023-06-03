@@ -24,7 +24,7 @@ const props = defineProps<{ perks: RuneData[] }>();
     width: 80%;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 22px 0;
+    gap: 22px 6px;
     justify-items: center;
 }
 </style>

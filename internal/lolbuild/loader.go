@@ -52,6 +52,11 @@ type Rune struct {
 	IconUrl string `json:"iconUrl"`
 	Path    *Rune  `json:"path"`
 }
+type SummonerSpell struct {
+	ID      int    `json:"id"`
+	IconUrl string `json:"iconUrl"`
+	Name    string `json:"name"`
+}
 type Item struct {
 	ID      int    `json:"id"`
 	Name    string `json:"name"`
@@ -68,13 +73,14 @@ type Items struct {
 }
 
 type Build struct {
-	Name          string `json:"name"`
-	Winrate       string `json:"winrate"`
-	Matches       string `json:"matches"`
-	Primary       Rune   `json:"primary"`
-	Secondary     Rune   `json:"secondary"`
-	SelectedPerks []Rune `json:"selectedPerks"`
-	Items         Items  `json:"items"`
+	Name           string          `json:"name"`
+	Winrate        string          `json:"winrate"`
+	Matches        string          `json:"matches"`
+	Primary        Rune            `json:"primary"`
+	Secondary      Rune            `json:"secondary"`
+	SelectedPerks  []Rune          `json:"selectedPerks"`
+	SummonerSpells []SummonerSpell `json:"summonerSpells"`
+	Items          Items           `json:"items"`
 }
 
 type BuildCollection struct {

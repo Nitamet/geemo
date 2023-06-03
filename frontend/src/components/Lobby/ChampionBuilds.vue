@@ -76,14 +76,8 @@ whenever(currentChampion, async () => {
 
 .champion-builds {
     width: 30%;
-    max-width: 380px;
+    max-width: 340px;
     background-color: $build-selection-background-color;
     border-right: 2px solid $divider-color;
-}
-
-.separator {
-    width: 100%;
-    height: 1px;
-    background-color: $divider-color;
 }
 </style>
