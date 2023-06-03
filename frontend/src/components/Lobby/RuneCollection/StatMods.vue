@@ -1,55 +1,55 @@
 <template>
     <div class="stat-mod-grid self-center q-mt-lg">
-        <Rune
-            is-stat-mod
+        <StatMod
+            row="1"
             id="5008"
             name="Adaptive Force"
             icon-url="https://ddragon.leagueoflegends.com/cdn/img/perk-images/StatMods/StatModsAdaptiveForceIcon.png"
         />
-        <Rune
-            is-stat-mod
+        <StatMod
+            row="1"
             id="5005"
             name="Attack Speed"
             icon-url="https://ddragon.leagueoflegends.com/cdn/img/perk-images/StatMods/StatModsAttackSpeedIcon.png"
         />
-        <Rune
-            is-stat-mod
+        <StatMod
+            row="1"
             id="5007"
             name="Ability Haste"
             icon-url="https://ddragon.leagueoflegends.com/cdn/img/perk-images/StatMods/StatModsCDRScalingIcon.png"
         />
-        <Rune
-            is-stat-mod
+        <StatMod
+            row="2"
             id="5008"
             name="Adaptive Force"
             icon-url="https://ddragon.leagueoflegends.com/cdn/img/perk-images/StatMods/StatModsAdaptiveForceIcon.png"
         />
-        <Rune
-            is-stat-mod
+        <StatMod
+            row="2"
             id="5002"
             name="Armor"
             icon-url="https://ddragon.leagueoflegends.com/cdn/img/perk-images/StatMods/StatModsArmorIcon.png"
         />
-        <Rune
-            is-stat-mod
+        <StatMod
+            row="2"
             id="5003"
             name="Magic Resist"
             icon-url="https://ddragon.leagueoflegends.com/cdn/img/perk-images/StatMods/StatModsMagicResIcon.png"
         />
-        <Rune
-            is-stat-mod
+        <StatMod
+            row="3"
             id="5001"
             name="Health"
             icon-url="https://ddragon.leagueoflegends.com/cdn/img/perk-images/StatMods/StatModsHealthScalingIcon.png"
         />
-        <Rune
-            is-stat-mod
+        <StatMod
+            row="3"
             id="5002"
             name="Armor"
             icon-url="https://ddragon.leagueoflegends.com/cdn/img/perk-images/StatMods/StatModsArmorIcon.png"
         />
-        <Rune
-            is-stat-mod
+        <StatMod
+            row="3"
             id="5003"
             name="Magic Resist"
             icon-url="https://ddragon.leagueoflegends.com/cdn/img/perk-images/StatMods/StatModsMagicResIcon.png"
@@ -58,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import Rune from 'components/Lobby/RuneCollection/Rune.vue';
+import StatMod from 'components/Lobby/RuneCollection/StatMod.vue';
 </script>
 
 <style lang="scss">
