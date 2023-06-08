@@ -85,3 +85,11 @@ func (a *App) ApplyRunes(runes lcu.RunePage) error {
 
 	return a.LCU.ApplyRunes(runes)
 }
+
+func (a *App) ApplySummonerSpells(firstSpellId int, secondSpellId int) error {
+	if a.LCU == nil {
+		return fmt.Errorf("LCU not found")
+	}
+
+	return a.LCU.ApplySummonerSpells(firstSpellId, secondSpellId)
+}

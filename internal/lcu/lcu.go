@@ -132,6 +132,26 @@ func (c *Client) post(path string, body io.Reader) (*http.Response, error) {
 	return resp, nil
 }
 
+func (c *Client) patch(path string, body io.Reader) (*http.Response, error) {
+	req, err := http.NewRequest("PATCH", fmt.Sprintf("https://127.0.0.1:%d/%s", c.port, path), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header = http.Header{
+		"Accept":        {"*/*"},
+		"Content-Type":  {"application/json"},
+		"Authorization": {fmt.Sprintf("Basic %s", base64.StdEncoding.EncodeToString([]byte("riot:"+c.token)))},
+	}
+
+	resp, err := c.http.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
+}
+
 func (c *Client) delete(path string) (*http.Response, error) {
 	req, err := http.NewRequest("DELETE", fmt.Sprintf("https://127.0.0.1:%d/%s", c.port, path), nil)
 	if err != nil {
@@ -204,6 +224,28 @@ func (c *Client) SelectedChampion() (int, bool) {
 	}
 
 	return championId, true
+}
+
+func (c *Client) ApplySummonerSpells(firstSpellId int, secondSpellId int) error {
+	spellsJson := struct {
+		Spell1Id int `json:"spell1Id"`
+		Spell2Id int `json:"spell2Id"`
+	}{
+		Spell1Id: firstSpellId,
+		Spell2Id: secondSpellId,
+	}
+
+	encodedSpells, _ := json.Marshal(spellsJson)
+	resp, err := c.patch("lol-champ-select/v1/session/my-selection", bytes.NewBuffer(encodedSpells))
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode != 200 {
+		return errors.New("error applying summoner spells")
+	}
+
+	return nil
 }
 
 type RunePage struct {

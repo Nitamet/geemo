@@ -6,6 +6,10 @@ export function ApplyRunes(arg1) {
   return window['go']['main']['App']['ApplyRunes'](arg1);
 }
 
+export function ApplySummonerSpells(arg1, arg2) {
+  return window['go']['main']['App']['ApplySummonerSpells'](arg1, arg2);
+}
+
 export function GetCurrentChampion() {
   return window['go']['main']['App']['GetCurrentChampion']();
 }

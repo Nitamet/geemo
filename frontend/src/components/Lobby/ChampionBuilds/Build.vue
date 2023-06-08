@@ -28,7 +28,7 @@
 import { lolbuild } from 'app/wailsjs/go/models';
 
 import Build = lolbuild.Build;
-import { ApplyRunes } from 'app/wailsjs/go/main/App';
+import { ApplyRunes, ApplySummonerSpells } from 'app/wailsjs/go/main/App';
 import { useApplicationStore } from 'stores/application-store';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
@@ -64,7 +64,17 @@ const selectBuild = (build: Build) => {
         current: true,
     };
 
-    //ApplyRunes(runePage);
+    ApplyRunes(runePage);
+
+    const summonerSpells = {
+        firstSpellId: build.summonerSpells.at(0)?.id ?? 0,
+        secondSpellId: build.summonerSpells.at(1)?.id ?? 0,
+    };
+
+    ApplySummonerSpells(
+        summonerSpells.firstSpellId,
+        summonerSpells.secondSpellId
+    );
 };
 
 whenever(selectedBuild, () => {

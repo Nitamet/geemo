@@ -4,6 +4,8 @@ import {lcu} from '../models';
 
 export function ApplyRunes(arg1:lcu.RunePage):Promise<void>;
 
+export function ApplySummonerSpells(arg1:number,arg2:number):Promise<void>;
+
 export function GetCurrentChampion():Promise<number>;
 
 export function GetLCUState():Promise<string>;
