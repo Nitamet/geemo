@@ -93,3 +93,11 @@ func (a *App) ApplySummonerSpells(firstSpellId int, secondSpellId int) error {
 
 	return a.LCU.ApplySummonerSpells(firstSpellId, secondSpellId)
 }
+
+func (a *App) ApplyItemSet(itemSet lcu.ItemSet) error {
+	if a.LCU == nil {
+		return fmt.Errorf("LCU not found")
+	}
+
+	return a.LCU.ApplyItemSet(itemSet)
+}

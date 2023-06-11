@@ -132,6 +132,26 @@ func (c *Client) post(path string, body io.Reader) (*http.Response, error) {
 	return resp, nil
 }
 
+func (c *Client) put(path string, body io.Reader) (*http.Response, error) {
+	req, err := http.NewRequest("PUT", fmt.Sprintf("https://127.0.0.1:%d/%s", c.port, path), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header = http.Header{
+		"Accept":        {"*/*"},
+		"Content-Type":  {"application/json"},
+		"Authorization": {fmt.Sprintf("Basic %s", base64.StdEncoding.EncodeToString([]byte("riot:"+c.token)))},
+	}
+
+	resp, err := c.http.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
+}
+
 func (c *Client) patch(path string, body io.Reader) (*http.Response, error) {
 	req, err := http.NewRequest("PATCH", fmt.Sprintf("https://127.0.0.1:%d/%s", c.port, path), body)
 	if err != nil {
@@ -173,8 +193,10 @@ func (c *Client) delete(path string) (*http.Response, error) {
 }
 
 type Summoner struct {
+	AccountId     int64  `json:"accountId"`
 	Name          string `json:"displayName"`
 	ProfileIconId int    `json:"profileIconId"`
+	SummonerId    int64  `json:"summonerId"`
 }
 
 func (c *Client) CurrentSummoner() Summoner {
@@ -195,7 +217,6 @@ func (c *Client) CurrentSummoner() Summoner {
 }
 
 func (c *Client) IsInLobby() bool {
-	return true
 	resp, err := c.get("lol-lobby/v2/lobby")
 	if err != nil {
 		return false
@@ -205,7 +226,6 @@ func (c *Client) IsInLobby() bool {
 }
 
 func (c *Client) SelectedChampion() (int, bool) {
-	return 24, true
 	resp, _ := c.get("lol-champ-select/v1/current-champion")
 
 	if resp.StatusCode != 200 {
@@ -244,6 +264,54 @@ func (c *Client) ApplySummonerSpells(firstSpellId int, secondSpellId int) error 
 	if resp.StatusCode != 200 {
 		return errors.New("error applying summoner spells")
 	}
+
+	return nil
+}
+
+type Item struct {
+	Count int    `json:"count"`
+	Id    string `json:"id"`
+}
+type ItemBlock struct {
+	Items []Item `json:"items"`
+	Type  string `json:"type"`
+}
+type ItemSet struct {
+	AssociatedChampions []int       `json:"associatedChampions"`
+	AssociatedMaps      []int       `json:"associatedMaps"`
+	Blocks              []ItemBlock `json:"blocks"`
+	Title               string      `json:"title"`
+}
+type ItemSets struct {
+	AccountId int64     `json:"accountId"`
+	ItemSets  []ItemSet `json:"itemSets"`
+	Timestamp int64     `json:"timestamp"`
+}
+
+func (c *Client) ApplyItemSet(itemSet ItemSet) error {
+	println("Apply item set")
+
+	currentSummoner := c.CurrentSummoner()
+
+	itemSets := ItemSets{
+		AccountId: currentSummoner.AccountId,
+		ItemSets:  []ItemSet{itemSet},
+		Timestamp: time.Now().Unix(),
+	}
+
+	encodedItemSets, _ := json.Marshal(itemSets)
+	println(fmt.Sprintf("Encoded item sets: %s", encodedItemSets))
+	resp, err := c.put(fmt.Sprintf("lol-item-sets/v1/item-sets/%d/sets", c.CurrentSummoner().SummonerId), bytes.NewBuffer(encodedItemSets))
+	if err != nil {
+		println(err.Error())
+		return err
+	}
+
+	if resp.StatusCode != 201 {
+		return errors.New("could not apply item set")
+	}
+
+	println("Applied item set")
 
 	return nil
 }

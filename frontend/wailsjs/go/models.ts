@@ -1,5 +1,87 @@
 export namespace lcu {
 	
+	export class Item {
+	    count: number;
+	    id: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Item(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.count = source["count"];
+	        this.id = source["id"];
+	    }
+	}
+	export class ItemBlock {
+	    items: Item[];
+	    type: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new ItemBlock(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.items = this.convertValues(source["items"], Item);
+	        this.type = source["type"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class ItemSet {
+	    associatedChampions: number[];
+	    associatedMaps: number[];
+	    blocks: ItemBlock[];
+	    title: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new ItemSet(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.associatedChampions = source["associatedChampions"];
+	        this.associatedMaps = source["associatedMaps"];
+	        this.blocks = this.convertValues(source["blocks"], ItemBlock);
+	        this.title = source["title"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class RunePage {
 	    name: string;
 	    primaryStyleId: number;
@@ -21,8 +103,10 @@ export namespace lcu {
 	    }
 	}
 	export class Summoner {
+	    accountId: number;
 	    displayName: string;
 	    profileIconId: number;
+	    summonerId: number;
 	
 	    static createFrom(source: any = {}) {
 	        return new Summoner(source);
@@ -30,8 +114,10 @@ export namespace lcu {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.accountId = source["accountId"];
 	        this.displayName = source["displayName"];
 	        this.profileIconId = source["profileIconId"];
+	        this.summonerId = source["summonerId"];
 	    }
 	}
 

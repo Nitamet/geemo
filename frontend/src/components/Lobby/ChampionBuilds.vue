@@ -17,6 +17,7 @@
                         :key="build.name"
                         :build="build"
                         :champion-name="currentChampionName"
+                        :source="buildCollection.source"
                     />
                 </div>
             </div>
