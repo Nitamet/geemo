@@ -92,8 +92,8 @@ func (c *Client) UpdateState() string {
 	return "NotInLobby"
 }
 
-func (c *Client) get(path string) (*http.Response, error) {
-	req, err := http.NewRequest("GET", fmt.Sprintf("https://127.0.0.1:%d/%s", c.port, path), nil)
+func (c *Client) request(method, path string, body io.Reader) (*http.Response, error) {
+	req, err := http.NewRequest(method, fmt.Sprintf("https://127.0.0.1:%d/%s", c.port, path), body)
 	if err != nil {
 		return nil, err
 	}
@@ -110,86 +110,26 @@ func (c *Client) get(path string) (*http.Response, error) {
 	}
 
 	return resp, nil
+}
+
+func (c *Client) get(path string) (*http.Response, error) {
+	return c.request("GET", path, nil)
 }
 
 func (c *Client) post(path string, body io.Reader) (*http.Response, error) {
-	req, err := http.NewRequest("POST", fmt.Sprintf("https://127.0.0.1:%d/%s", c.port, path), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header = http.Header{
-		"Accept":        {"*/*"},
-		"Content-Type":  {"application/json"},
-		"Authorization": {fmt.Sprintf("Basic %s", base64.StdEncoding.EncodeToString([]byte("riot:"+c.token)))},
-	}
-
-	resp, err := c.http.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
-	return resp, nil
+	return c.request("POST", path, body)
 }
 
 func (c *Client) put(path string, body io.Reader) (*http.Response, error) {
-	req, err := http.NewRequest("PUT", fmt.Sprintf("https://127.0.0.1:%d/%s", c.port, path), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header = http.Header{
-		"Accept":        {"*/*"},
-		"Content-Type":  {"application/json"},
-		"Authorization": {fmt.Sprintf("Basic %s", base64.StdEncoding.EncodeToString([]byte("riot:"+c.token)))},
-	}
-
-	resp, err := c.http.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
-	return resp, nil
+	return c.request("PUT", path, body)
 }
 
 func (c *Client) patch(path string, body io.Reader) (*http.Response, error) {
-	req, err := http.NewRequest("PATCH", fmt.Sprintf("https://127.0.0.1:%d/%s", c.port, path), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header = http.Header{
-		"Accept":        {"*/*"},
-		"Content-Type":  {"application/json"},
-		"Authorization": {fmt.Sprintf("Basic %s", base64.StdEncoding.EncodeToString([]byte("riot:"+c.token)))},
-	}
-
-	resp, err := c.http.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
-	return resp, nil
+	return c.request("PATCH", path, body)
 }
 
 func (c *Client) delete(path string) (*http.Response, error) {
-	req, err := http.NewRequest("DELETE", fmt.Sprintf("https://127.0.0.1:%d/%s", c.port, path), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header = http.Header{
-		"Accept":        {"*/*"},
-		"Content-Type":  {"application/json"},
-		"Authorization": {fmt.Sprintf("Basic %s", base64.StdEncoding.EncodeToString([]byte("riot:"+c.token)))},
-	}
-
-	resp, err := c.http.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
-	return resp, nil
+	return c.request("DELETE", path, nil)
 }
 
 type Summoner struct {
