@@ -34,9 +34,9 @@ import { whenever } from '@vueuse/core';
 import { LeagueState, useApplicationStore } from 'stores/application-store';
 import { storeToRefs } from 'pinia';
 import { lolbuild } from 'app/wailsjs/go/models';
-import BuildCollection = lolbuild.BuildCollection;
 import { LoadBuilds } from 'app/wailsjs/go/lolbuild/Loader';
 import Build from 'components/Lobby/ChampionBuilds/Build.vue';
+import BuildCollection = lolbuild.BuildCollection;
 
 let currentChampion = ref(-1);
 let currentChampionName = ref('Champion');
@@ -45,7 +45,7 @@ const currentChampionIconUrl = computed(() => {
 });
 
 const application = useApplicationStore();
-const { leagueState } = storeToRefs(application);
+const { leagueState, selectedBuild } = storeToRefs(application);
 const startCheckingCurrentChampion = async () => {
     await delay(3000);
     const champion = await GetCurrentChampion();
@@ -69,6 +69,13 @@ whenever(currentChampion, async () => {
     currentChampionName.value = json.name;
 
     builds.value = await LoadBuilds(currentChampionName.value, ['ugg']);
+});
+
+whenever(leagueState, () => {
+    // Clear the selected build when the game starts or the lobby is closed
+    if (leagueState.value !== LeagueState.InLobby) {
+        selectedBuild.value = null;
+    }
 });
 </script>
 
