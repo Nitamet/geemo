@@ -1,9 +1,16 @@
 <template>
     <div class="champion-builds q-pa-lg">
-        <Champion
-            :champion-name="currentChampionName"
-            :champion-icon-url="currentChampionIconUrl"
-        />
+        <div class="row items-center justify-between">
+            <Champion
+                :champion-name="currentChampionName"
+                :champion-icon-url="currentChampionIconUrl"
+            />
+            <div>
+                <RolePicker
+                    @roleChanged="(newRole) => (selectedRole = newRole)"
+                />
+            </div>
+        </div>
         <q-separator class="q-mt-md separator" />
         <div class="sources q-mt-sm">
             <div
@@ -13,7 +20,7 @@
                 <span class="text-subtitle2">{{ buildCollection.source }}</span>
                 <div class="builds q-gutter-y-md">
                     <Build
-                        v-for="build in buildCollection.runes"
+                        v-for="build in buildCollection.builds"
                         :key="build.name"
                         :build="build"
                         :champion-name="currentChampionName"
@@ -36,12 +43,33 @@ import { storeToRefs } from 'pinia';
 import { lolbuild } from 'app/wailsjs/go/models';
 import { LoadBuilds } from 'app/wailsjs/go/lolbuild/Loader';
 import Build from 'components/Lobby/ChampionBuilds/Build.vue';
+import { Roles } from 'components/models';
 import BuildCollection = lolbuild.BuildCollection;
+import RolePicker from 'components/RolePicker.vue';
+
+const loadNewBuild = async () => {
+    const resp = await fetch(
+        `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champions/${currentChampion.value}.json`
+    );
+    const json: { name: string } = await resp.json();
+    currentChampionName.value = json.name;
+
+    builds.value = await LoadBuilds(
+        currentChampionName.value,
+        ['ugg'],
+        selectedRole.value
+    );
+};
 
 let currentChampion = ref(-1);
 let currentChampionName = ref('Champion');
 const currentChampionIconUrl = computed(() => {
     return `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/${currentChampion.value}.png`;
+});
+
+let selectedRole = ref<Roles>(Roles.Mid);
+whenever(selectedRole, async () => {
+    await loadNewBuild();
 });
 
 const application = useApplicationStore();
@@ -62,13 +90,7 @@ startCheckingCurrentChampion();
 let builds: Ref<BuildCollection[]> = ref([]);
 
 whenever(currentChampion, async () => {
-    const resp = await fetch(
-        `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champions/${currentChampion.value}.json`
-    );
-    const json: { name: string } = await resp.json();
-    currentChampionName.value = json.name;
-
-    builds.value = await LoadBuilds(currentChampionName.value, ['ugg']);
+    await loadNewBuild();
 });
 
 whenever(leagueState, () => {
@@ -87,5 +109,17 @@ whenever(leagueState, () => {
     max-width: 340px;
     background-color: $build-selection-background-color;
     border-right: 2px solid $divider-color;
+}
+
+.role-picker img {
+    filter: brightness(0) invert(1);
+}
+
+.role-picker-menu {
+    background: #162430;
+}
+
+.role-picker-menu img {
+    filter: brightness(0) invert(1);
 }
 </style>

@@ -282,7 +282,7 @@ export namespace lolbuild {
 		}
 	}
 	export class BuildCollection {
-	    runes: Build[];
+	    builds: Build[];
 	    source: string;
 	
 	    static createFrom(source: any = {}) {
@@ -291,7 +291,7 @@ export namespace lolbuild {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.runes = this.convertValues(source["runes"], Build);
+	        this.builds = this.convertValues(source["builds"], Build);
 	        this.source = source["source"];
 	    }
 	

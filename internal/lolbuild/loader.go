@@ -84,7 +84,7 @@ type Build struct {
 }
 
 type BuildCollection struct {
-	Builds []Build `json:"runes"`
+	Builds []Build `json:"builds"`
 	Source string  `json:"source"`
 }
 
@@ -122,7 +122,7 @@ func (l *Loader) LoadRuneTree(name string) RuneTree {
 	return RuneTree{}
 }
 
-func (l *Loader) LoadBuilds(championName string, sources []string) []BuildCollection {
+func (l *Loader) LoadBuilds(championName string, sources []string, role string) []BuildCollection {
 	var wg sync.WaitGroup
 	builds := make([]BuildCollection, 0)
 
@@ -132,7 +132,7 @@ func (l *Loader) LoadBuilds(championName string, sources []string) []BuildCollec
 
 	for _, source := range sources {
 		go func(source string) {
-			results <- *l.loadBuild(championName, source)
+			results <- *l.loadBuild(championName, source, role)
 		}(source)
 	}
 
@@ -148,24 +148,25 @@ func (l *Loader) LoadBuilds(championName string, sources []string) []BuildCollec
 	return builds
 }
 
-func (l *Loader) loadBuild(championName string, source string) *BuildCollection {
-	resp, err := http.Get(fmt.Sprintf("%s/%s/%s.json", buildCollectionsHost, source, l.clearChampionName(championName)))
+func (l *Loader) loadBuild(championName string, source string, role string) *BuildCollection {
+	println(fmt.Sprintf("%s/%s/%s/%s.json", buildCollectionsHost, source, role, l.clearChampionName(championName)))
+	resp, err := http.Get(fmt.Sprintf("%s/%s/%s/%s.json", buildCollectionsHost, source, role, l.clearChampionName(championName)))
 	if err != nil {
 		println(err.Error())
 		return nil
 	}
 
-	var build BuildCollection
-	err = json.NewDecoder(resp.Body).Decode(&build)
+	var buildCollection BuildCollection
+	err = json.NewDecoder(resp.Body).Decode(&buildCollection)
 
 	if err != nil {
 		println(err.Error())
 		return nil
 	}
 
-	build.Source = l.getSourceName(source)
+	buildCollection.Source = l.getSourceName(source)
 
-	return &build
+	return &buildCollection
 }
 
 func (l *Loader) clearChampionName(championName string) string {
