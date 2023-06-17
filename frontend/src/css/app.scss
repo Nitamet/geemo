@@ -1,4 +1,5 @@
 @import "variables";
+@import "quasar.variables";
 
 // app global css in SCSS form
 /*
@@ -27,6 +28,10 @@ body {
     width: 100%;
     height: 1px;
     background-color: $divider-color;
+}
+
+.secondary {
+    background-color: $secondary;
 }
 
 /*

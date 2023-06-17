@@ -4,7 +4,11 @@
         :src="props.iconUrl"
         :width="size"
         :height="size"
-    />
+    >
+        <q-tooltip class="secondary text-body2" :offset="[10, 10]">
+            {{ props.name }}
+        </q-tooltip>
+    </q-img>
 </template>
 
 <script setup lang="ts">
