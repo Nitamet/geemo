@@ -40,7 +40,6 @@ if (props.isKeystone) {
 
 const findPerk = () => {
     if (selectedBuild.value) {
-        console.log(selectedBuild.value.selectedPerks);
         return selectedBuild.value.selectedPerks.find(
             (perk) => perk.id == props.id
         );

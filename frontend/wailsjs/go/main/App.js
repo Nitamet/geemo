@@ -18,6 +18,10 @@ export function GetCurrentChampion() {
   return window['go']['main']['App']['GetCurrentChampion']();
 }
 
+export function GetGameMode() {
+  return window['go']['main']['App']['GetGameMode']();
+}
+
 export function GetLCUState() {
   return window['go']['main']['App']['GetLCUState']();
 }

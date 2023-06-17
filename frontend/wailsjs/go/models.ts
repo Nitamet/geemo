@@ -239,7 +239,7 @@ export namespace lolbuild {
 	}
 	export class Build {
 	    name: string;
-	    winrate: string;
+	    winrate: number;
 	    matches: string;
 	    primary: Rune;
 	    secondary: Rune;

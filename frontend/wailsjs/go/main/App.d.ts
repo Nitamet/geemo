@@ -10,6 +10,8 @@ export function ApplySummonerSpells(arg1:number,arg2:number):Promise<void>;
 
 export function GetCurrentChampion():Promise<number>;
 
+export function GetGameMode():Promise<Array<string>>;
+
 export function GetLCUState():Promise<string>;
 
 export function GetSummoner():Promise<lcu.Summoner>;

@@ -16,6 +16,19 @@ import (
 	"time"
 )
 
+const (
+	gameModeNone    = "NONE"
+	gameModeAram    = "ARAM"
+	gameModeClassic = "CLASSIC"
+)
+
+const (
+	blindPickStrategy = "SimulPickStrategy"
+	draftPickStrategy = "DraftModeSinglePickStrategy"
+	blindPickName     = "Blind Pick"
+	draftPickName     = "Draft Pick"
+)
+
 type Client struct {
 	port  int
 	token string
@@ -165,7 +178,43 @@ func (c *Client) IsInLobby() bool {
 	return resp.StatusCode == 200
 }
 
+func (c *Client) GetCurrentGameMode() (string, string) {
+	resp, err := c.get("lol-lobby/v2/lobby")
+	if err != nil {
+		return gameModeNone, gameModeNone
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var lobbyInfo struct {
+		GameConfig struct {
+			GameMode string `json:"gameMode"`
+			PickType string `json:"pickType"`
+		} `json:"gameConfig"`
+	}
+
+	err = json.Unmarshal(body, &lobbyInfo)
+
+	if lobbyInfo.GameConfig.GameMode == gameModeClassic {
+		pickStrategy := ""
+		switch lobbyInfo.GameConfig.PickType {
+		case blindPickStrategy:
+			pickStrategy = blindPickName
+		case draftPickStrategy:
+			pickStrategy = draftPickName
+		}
+
+		return lobbyInfo.GameConfig.GameMode, fmt.Sprintf("%s (%s)", "Normal", pickStrategy)
+	}
+
+	return lobbyInfo.GameConfig.GameMode, lobbyInfo.GameConfig.GameMode
+}
+
 func (c *Client) SelectedChampion() (int, bool) {
+	return 266, true
 	resp, _ := c.get("lol-champ-select/v1/current-champion")
 
 	if resp.StatusCode != 200 {

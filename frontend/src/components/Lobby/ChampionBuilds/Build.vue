@@ -6,9 +6,11 @@
             'q-gutter-x-sm',
             'items-center',
             'q-py-sm',
-            isSelected ? 'selected' : '',
+            props.isSelected ? 'selected' : '',
         ]"
-        @click="selectBuild(props.build)"
+        @click="
+            emit('buildClicked', { build: props.build, source: props.source })
+        "
     >
         <q-avatar size="42px" rounded>
             <img :src="getCoreItem().iconUrl" :alt="getCoreItem().name" />
@@ -25,30 +27,21 @@
 </template>
 
 <script setup lang="ts">
-import { lcu, lolbuild } from 'app/wailsjs/go/models';
-
+import { lolbuild } from 'app/wailsjs/go/models';
 import Build = lolbuild.Build;
-import {
-    ApplyRunes,
-    ApplySummonerSpells,
-    ApplyItemSet,
-} from 'app/wailsjs/go/main/App';
-import { useApplicationStore } from 'stores/application-store';
-import { storeToRefs } from 'pinia';
-import { ref } from 'vue';
-import { whenever } from '@vueuse/core';
-import ItemSet = lcu.ItemSet;
 
-const props = defineProps<{
+interface Props {
     build: Build;
     championName: string;
     source: string;
+    isSelected: boolean;
+}
+
+const props = defineProps<Props>();
+
+const emit = defineEmits<{
+    (e: 'buildClicked', value: { build: Build; source: string }): void;
 }>();
-
-const application = useApplicationStore();
-const { selectedBuild } = storeToRefs(application);
-
-let isSelected = ref(false);
 
 const getCoreItem = () => {
     if ('' !== props.build.items.mythic.name) {
@@ -59,85 +52,6 @@ const getCoreItem = () => {
     // Because the first core item is the boots
     return props.build.items.core[1];
 };
-
-const selectBuild = (build: Build) => {
-    isSelected.value = true;
-    selectedBuild.value = build;
-    const selectedPerks = build.selectedPerks.map((perk) => perk.id);
-
-    const runePage = {
-        name: `${props.source}: ${build.name} ${props.championName}`,
-        primaryStyleId: build.primary.id,
-        selectedPerkIds: selectedPerks,
-        subStyleId: build.secondary.id,
-        current: true,
-    };
-
-    ApplyRunes(runePage);
-
-    const summonerSpells = {
-        firstSpellId: build.summonerSpells.at(0)?.id ?? 0,
-        secondSpellId: build.summonerSpells.at(1)?.id ?? 0,
-    };
-
-    ApplySummonerSpells(
-        summonerSpells.firstSpellId,
-        summonerSpells.secondSpellId
-    );
-
-    const convertToItemSet = (items: lolbuild.Item[]) =>
-        items.map((item) => ({
-            id: item.id.toString(),
-            count: 1,
-        }));
-
-    const itemBlocks = [
-        {
-            type: 'Starting',
-            items: convertToItemSet(build.items.starting),
-        },
-        {
-            type: 'Core',
-            items: convertToItemSet(
-                build.items.core.concat(build.items.mythic)
-            ),
-        },
-        {
-            type: 'Fourth',
-            items: convertToItemSet(build.items.fourth),
-        },
-        {
-            type: 'Fifth',
-            items: convertToItemSet(build.items.fifth),
-        },
-        {
-            type: 'Sixth',
-            items: convertToItemSet(build.items.sixth),
-        },
-    ];
-
-    const itemSet = {
-        title: `${props.championName}: ${build.name}`,
-        associatedChampions: [],
-        associatedMaps: [],
-        type: 'custom',
-        map: 'any',
-        mode: 'any',
-        startedFrom: 'blank',
-        uid: '1',
-        preferredItemSlots: [],
-        sortrank: 0,
-        blocks: itemBlocks,
-    };
-
-    ApplyItemSet(ItemSet.createFrom(itemSet));
-};
-
-whenever(selectedBuild, () => {
-    if (selectedBuild.value !== props.build) {
-        isSelected.value = false;
-    }
-});
 </script>
 
 <style scoped lang="scss">

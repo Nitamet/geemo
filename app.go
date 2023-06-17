@@ -101,3 +101,13 @@ func (a *App) ApplyItemSet(itemSet lcu.ItemSet) error {
 
 	return a.LCU.ApplyItemSet(itemSet)
 }
+
+func (a *App) GetGameMode() []string {
+	if a.LCU == nil {
+		return []string{"NONE"}
+	}
+
+	gameMode, gameModeAsString := a.LCU.GetCurrentGameMode()
+
+	return []string{gameMode, gameModeAsString}
+}

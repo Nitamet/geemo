@@ -7,6 +7,7 @@
             />
             <div>
                 <RolePicker
+                    v-if="props.gameMode === GameMode.Classic"
                     @roleChanged="(newRole) => (selectedRole = newRole)"
                 />
             </div>
@@ -25,6 +26,10 @@
                         :build="build"
                         :champion-name="currentChampionName"
                         :source="buildCollection.source"
+                        :is-selected="selectedBuild === build"
+                        @build-clicked="
+                            (event) => selectBuild(event.build, event.source)
+                        "
                     />
                 </div>
             </div>
@@ -35,31 +40,30 @@
 <script setup lang="ts">
 import Champion from 'components/Lobby/ChampionBuilds/Champion.vue';
 import { delay } from 'src/util/misc';
-import { GetCurrentChampion } from 'app/wailsjs/go/main/App';
-import { computed, Ref, ref } from 'vue';
+import {
+    ApplyItemSet,
+    ApplyRunes,
+    ApplySummonerSpells,
+    GetCurrentChampion,
+} from 'app/wailsjs/go/main/App';
+import { computed, Ref, ref, watch } from 'vue';
 import { whenever } from '@vueuse/core';
 import { LeagueState, useApplicationStore } from 'stores/application-store';
 import { storeToRefs } from 'pinia';
-import { lolbuild } from 'app/wailsjs/go/models';
+import { lcu, lolbuild } from 'app/wailsjs/go/models';
 import { LoadBuilds } from 'app/wailsjs/go/lolbuild/Loader';
 import Build from 'components/Lobby/ChampionBuilds/Build.vue';
-import { Roles } from 'components/models';
+import { GameMode, Role } from 'components/models';
 import BuildCollection = lolbuild.BuildCollection;
+import BuildInfo = lolbuild.Build;
 import RolePicker from 'components/RolePicker.vue';
+import ItemSet = lcu.ItemSet;
 
-const loadNewBuild = async () => {
-    const resp = await fetch(
-        `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champions/${currentChampion.value}.json`
-    );
-    const json: { name: string } = await resp.json();
-    currentChampionName.value = json.name;
+interface Props {
+    gameMode: GameMode;
+}
 
-    builds.value = await LoadBuilds(
-        currentChampionName.value,
-        ['ugg'],
-        selectedRole.value
-    );
-};
+const props = defineProps<Props>();
 
 let currentChampion = ref(-1);
 let currentChampionName = ref('Champion');
@@ -67,9 +71,53 @@ const currentChampionIconUrl = computed(() => {
     return `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/${currentChampion.value}.png`;
 });
 
-let selectedRole = ref<Roles>(Roles.Mid);
+const buildCollections = new Map<string, BuildCollection[]>();
+
+const loadBuildCollection = async () => {
+    const resp = await fetch(
+        `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champions/${currentChampion.value}.json`
+    );
+    const json: { name: string } = await resp.json();
+    currentChampionName.value = json.name;
+
+    const buildCollection = await LoadBuilds(
+        currentChampionName.value,
+        ['ugg'],
+        selectedRole.value
+    );
+
+    buildCollections.set(
+        `${currentChampion.value}-${selectedRole.value}`,
+        buildCollection
+    );
+
+    return buildCollection;
+};
+
+let selectedRole = ref<Role>(Role.Mid);
+watch(
+    () => props.gameMode,
+    (value) => {
+        if (value === GameMode.ARAM) {
+            selectedRole.value = Role.ARAM;
+        }
+    }
+);
+
 whenever(selectedRole, async () => {
-    await loadNewBuild();
+    if (currentChampion.value === -1) {
+        return;
+    }
+
+    const buildCollection = buildCollections.get(
+        `${currentChampion.value}-${selectedRole.value}`
+    );
+
+    if (!buildCollection) {
+        builds.value = await loadBuildCollection();
+    } else {
+        builds.value = buildCollection;
+    }
 });
 
 const application = useApplicationStore();
@@ -90,7 +138,7 @@ startCheckingCurrentChampion();
 let builds: Ref<BuildCollection[]> = ref([]);
 
 whenever(currentChampion, async () => {
-    await loadNewBuild();
+    builds.value = await loadBuildCollection();
 });
 
 whenever(leagueState, () => {
@@ -99,6 +147,78 @@ whenever(leagueState, () => {
         selectedBuild.value = null;
     }
 });
+
+const selectBuild = (build: BuildInfo, source: string) => {
+    selectedBuild.value = build;
+    const selectedPerks = build.selectedPerks.map((perk) => perk.id);
+
+    const runePage = {
+        name: `${source}: ${build.name} ${currentChampionName.value}`,
+        primaryStyleId: build.primary.id,
+        selectedPerkIds: selectedPerks,
+        subStyleId: build.secondary.id,
+        current: true,
+    };
+
+    ApplyRunes(runePage);
+
+    const summonerSpells = {
+        firstSpellId: build.summonerSpells.at(0)?.id ?? 0,
+        secondSpellId: build.summonerSpells.at(1)?.id ?? 0,
+    };
+
+    ApplySummonerSpells(
+        summonerSpells.firstSpellId,
+        summonerSpells.secondSpellId
+    );
+
+    const convertToItemSet = (items: lolbuild.Item[]) =>
+        items.map((item) => ({
+            id: item.id.toString(),
+            count: 1,
+        }));
+
+    const itemBlocks = [
+        {
+            type: 'Starting',
+            items: convertToItemSet(build.items.starting),
+        },
+        {
+            type: 'Core',
+            items: convertToItemSet(
+                build.items.core.concat(build.items.mythic)
+            ),
+        },
+        {
+            type: 'Fourth',
+            items: convertToItemSet(build.items.fourth),
+        },
+        {
+            type: 'Fifth',
+            items: convertToItemSet(build.items.fifth),
+        },
+        {
+            type: 'Sixth',
+            items: convertToItemSet(build.items.sixth),
+        },
+    ];
+
+    const itemSet = {
+        title: `${currentChampionName.value}: ${build.name}`,
+        associatedChampions: [],
+        associatedMaps: [],
+        type: 'custom',
+        map: 'any',
+        mode: 'any',
+        startedFrom: 'blank',
+        uid: '1',
+        preferredItemSlots: [],
+        sortrank: 0,
+        blocks: itemBlocks,
+    };
+
+    ApplyItemSet(ItemSet.createFrom(itemSet));
+};
 </script>
 
 <style lang="scss">

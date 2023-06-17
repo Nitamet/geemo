@@ -34,7 +34,7 @@ export const useApplicationStore = defineStore('application', {
     actions: {
         async startCheckingLeagueState() {
             await delay(1000);
-            console.log('checking');
+
             const newState = await GetLCUState();
             this.leagueState =
                 LeagueState[newState as keyof typeof LeagueState] ??

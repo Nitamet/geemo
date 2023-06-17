@@ -6,7 +6,7 @@
         content-class="role-picker-menu"
     >
         <q-list>
-            <q-item clickable v-close-popup @click="changeRole(Roles.Top)">
+            <q-item clickable v-close-popup @click="changeRole(Role.Top)">
                 <q-item-section avatar>
                     <q-img :src="roleIcons['top']" />
                 </q-item-section>
@@ -15,7 +15,7 @@
                 </q-item-section>
             </q-item>
 
-            <q-item clickable v-close-popup @click="changeRole(Roles.Jungle)">
+            <q-item clickable v-close-popup @click="changeRole(Role.Jungle)">
                 <q-item-section avatar>
                     <q-img :src="roleIcons['jungle']" />
                 </q-item-section>
@@ -24,7 +24,7 @@
                 </q-item-section>
             </q-item>
 
-            <q-item clickable v-close-popup @click="changeRole(Roles.Mid)">
+            <q-item clickable v-close-popup @click="changeRole(Role.Mid)">
                 <q-item-section avatar>
                     <q-img :src="roleIcons['mid']" />
                 </q-item-section>
@@ -33,7 +33,7 @@
                 </q-item-section>
             </q-item>
 
-            <q-item clickable v-close-popup @click="changeRole(Roles.ADC)">
+            <q-item clickable v-close-popup @click="changeRole(Role.ADC)">
                 <q-item-section avatar>
                     <q-img :src="roleIcons['adc']" />
                 </q-item-section>
@@ -42,7 +42,7 @@
                 </q-item-section>
             </q-item>
 
-            <q-item clickable v-close-popup @click="changeRole(Roles.Support)">
+            <q-item clickable v-close-popup @click="changeRole(Role.Support)">
                 <q-item-section avatar>
                     <q-img :src="roleIcons['support']" />
                 </q-item-section>
@@ -55,16 +55,16 @@
 </template>
 
 <script setup lang="ts">
-import { Roles } from 'components/models';
+import { Role } from 'components/models';
 import { ref } from 'vue';
 
 const emit = defineEmits<{
-    (e: 'roleChanged', value: Roles): void;
+    (e: 'roleChanged', value: Role): void;
 }>();
 
-let selectedRole = ref(Roles.Mid);
+let selectedRole = ref(Role.Mid);
 
-const changeRole = (role: Roles) => {
+const changeRole = (role: Role) => {
     selectedRole.value = role;
     emit('roleChanged', role);
 };

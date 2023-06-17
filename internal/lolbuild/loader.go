@@ -74,7 +74,7 @@ type Items struct {
 
 type Build struct {
 	Name           string          `json:"name"`
-	Winrate        string          `json:"winrate"`
+	Winrate        float64         `json:"winrate"`
 	Matches        string          `json:"matches"`
 	Primary        Rune            `json:"primary"`
 	Secondary      Rune            `json:"secondary"`
