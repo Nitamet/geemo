@@ -61,8 +61,16 @@ func TryToGetLCU() *Client {
 }
 
 func lookForLCUInstance() string {
-	cmd := exec.Command("bash", "-c", "ps x -o args | grep 'LeagueClientUx'")
-	bytes, _ := cmd.Output()
+	var cmd *exec.Cmd
+
+	switch os := runtime.GOOS; os {
+	case "linux":
+		cmd = exec.Command("bash", "-c", "ps x -o args | grep 'LeagueClientUx'")
+	case "windows":
+		cmd = exec.Command("powershell", "Get-CimInstance Win32_Process -Filter \"name = 'LeagueClientUX.exe'\" | Select-Object -ExpandProperty CommandLine")
+	default:
+		log.Fatalln("Unsupported OS")
+	}
 
 	return string(bytes)
 }
