@@ -107,7 +107,16 @@ func (a *App) GetGameMode() []string {
 		return []string{"NONE"}
 	}
 
-	gameMode, gameModeAsString := a.LCU.GetCurrentGameMode()
+	gameMode, gameModeAsString, role := a.LCU.GetCurrentGameMode()
 
-	return []string{gameMode, gameModeAsString}
+	lcuRoleToAppRole := map[string]string{
+		"TOP":     "top",
+		"JUNGLE":  "jungle",
+		"MIDDLE":  "mid",
+		"BOTTOM":  "adc",
+		"UTILITY": "support",
+		"":        "",
+	}
+
+	return []string{gameMode, gameModeAsString, lcuRoleToAppRole[role]}
 }

@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"os/exec"
 	"regexp"
+	"runtime"
 	"strconv"
 	"time"
 )
@@ -72,7 +73,12 @@ func lookForLCUInstance() string {
 		log.Fatalln("Unsupported OS")
 	}
 
-	return string(bytes)
+	cmdOutput, err := cmd.Output()
+	if err != nil {
+		return ""
+	}
+
+	return string(cmdOutput)
 }
 
 func getPortFromArgs(args string) (int, bool) {
@@ -186,10 +192,10 @@ func (c *Client) IsInLobby() bool {
 	return resp.StatusCode == 200
 }
 
-func (c *Client) GetCurrentGameMode() (string, string) {
+func (c *Client) GetCurrentGameMode() (string, string, string) {
 	resp, err := c.get("lol-lobby/v2/lobby")
 	if err != nil {
-		return gameModeNone, gameModeNone
+		return gameModeNone, gameModeNone, ""
 	}
 
 	body, err := io.ReadAll(resp.Body)
@@ -202,6 +208,9 @@ func (c *Client) GetCurrentGameMode() (string, string) {
 			GameMode string `json:"gameMode"`
 			PickType string `json:"pickType"`
 		} `json:"gameConfig"`
+		LocalMember struct {
+			FirstPositionPreference string `json:"firstPositionPreference"`
+		}
 	}
 
 	err = json.Unmarshal(body, &lobbyInfo)
@@ -215,14 +224,13 @@ func (c *Client) GetCurrentGameMode() (string, string) {
 			pickStrategy = draftPickName
 		}
 
-		return lobbyInfo.GameConfig.GameMode, fmt.Sprintf("%s (%s)", "Normal", pickStrategy)
+		return lobbyInfo.GameConfig.GameMode, fmt.Sprintf("%s (%s)", "Normal", pickStrategy), lobbyInfo.LocalMember.FirstPositionPreference
 	}
 
-	return lobbyInfo.GameConfig.GameMode, lobbyInfo.GameConfig.GameMode
+	return lobbyInfo.GameConfig.GameMode, lobbyInfo.GameConfig.GameMode, ""
 }
 
 func (c *Client) SelectedChampion() (int, bool) {
-	return 266, true
 	resp, _ := c.get("lol-champ-select/v1/current-champion")
 
 	if resp.StatusCode != 200 {
