@@ -1,5 +1,5 @@
 <template>
-    <div class="champion-builds q-pa-lg">
+    <div class="champion-builds column q-pa-lg">
         <div class="row items-center justify-between">
             <Champion
                 :champion-name="currentChampionName"
@@ -34,6 +34,17 @@
                     />
                 </div>
             </div>
+        </div>
+        <div class="footer">
+            <q-btn
+                v-if="selectedBuild !== null"
+                class="button q-mr-lg full-width"
+                label="Import Selected Build"
+                size="16px"
+                color="primary"
+                push
+                @click="importSelectedBuild()"
+            />
         </div>
     </div>
 </template>
@@ -123,7 +134,8 @@ whenever(selectedRole, async () => {
 });
 
 const application = useApplicationStore();
-const { leagueState, selectedBuild } = storeToRefs(application);
+const { leagueState, selectedBuild, selectedBuildSource } =
+    storeToRefs(application);
 const startCheckingCurrentChampion = async () => {
     await delay(3000);
     const champion = await GetCurrentChampion();
@@ -152,6 +164,10 @@ whenever(leagueState, () => {
 
 const selectBuild = (build: BuildInfo, source: string) => {
     selectedBuild.value = build;
+    selectedBuildSource.value = source;
+};
+
+const importBuild = (build: BuildInfo, source: string) => {
     const selectedPerks = build.selectedPerks.map((perk) => perk.id);
 
     const runePage = {
@@ -221,6 +237,15 @@ const selectBuild = (build: BuildInfo, source: string) => {
 
     ApplyItemSet(ItemSet.createFrom(itemSet));
 };
+
+const importSelectedBuild = () => {
+    if (selectedBuild.value) {
+        importBuild(
+            selectedBuild.value,
+            selectedBuildSource.value ?? 'Unknown'
+        );
+    }
+};
 </script>
 
 <style lang="scss">
@@ -230,5 +255,9 @@ const selectBuild = (build: BuildInfo, source: string) => {
     width: 30%;
     background-color: $build-selection-background-color;
     border-right: 2px solid $divider-color;
+}
+
+.footer {
+    margin: auto 0 0;
 }
 </style>

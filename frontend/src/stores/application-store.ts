@@ -16,6 +16,7 @@ export const useApplicationStore = defineStore('application', {
     state: () => ({
         leagueState: LeagueState.NotLaunched,
         selectedBuild: null as Build | null,
+        selectedBuildSource: null as string | null,
     }),
     getters: {
         getLeagueStateMessage(): string {
