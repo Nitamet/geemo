@@ -3,7 +3,9 @@
         <q-avatar size="56px" rounded
             ><img :src="props.championIconUrl" :alt="props.championName"
         /></q-avatar>
-        <span class="text-weight-bolder text-h6">{{ props.championName }}</span>
+        <div class="text-weight-bolder champion-name">
+            {{ props.championName }}
+        </div>
     </div>
 </template>
 
@@ -19,3 +21,9 @@ const props = defineProps({
     },
 });
 </script>
+
+<style lang="scss">
+.champion-name {
+    max-width: 100px;
+}
+</style>

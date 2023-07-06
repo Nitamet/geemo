@@ -228,20 +228,7 @@ const selectBuild = (build: BuildInfo, source: string) => {
 
 .champion-builds {
     width: 30%;
-    max-width: 340px;
     background-color: $build-selection-background-color;
     border-right: 2px solid $divider-color;
-}
-
-.role-picker img {
-    filter: brightness(0) invert(1);
-}
-
-.role-picker-menu {
-    background: #162430;
-}
-
-.role-picker-menu img {
-    filter: brightness(0) invert(1);
 }
 </style>

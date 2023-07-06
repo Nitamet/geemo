@@ -24,10 +24,12 @@ const (
 )
 
 const (
-	blindPickStrategy = "SimulPickStrategy"
-	draftPickStrategy = "DraftModeSinglePickStrategy"
-	blindPickName     = "Blind Pick"
-	draftPickName     = "Draft Pick"
+	blindPickStrategy     = "SimulPickStrategy"
+	draftPickStrategy     = "DraftModeSinglePickStrategy"
+	allRandomPickStrategy = "AllRandomPickStrategy"
+	blindPickName         = "Blind Pick"
+	draftPickName         = "Draft Pick"
+	allRandomPickName     = "All Random"
 )
 
 type Client struct {
@@ -226,6 +228,8 @@ func (c *Client) GetCurrentGameMode() (string, string) {
 			pickStrategy = blindPickName
 		case draftPickStrategy:
 			pickStrategy = draftPickName
+		case allRandomPickStrategy:
+			pickStrategy = allRandomPickName
 		}
 
 		return lobbyInfo.GameConfig.GameMode, fmt.Sprintf("%s (%s)", "Normal", pickStrategy)

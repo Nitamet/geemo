@@ -4,6 +4,7 @@
         :icon="`img:${roleIcons[selectedRole]}`"
         class="role-picker"
         content-class="role-picker-menu"
+        size="15px"
     >
         <q-list>
             <q-item clickable v-close-popup @click="changeRole(Role.Top)">
@@ -84,3 +85,17 @@ const roleIcons = {
         'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-clash/global/default/assets/images/position-selector/positions/icon-position-utility.png',
 };
 </script>
+
+<style lang="scss">
+.role-picker img {
+    filter: brightness(0) invert(1);
+}
+
+.role-picker-menu {
+    background: #162430;
+}
+
+.role-picker-menu img {
+    filter: brightness(0) invert(1);
+}
+</style>
