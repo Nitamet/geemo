@@ -7,8 +7,9 @@
             />
             <div>
                 <RolePicker
-                    v-if="props.gameMode === GameMode.Classic"
+                    v-if="props.gameMode !== GameMode.ARAM"
                     @roleChanged="(newRole) => (selectedRole = newRole)"
+                    :assigned-role="props.assignedRole"
                 />
             </div>
         </div>
@@ -46,7 +47,7 @@ import {
     ApplySummonerSpells,
     GetCurrentChampion,
 } from 'app/wailsjs/go/main/App';
-import { computed, Ref, ref, watch } from 'vue';
+import { computed, Ref, ref, toRef, watch } from 'vue';
 import { whenever } from '@vueuse/core';
 import { LeagueState, useApplicationStore } from 'stores/application-store';
 import { storeToRefs } from 'pinia';
@@ -61,6 +62,7 @@ import ItemSet = lcu.ItemSet;
 
 interface Props {
     gameMode: GameMode;
+    assignedRole: Role;
 }
 
 const props = defineProps<Props>();
@@ -94,7 +96,7 @@ const loadBuildCollection = async () => {
     return buildCollection;
 };
 
-let selectedRole = ref<Role>(Role.Mid);
+let selectedRole = ref(props.assignedRole);
 watch(
     () => props.gameMode,
     (value) => {

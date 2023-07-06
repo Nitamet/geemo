@@ -8,7 +8,12 @@
                 </div>
             </div>
             <div class="main-container q-mt-lg row items-stretch">
-                <ChampionBuilds :game-mode="gameMode" />
+                <!-- Do not render unless we've checked preferred role  -->
+                <ChampionBuilds
+                    v-if="assignedRole !== null"
+                    :game-mode="gameMode"
+                    :assigned-role="assignedRole"
+                />
                 <BuildInfo />
             </div>
         </div>
@@ -19,17 +24,30 @@
 import ChampionBuilds from 'components/Lobby/ChampionBuilds.vue';
 import SummonerInfo from 'components/Lobby/SummonerInfo.vue';
 import BuildInfo from 'components/Lobby/BuildInfo.vue';
-import { GetGameMode } from 'app/wailsjs/go/main/App';
+import { GetAssignedRole, GetGameMode } from 'app/wailsjs/go/main/App';
 import { onBeforeMount, ref } from 'vue';
-import { GameMode } from 'components/models';
+import { GameMode, Role } from 'components/models';
 
 let gameMode = ref<GameMode>(GameMode.None);
 let gameModeName = ref<string>('');
+let assignedRole = ref<Role | null>(null);
 
 onBeforeMount(async () => {
     const gameModeInfo = await GetGameMode();
     gameMode.value = gameModeInfo[0] as GameMode;
     gameModeName.value = gameModeInfo.at(1) ?? '';
+
+    if (gameMode.value === GameMode.ARAM) {
+        assignedRole.value = Role.ARAM;
+        return;
+    }
+
+    const leagueAssignedRole = await GetAssignedRole();
+    if ('' !== leagueAssignedRole) {
+        assignedRole.value = leagueAssignedRole as Role;
+    } else {
+        assignedRole.value = Role.Mid;
+    }
 });
 </script>
 

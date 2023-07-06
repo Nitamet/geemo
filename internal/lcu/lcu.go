@@ -31,9 +31,10 @@ const (
 )
 
 type Client struct {
-	port  int
-	token string
-	http  *http.Client
+	port     int
+	token    string
+	http     *http.Client
+	summoner *Summoner
 }
 
 func TryToGetLCU() *Client {
@@ -167,8 +168,12 @@ type Summoner struct {
 }
 
 func (c *Client) CurrentSummoner() Summoner {
+	if c.summoner != nil {
+		return *c.summoner
+	}
+
 	var summoner Summoner
-	println("Get current summoner")
+
 	resp, _ := c.get("lol-summoner/v1/current-summoner")
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -179,7 +184,9 @@ func (c *Client) CurrentSummoner() Summoner {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	println(fmt.Sprintf("Summoner: %v", summoner))
+
+	c.summoner = &summoner
+
 	return summoner
 }
 
@@ -192,10 +199,10 @@ func (c *Client) IsInLobby() bool {
 	return resp.StatusCode == 200
 }
 
-func (c *Client) GetCurrentGameMode() (string, string, string) {
+func (c *Client) GetCurrentGameMode() (string, string) {
 	resp, err := c.get("lol-lobby/v2/lobby")
 	if err != nil {
-		return gameModeNone, gameModeNone, ""
+		return gameModeNone, gameModeNone
 	}
 
 	body, err := io.ReadAll(resp.Body)
@@ -208,9 +215,6 @@ func (c *Client) GetCurrentGameMode() (string, string, string) {
 			GameMode string `json:"gameMode"`
 			PickType string `json:"pickType"`
 		} `json:"gameConfig"`
-		LocalMember struct {
-			FirstPositionPreference string `json:"firstPositionPreference"`
-		}
 	}
 
 	err = json.Unmarshal(body, &lobbyInfo)
@@ -224,10 +228,10 @@ func (c *Client) GetCurrentGameMode() (string, string, string) {
 			pickStrategy = draftPickName
 		}
 
-		return lobbyInfo.GameConfig.GameMode, fmt.Sprintf("%s (%s)", "Normal", pickStrategy), lobbyInfo.LocalMember.FirstPositionPreference
+		return lobbyInfo.GameConfig.GameMode, fmt.Sprintf("%s (%s)", "Normal", pickStrategy)
 	}
 
-	return lobbyInfo.GameConfig.GameMode, lobbyInfo.GameConfig.GameMode, ""
+	return lobbyInfo.GameConfig.GameMode, lobbyInfo.GameConfig.GameMode
 }
 
 func (c *Client) SelectedChampion() (int, bool) {
@@ -249,6 +253,44 @@ func (c *Client) SelectedChampion() (int, bool) {
 	}
 
 	return championId, true
+}
+
+func (c *Client) GetAssignedRole() (string, bool) {
+	resp, _ := c.get("lol-lobby-team-builder/champ-select/v1/session")
+
+	if resp.StatusCode != 200 {
+		return "", false
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var session struct {
+		MyTeam []struct {
+			AssignedPosition string `json:"assignedPosition"`
+			SummonerId       int64  `json:"summonerId"`
+		} `json:"myTeam"`
+	}
+	err = json.Unmarshal(body, &session)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	position := ""
+	for _, summoner := range session.MyTeam {
+		if summoner.SummonerId == c.CurrentSummoner().SummonerId {
+			position = summoner.AssignedPosition
+			break
+		}
+	}
+
+	if position == "" {
+		return "", false
+	}
+
+	return position, true
 }
 
 func (c *Client) ApplySummonerSpells(firstSpellId int, secondSpellId int) error {

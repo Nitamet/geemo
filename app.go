@@ -107,16 +107,26 @@ func (a *App) GetGameMode() []string {
 		return []string{"NONE"}
 	}
 
-	gameMode, gameModeAsString, role := a.LCU.GetCurrentGameMode()
+	gameMode, gameModeAsString := a.LCU.GetCurrentGameMode()
+
+	return []string{gameMode, gameModeAsString}
+}
+
+func (a *App) GetAssignedRole() string {
+	if a.LCU == nil {
+		return ""
+	}
+
+	position, _ := a.LCU.GetAssignedRole()
 
 	lcuRoleToAppRole := map[string]string{
-		"TOP":     "top",
-		"JUNGLE":  "jungle",
-		"MIDDLE":  "mid",
-		"BOTTOM":  "adc",
-		"UTILITY": "support",
+		"top":     "top",
+		"jungle":  "jungle",
+		"middle":  "mid",
+		"bottom":  "adc",
+		"utility": "support",
 		"":        "",
 	}
 
-	return []string{gameMode, gameModeAsString, lcuRoleToAppRole[role]}
+	return lcuRoleToAppRole[position]
 }

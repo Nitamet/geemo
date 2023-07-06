@@ -8,6 +8,8 @@ export function ApplyRunes(arg1:lcu.RunePage):Promise<void>;
 
 export function ApplySummonerSpells(arg1:number,arg2:number):Promise<void>;
 
+export function GetAssignedRole():Promise<string>;
+
 export function GetCurrentChampion():Promise<number>;
 
 export function GetGameMode():Promise<Array<string>>;

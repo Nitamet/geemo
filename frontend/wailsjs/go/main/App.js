@@ -14,6 +14,10 @@ export function ApplySummonerSpells(arg1, arg2) {
   return window['go']['main']['App']['ApplySummonerSpells'](arg1, arg2);
 }
 
+export function GetAssignedRole() {
+  return window['go']['main']['App']['GetAssignedRole']();
+}
+
 export function GetCurrentChampion() {
   return window['go']['main']['App']['GetCurrentChampion']();
 }

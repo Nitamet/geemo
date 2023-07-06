@@ -58,11 +58,17 @@
 import { Role } from 'components/models';
 import { ref } from 'vue';
 
+interface Props {
+    assignedRole: Role;
+}
+
+const props = defineProps<Props>();
+
 const emit = defineEmits<{
     (e: 'roleChanged', value: Role): void;
 }>();
 
-let selectedRole = ref(Role.Mid);
+let selectedRole = ref(props.assignedRole);
 
 const changeRole = (role: Role) => {
     selectedRole.value = role;
