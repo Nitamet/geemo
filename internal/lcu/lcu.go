@@ -14,6 +14,7 @@ import (
 	"regexp"
 	"runtime"
 	"strconv"
+	"syscall"
 	"time"
 )
 
@@ -31,6 +32,8 @@ const (
 	draftPickName         = "Draft Pick"
 	allRandomPickName     = "All Random"
 )
+
+const windowsCreateNoWindowFlag = 0x08000000
 
 type Client struct {
 	port     int
@@ -71,7 +74,8 @@ func lookForLCUInstance() string {
 	case "linux":
 		cmd = exec.Command("bash", "-c", "ps x -o args | grep 'LeagueClientUx'")
 	case "windows":
-		cmd = exec.Command("powershell", "Get-CimInstance Win32_Process -Filter \"name = 'LeagueClientUX.exe'\" | Select-Object -ExpandProperty CommandLine")
+		cmd = exec.Command("powershell", "-NoProfile", "-NonInteractive", "-Command", "Get-CimInstance Win32_Process -Filter \"name = 'LeagueClientUX.exe'\" | Select-Object -ExpandProperty CommandLine")
+		cmd.SysProcAttr = &syscall.SysProcAttr{CreationFlags: windowsCreateNoWindowFlag}
 	default:
 		log.Fatalln("Unsupported OS")
 	}
