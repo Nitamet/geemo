@@ -16,13 +16,19 @@
             <img :src="getCoreItem().iconUrl" :alt="getCoreItem().name" />
         </q-avatar>
         <span>{{ props.build.name }}</span>
-        <q-img
-            class="q-ml-auto"
-            width="38px"
-            height="38px"
-            :src="`https://ddragon.leagueoflegends.com/cdn/img/${props.build.selectedPerks[0].iconUrl}`"
-            rounded
-        />
+        <div class="q-ml-auto row align-center">
+            <span
+                :class="['winrate', props.build.winrate > 50 ? 'good' : 'bad']"
+                ><strong>{{ props.build.winrate }}%</strong>
+            </span>
+            <q-img
+                class="q-ml-sm"
+                width="38px"
+                height="38px"
+                :src="`https://ddragon.leagueoflegends.com/cdn/img/${props.build.selectedPerks[0].iconUrl}`"
+                rounded
+            />
+        </div>
     </div>
 </template>
 
@@ -68,5 +74,21 @@ const getCoreItem = () => {
 
 .selected {
     background-color: $divider-color;
+}
+
+.winrate {
+    background-color: red;
+    border-radius: 4px;
+    padding: 6px;
+}
+
+.good {
+    background-color: #135936;
+    color: #17f84a;
+}
+
+.bad {
+    background-color: #6b1c22;
+    color: #ff7984;
 }
 </style>
