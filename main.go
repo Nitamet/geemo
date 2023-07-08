@@ -28,8 +28,8 @@ func main() {
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:             "geemo",
-		Width:             1600,
-		Height:            900,
+		Width:             1440,
+		Height:            850,
 		MinWidth:          1280,
 		MinHeight:         720,
 		DisableResize:     false,
@@ -82,8 +82,7 @@ func main() {
 			},
 		},
 		Linux: &linux.Options{
-			Icon:             icon,
-			WebviewGpuPolicy: linux.WebviewGpuPolicyAlways,
+			Icon: icon,
 		},
 	})
 

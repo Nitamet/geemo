@@ -3,7 +3,7 @@
         :class="
             application.leagueState !== LeagueState.InLobby
                 ? 'row items-center justify-evenly'
-                : ''
+                : 'row items-center'
         "
     >
         <InLobby v-if="application.leagueState === LeagueState.InLobby" />

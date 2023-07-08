@@ -1,5 +1,5 @@
 <template>
-    <div class="in-lobby q-mt-xl row items-center justify-evenly">
+    <div class="in-lobby q-pt-lg q-pb-lg row items-center justify-evenly">
         <div class="lobby-info">
             <div class="row justify-between items-center">
                 <SummonerInfo />
@@ -58,6 +58,10 @@ onBeforeMount(async () => {
     min-height: 600px;
     width: 100%;
     background-color: $build-info-background-color;
+}
+
+.in-lobby {
+    flex-basis: 100%;
 }
 
 .lobby-info {

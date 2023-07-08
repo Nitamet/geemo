@@ -74,7 +74,7 @@ func (a *App) GetCurrentChampion() int {
 		return 0
 	}
 
-	championId, _ := a.LCU.SelectedChampion()
+	championId, _ := a.LCU.GetCurrentChampion()
 	return championId
 }
 

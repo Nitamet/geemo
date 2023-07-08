@@ -242,7 +242,7 @@ func (c *Client) GetCurrentGameMode() (string, string) {
 	return lobbyInfo.GameConfig.GameMode, lobbyInfo.GameConfig.GameMode
 }
 
-func (c *Client) SelectedChampion() (int, bool) {
+func (c *Client) GetCurrentChampion() (int, bool) {
 	resp, _ := c.get("lol-champ-select/v1/current-champion")
 
 	if resp.StatusCode != 200 {
