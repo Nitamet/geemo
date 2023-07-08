@@ -15,11 +15,19 @@
         <q-avatar size="42px" rounded>
             <img :src="getCoreItem().iconUrl" :alt="getCoreItem().name" />
         </q-avatar>
-        <span>{{ props.build.name }}</span>
+        <div class="column">
+            <span class="text-bold">
+                {{ props.build.name }}
+            </span>
+            <span class="text-caption">
+                {{ props.build.matches }}
+            </span>
+        </div>
         <div class="q-ml-auto row align-center">
             <span
                 :class="['winrate', props.build.winrate > 50 ? 'good' : 'bad']"
-                ><strong>{{ props.build.winrate }}%</strong>
+            >
+                {{ props.build.winrate }}%
             </span>
             <q-img
                 class="q-ml-sm"

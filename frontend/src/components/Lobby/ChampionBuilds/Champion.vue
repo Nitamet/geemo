@@ -25,5 +25,6 @@ const props = defineProps({
 <style lang="scss">
 .champion-name {
     max-width: 100px;
+    font-size: 18px;
 }
 </style>

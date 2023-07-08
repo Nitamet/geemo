@@ -19,7 +19,9 @@
                 v-for="buildCollection in builds"
                 :key="buildCollection.source"
             >
-                <span class="text-subtitle2">{{ buildCollection.source }}</span>
+                <span class="text-subtitle2 text-bold">
+                    {{ buildCollection.source }}
+                </span>
                 <div class="builds q-gutter-y-md">
                     <Build
                         v-for="build in buildCollection.builds"
