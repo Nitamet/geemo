@@ -48,7 +48,15 @@ func (a *App) Greet(name string) string {
 // GetLCUState returns the current state of the LCU
 func (a *App) GetLCUState() string {
 	if a.LCU != nil {
-		return a.LCU.UpdateState()
+		state := a.LCU.UpdateState()
+
+		// If we got "NotLaunched" state while we have a LCU instance, it means that the league client was closed
+		if state != "NotLaunched" {
+			return state
+		}
+
+		// So we can get rid of the old instance and try to get a new one
+		a.LCU = nil
 	}
 
 	instance := lcu.TryToGetLCU()
