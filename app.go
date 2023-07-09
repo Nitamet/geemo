@@ -2,14 +2,17 @@ package main
 
 import (
 	"changeme/internal/lcu"
+	"changeme/internal/util"
 	"context"
 	"fmt"
+	"log"
 )
 
 // App struct
 type App struct {
-	ctx context.Context
-	LCU *lcu.Client
+	ctx   context.Context
+	LCU   *lcu.Client
+	Shell *util.Shell
 }
 
 // NewApp creates a new App application struct
@@ -19,8 +22,8 @@ func NewApp() *App {
 
 // startup is called at application startup
 func (a *App) startup(ctx context.Context) {
-	// Perform your setup here
 	a.ctx = ctx
+	a.Shell = util.CreateShell()
 }
 
 // domReady is called after front-end resources have been loaded
@@ -37,7 +40,10 @@ func (a *App) beforeClose(ctx context.Context) (prevent bool) {
 
 // shutdown is called at application termination
 func (a *App) shutdown(ctx context.Context) {
-	// Perform your teardown here
+	err := a.Shell.Close()
+	if err != nil {
+		log.Fatalln(err)
+	}
 }
 
 // Greet returns a greeting for the given name
@@ -48,7 +54,7 @@ func (a *App) Greet(name string) string {
 // GetLCUState returns the current state of the LCU
 func (a *App) GetLCUState() string {
 	if a.LCU != nil {
-		state := a.LCU.UpdateState()
+		state := a.LCU.UpdateState(a.Shell)
 
 		// If we got "NotLaunched" state while we have a LCU instance, it means that the league client was closed
 		if state != "NotLaunched" {
@@ -59,14 +65,14 @@ func (a *App) GetLCUState() string {
 		a.LCU = nil
 	}
 
-	instance := lcu.TryToGetLCU()
+	instance := lcu.TryToGetLCU(a.Shell)
 	if instance == nil {
 		return "NotLaunched"
 	}
 
 	a.LCU = instance
 
-	return a.LCU.UpdateState()
+	return a.LCU.UpdateState(a.Shell)
 }
 
 func (a *App) GetSummoner() lcu.Summoner {

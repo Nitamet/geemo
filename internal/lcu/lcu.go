@@ -2,6 +2,7 @@ package lcu
 
 import (
 	"bytes"
+	"changeme/internal/util"
 	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
@@ -10,11 +11,9 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"os/exec"
 	"regexp"
 	"runtime"
 	"strconv"
-	"syscall"
 	"time"
 )
 
@@ -33,8 +32,6 @@ const (
 	allRandomPickName     = "All Random"
 )
 
-const windowsCreateNoWindowFlag = 0x08000000
-
 type Client struct {
 	port     int
 	token    string
@@ -42,8 +39,8 @@ type Client struct {
 	summoner *Summoner
 }
 
-func TryToGetLCU() *Client {
-	cmdOutput := lookForLCUInstance()
+func TryToGetLCU(shell *util.Shell) *Client {
+	cmdOutput := lookForLCUInstance(shell)
 
 	port, ok := getPortFromArgs(cmdOutput)
 	if !ok {
@@ -67,25 +64,19 @@ func TryToGetLCU() *Client {
 	}
 }
 
-func lookForLCUInstance() string {
-	var cmd *exec.Cmd
+func lookForLCUInstance(shell *util.Shell) string {
+	var output string
 
 	switch os := runtime.GOOS; os {
 	case "linux":
-		cmd = exec.Command("bash", "-c", "ps x -o args | grep 'LeagueClientUx'")
+		output = shell.ExecuteCommand("ps x -o args | grep 'LeagueClientUx'")
 	case "windows":
-		cmd = exec.Command("powershell", "-NoProfile", "-NonInteractive", "-Command", "Get-CimInstance Win32_Process -Filter \"name = 'LeagueClientUX.exe'\" | Select-Object -ExpandProperty CommandLine")
-		cmd.SysProcAttr = &syscall.SysProcAttr{CreationFlags: windowsCreateNoWindowFlag}
+		output = shell.ExecuteCommand("Get-CimInstance Win32_Process -Filter \"name = 'LeagueClientUX.exe'\" | Select-Object -ExpandProperty CommandLine")
 	default:
 		log.Fatalln("Unsupported OS")
 	}
 
-	cmdOutput, err := cmd.Output()
-	if err != nil {
-		return ""
-	}
-
-	return string(cmdOutput)
+	return output
 }
 
 func getPortFromArgs(args string) (int, bool) {
@@ -112,9 +103,10 @@ func getTokenFromArgs(args string) (string, bool) {
 	return tokenArg[1], true
 }
 
-func (c *Client) UpdateState() string {
-	cmdOutput := lookForLCUInstance()
-	if cmdOutput == "" {
+func (c *Client) UpdateState(shell *util.Shell) string {
+	cmdOutput := lookForLCUInstance(shell)
+	_, portOk := getPortFromArgs(cmdOutput)
+	if !portOk {
 		return "NotLaunched"
 	}
 
