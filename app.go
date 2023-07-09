@@ -5,6 +5,7 @@ import (
 	"changeme/internal/util"
 	"context"
 	"fmt"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"log"
 )
 
@@ -18,14 +19,13 @@ type App struct {
 
 // NewApp creates a new App application struct
 func NewApp() *App {
-	return &App{}
+	return &App{Settings: util.InitializeSettings()}
 }
 
 // startup is called at application startup
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 	a.Shell = util.CreateShell()
-	a.Settings = util.InitializeSettings()
 }
 
 // domReady is called after front-end resources have been loaded
@@ -147,11 +147,42 @@ func (a *App) GetAssignedRole() string {
 	return lcuRoleToAppRole[position]
 }
 
+func (a *App) Minimize() {
+	if runtime.WindowIsMinimised(a.ctx) {
+		runtime.WindowUnminimise(a.ctx)
+		return
+	}
+
+	runtime.WindowMinimise(a.ctx)
+}
+
+func (a *App) Maximize() {
+	if runtime.WindowIsMaximised(a.ctx) {
+		runtime.WindowUnmaximise(a.ctx)
+		return
+	}
+
+	runtime.WindowMaximise(a.ctx)
+}
+
+func (a *App) Close() {
+	runtime.Quit(a.ctx)
+}
+
 func (a *App) GetAutoImportSetting() bool {
 	return a.Settings.AutoImport
 }
 
 func (a *App) SetAutoImportSetting(value bool) {
 	a.Settings.AutoImport = value
+	a.Settings.Save()
+}
+
+func (a *App) GetShowNativeTitleBarSetting() bool {
+	return a.Settings.ShowNativeTitleBar
+}
+
+func (a *App) SetShowNativeTitleBarSetting(value bool) {
+	a.Settings.ShowNativeTitleBar = value
 	a.Settings.Save()
 }

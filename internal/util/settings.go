@@ -2,6 +2,7 @@ package util
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -39,6 +40,9 @@ func InitializeSettings() Settings {
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	// print settings struct
+	fmt.Printf("%+v\n", settings)
 
 	return settings
 }

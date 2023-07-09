@@ -24,6 +24,8 @@ func main() {
 	// Create an instance of the app structure
 	app := NewApp()
 	loader := &lolbuild.Loader{}
+	showNativeTitleBar := app.GetShowNativeTitleBarSetting()
+	println(showNativeTitleBar)
 
 	// Create application with options
 	err := wails.Run(&options.App{
@@ -34,7 +36,7 @@ func main() {
 		MinHeight:         720,
 		DisableResize:     false,
 		Fullscreen:        false,
-		Frameless:         false,
+		Frameless:         !showNativeTitleBar,
 		StartHidden:       false,
 		HideWindowOnClose: false,
 		BackgroundColour:  &options.RGBA{R: 255, G: 255, B: 255, A: 255},

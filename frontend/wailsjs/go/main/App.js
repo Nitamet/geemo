@@ -14,6 +14,10 @@ export function ApplySummonerSpells(arg1, arg2) {
   return window['go']['main']['App']['ApplySummonerSpells'](arg1, arg2);
 }
 
+export function Close() {
+  return window['go']['main']['App']['Close']();
+}
+
 export function GetAssignedRole() {
   return window['go']['main']['App']['GetAssignedRole']();
 }
@@ -34,6 +38,10 @@ export function GetLCUState() {
   return window['go']['main']['App']['GetLCUState']();
 }
 
+export function GetShowNativeTitleBarSetting() {
+  return window['go']['main']['App']['GetShowNativeTitleBarSetting']();
+}
+
 export function GetSummoner() {
   return window['go']['main']['App']['GetSummoner']();
 }
@@ -42,6 +50,18 @@ export function Greet(arg1) {
   return window['go']['main']['App']['Greet'](arg1);
 }
 
+export function Maximize() {
+  return window['go']['main']['App']['Maximize']();
+}
+
+export function Minimize() {
+  return window['go']['main']['App']['Minimize']();
+}
+
 export function SetAutoImportSetting(arg1) {
   return window['go']['main']['App']['SetAutoImportSetting'](arg1);
+}
+
+export function SetShowNativeTitleBarSetting(arg1) {
+  return window['go']['main']['App']['SetShowNativeTitleBarSetting'](arg1);
 }
