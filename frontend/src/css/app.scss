@@ -12,6 +12,7 @@
 
 body {
     background: linear-gradient(109deg, #243748 17%, #42658a 89%);
+    background-attachment: fixed;
 }
 
 .active {
@@ -20,7 +21,7 @@ body {
 }
 
 .button {
-    box-shadow: 0 4px 8px #084540;
+    box-shadow: 0 2px 4px #084540;
     font-weight: 600;
     text-shadow: 1px 2px 4px rgba(0, 0, 0, 0.4);
     border-radius: 3px;

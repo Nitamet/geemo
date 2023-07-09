@@ -6,7 +6,10 @@
                 alt="Summoner Icon"
             />
         </q-avatar>
-        <span class="text-h5">{{ data.displayName }}</span>
+        <div class="column">
+            <span class="text-h5">{{ data.displayName }}</span>
+            <span class="text-subtitle1">{{ props.subtitle }}</span>
+        </div>
     </div>
 </template>
 
@@ -16,6 +19,10 @@ import { GetSummoner } from 'app/wailsjs/go/main/App';
 import { useApplicationStore } from 'stores/application-store';
 import { storeToRefs } from 'pinia';
 import { whenever } from '@vueuse/core';
+
+const props = defineProps<{
+    subtitle: string;
+}>();
 
 const data = reactive({
     displayName: 'Summoner',

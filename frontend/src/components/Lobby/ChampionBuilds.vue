@@ -72,6 +72,7 @@ import BuildCollection = lolbuild.BuildCollection;
 import BuildInfo = lolbuild.Build;
 import RolePicker from 'components/RolePicker.vue';
 import ItemSet = lcu.ItemSet;
+import { useSettingsStore } from 'stores/settings-store';
 
 interface Props {
     gameMode: GameMode;
@@ -93,6 +94,12 @@ const loadBuildCollection = async () => {
         `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champions/${currentChampion.value}.json`
     );
     const json: { name: string } = await resp.json();
+
+    // TODO: Temporary fix to champion name being none
+    if (json.name === 'none') {
+        return;
+    }
+
     currentChampionName.value = json.name;
 
     const buildCollection = await LoadBuilds(
@@ -164,9 +171,15 @@ whenever(leagueState, () => {
     }
 });
 
+const settingsStore = useSettingsStore();
+
 const selectBuild = (build: BuildInfo, source: string) => {
     selectedBuild.value = build;
     selectedBuildSource.value = source;
+
+    if (settingsStore.autoImport) {
+        importSelectedBuild();
+    }
 };
 
 const importBuild = (build: BuildInfo, source: string) => {

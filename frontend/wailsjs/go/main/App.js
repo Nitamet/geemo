@@ -18,6 +18,10 @@ export function GetAssignedRole() {
   return window['go']['main']['App']['GetAssignedRole']();
 }
 
+export function GetAutoImportSetting() {
+  return window['go']['main']['App']['GetAutoImportSetting']();
+}
+
 export function GetCurrentChampion() {
   return window['go']['main']['App']['GetCurrentChampion']();
 }
@@ -36,4 +40,8 @@ export function GetSummoner() {
 
 export function Greet(arg1) {
   return window['go']['main']['App']['Greet'](arg1);
+}
+
+export function SetAutoImportSetting(arg1) {
+  return window['go']['main']['App']['SetAutoImportSetting'](arg1);
 }

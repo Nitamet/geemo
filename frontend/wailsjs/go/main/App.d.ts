@@ -10,6 +10,8 @@ export function ApplySummonerSpells(arg1:number,arg2:number):Promise<void>;
 
 export function GetAssignedRole():Promise<string>;
 
+export function GetAutoImportSetting():Promise<boolean>;
+
 export function GetCurrentChampion():Promise<number>;
 
 export function GetGameMode():Promise<Array<string>>;
@@ -19,3 +21,5 @@ export function GetLCUState():Promise<string>;
 export function GetSummoner():Promise<lcu.Summoner>;
 
 export function Greet(arg1:string):Promise<string>;
+
+export function SetAutoImportSetting(arg1:boolean):Promise<void>;

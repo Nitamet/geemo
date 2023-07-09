@@ -10,9 +10,10 @@ import (
 
 // App struct
 type App struct {
-	ctx   context.Context
-	LCU   *lcu.Client
-	Shell *util.Shell
+	ctx      context.Context
+	LCU      *lcu.Client
+	Shell    *util.Shell
+	Settings util.Settings
 }
 
 // NewApp creates a new App application struct
@@ -24,6 +25,7 @@ func NewApp() *App {
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 	a.Shell = util.CreateShell()
+	a.Settings = util.InitializeSettings()
 }
 
 // domReady is called after front-end resources have been loaded
@@ -143,4 +145,13 @@ func (a *App) GetAssignedRole() string {
 	}
 
 	return lcuRoleToAppRole[position]
+}
+
+func (a *App) GetAutoImportSetting() bool {
+	return a.Settings.AutoImport
+}
+
+func (a *App) SetAutoImportSetting(value bool) {
+	a.Settings.AutoImport = value
+	a.Settings.Save()
 }
