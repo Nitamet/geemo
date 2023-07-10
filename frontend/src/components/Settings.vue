@@ -30,6 +30,7 @@
 import { onBeforeMount, ref, watch } from 'vue';
 import {
     GetAutoImportSetting,
+    GetShowNativeTitleBarSetting,
     SetAutoImportSetting,
     SetShowNativeTitleBarSetting,
 } from 'app/wailsjs/go/main/App';
@@ -51,6 +52,7 @@ watch(showNativeTitleBar, async (value) => {
 
 onBeforeMount(async () => {
     autoImport.value = await GetAutoImportSetting();
+    showNativeTitleBar.value = await GetShowNativeTitleBarSetting();
 });
 </script>
 

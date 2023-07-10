@@ -5,7 +5,6 @@ import (
 	"log"
 	"os/exec"
 	"runtime"
-	"syscall"
 )
 
 const windowsCreateNoWindowFlag = 0x08000000
@@ -18,20 +17,9 @@ type Shell struct {
 }
 
 func CreateShell() *Shell {
-	var cmd *exec.Cmd
-
 	os := runtime.GOOS
 
-	switch os {
-	case "windows":
-		cmd = exec.Command("powershell")
-		// Hide powershell window
-		cmd.SysProcAttr = &syscall.SysProcAttr{CreationFlags: windowsCreateNoWindowFlag}
-	case "linux":
-		cmd = exec.Command("bash")
-	default:
-		log.Fatalln("Unsupported OS")
-	}
+	cmd := getCmd()
 
 	shellStdin, err := cmd.StdinPipe()
 	if err != nil {
@@ -56,15 +44,18 @@ func CreateShell() *Shell {
 }
 
 func (s *Shell) ExecuteCommand(command string) string {
+	newline := "\n"
+
 	// Clear previous output
 	switch s.Os {
 	case "windows":
-		_, err := s.Stdin.Write([]byte("cls\r\n"))
+		newline = "\r\n"
+		_, err := s.Stdin.Write([]byte("cls" + newline))
 		if err != nil {
 			log.Fatalln(err)
 		}
 	case "linux":
-		_, err := s.Stdin.Write([]byte("clear\r\n"))
+		_, err := s.Stdin.Write([]byte("clear" + newline))
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -72,7 +63,7 @@ func (s *Shell) ExecuteCommand(command string) string {
 		log.Fatalln("Unsupported OS")
 	}
 
-	_, err := s.Stdin.Write([]byte(command + "\r\n"))
+	_, err := s.Stdin.Write([]byte(command + newline))
 	if err != nil {
 		log.Fatalln(err)
 	}

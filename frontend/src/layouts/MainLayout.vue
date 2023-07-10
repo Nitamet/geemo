@@ -1,6 +1,6 @@
 <template>
     <q-layout view="lHh Lpr lFf ">
-        <q-bar class="bar">
+        <q-bar v-if="!settingsStore.showNativeTitleBar" class="bar">
             <q-space />
             <q-btn dense flat icon="minimize" @click="Minimize()" />
             <q-btn dense flat icon="crop_square" @click="Maximize()" />
@@ -16,6 +16,9 @@
 <script setup lang="ts">
 import Settings from 'components/Settings.vue';
 import { Close, Maximize, Minimize } from 'app/wailsjs/go/main/App';
+import { useSettingsStore } from 'stores/settings-store';
+
+const settingsStore = useSettingsStore();
 </script>
 
 <style lang="scss">
