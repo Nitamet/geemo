@@ -8,7 +8,7 @@ import (
 )
 
 func getCmd() *exec.Cmd {
-	cmd = exec.Command("powershell")
+	cmd := exec.Command("powershell")
 	// Hide powershell window
 	cmd.SysProcAttr = &syscall.SysProcAttr{CreationFlags: windowsCreateNoWindowFlag}
 
