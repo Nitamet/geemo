@@ -32,6 +32,11 @@ const (
 	allRandomPickName     = "All Random"
 )
 
+const (
+	UrfMarkSummonerSpellId  = 39
+	AramMarkSummonerSpellId = 32
+)
+
 type Client struct {
 	port     int
 	token    string
@@ -294,6 +299,14 @@ func (c *Client) GetAssignedRole() (string, bool) {
 }
 
 func (c *Client) ApplySummonerSpells(firstSpellId int, secondSpellId int) error {
+	// TODO: Temporary fix for ARAM
+	if firstSpellId == UrfMarkSummonerSpellId {
+		firstSpellId = AramMarkSummonerSpellId
+	}
+	if secondSpellId == UrfMarkSummonerSpellId {
+		secondSpellId = AramMarkSummonerSpellId
+	}
+
 	spellsJson := struct {
 		Spell1Id int `json:"spell1Id"`
 		Spell2Id int `json:"spell2Id"`
