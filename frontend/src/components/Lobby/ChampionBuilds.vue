@@ -92,7 +92,7 @@ const buildCollections = new Map<string, BuildCollection[]>();
 
 const loadBuildCollection = async () => {
     if (currentChampion.value === championNone) {
-        return;
+        return [];
     }
 
     const resp = await fetch(
@@ -140,6 +140,10 @@ whenever(selectedRole, async () => {
     } else {
         builds.value = buildCollection;
     }
+
+    if (builds.value.length > 0) {
+        selectBuild(builds.value[0].builds[0], builds.value[0].source);
+    }
 });
 
 const application = useApplicationStore();
@@ -162,6 +166,10 @@ let builds: Ref<BuildCollection[]> = ref([]);
 
 whenever(currentChampion, async () => {
     builds.value = await loadBuildCollection();
+
+    if (builds.value.length > 0) {
+        selectBuild(builds.value[0].builds[0], builds.value[0].source);
+    }
 });
 
 whenever(leagueState, () => {
