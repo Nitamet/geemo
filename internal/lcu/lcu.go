@@ -24,15 +24,6 @@ const (
 )
 
 const (
-	blindPickStrategy     = "SimulPickStrategy"
-	draftPickStrategy     = "DraftModeSinglePickStrategy"
-	allRandomPickStrategy = "AllRandomPickStrategy"
-	blindPickName         = "Blind Pick"
-	draftPickName         = "Draft Pick"
-	allRandomPickName     = "All Random"
-)
-
-const (
 	UrfMarkSummonerSpellId  = 39
 	AramMarkSummonerSpellId = 32
 )
@@ -44,8 +35,12 @@ type Client struct {
 	summoner *Summoner
 }
 
-func TryToGetLCU(shell *util.Shell) *Client {
-	cmdOutput := lookForLCUInstance(shell)
+var portRegExp = regexp.MustCompile(`--app-port=(\d+)`)
+var tokenRegExp = regexp.MustCompile(`--remoting-auth-token=([a-zA-Z0-9-_]+)`)
+var gameModeIdRegExp = regexp.MustCompile(`-GameID=(\d+)`)
+
+func TryToGetLCU() *Client {
+	cmdOutput := lookForLCUInstance()
 
 	port, ok := getPortFromArgs(cmdOutput)
 	if !ok {
@@ -69,14 +64,17 @@ func TryToGetLCU(shell *util.Shell) *Client {
 	}
 }
 
-func lookForLCUInstance(shell *util.Shell) string {
+func lookForLCUInstance() string {
 	var output string
 
 	switch os := runtime.GOOS; os {
 	case "linux":
-		output = shell.ExecuteCommand("ps x -o args | grep 'LeagueClientUx'")
+		output = util.Execute("ps x -o args | grep 'LeagueClientUx'")
 	case "windows":
-		output = shell.ExecuteCommand("Get-CimInstance Win32_Process -Filter \"name = 'LeagueClientUX.exe'\" | Select-Object -ExpandProperty CommandLine")
+		lcuCommand := "Get-CimInstance Win32_Process -Filter \"name = 'LeagueClientUX.exe'\" | Select-Object -ExpandProperty CommandLine"
+		gameClientCommand := "Get-CimInstance Win32_Process -Filter \"name = 'League Of Legends.exe'\" | Select-Object -ExpandProperty CommandLine"
+
+		output = util.Execute(fmt.Sprintf("%s; %s", lcuCommand, gameClientCommand))
 	default:
 		log.Fatalln("Unsupported OS")
 	}
@@ -84,9 +82,29 @@ func lookForLCUInstance(shell *util.Shell) string {
 	return output
 }
 
+func (c *Client) isGameClientRunning() bool {
+	var output string
+
+	switch os := runtime.GOOS; os {
+	case "linux":
+		output = util.Execute("ps x -o args | grep 'League Of Legends'")
+	case "windows":
+		output = util.Execute("Get-CimInstance Win32_Process -Filter \"name = 'League Of Legends.exe'\" | Select-Object -ExpandProperty CommandLine")
+	default:
+		log.Fatalln("Unsupported OS")
+	}
+
+	println("output " + output)
+
+	if output == "" {
+		return false
+	}
+
+	return true
+}
+
 func getPortFromArgs(args string) (int, bool) {
-	pattern := regexp.MustCompile("--app-port=([0-9]{1,5})")
-	portArg := pattern.FindStringSubmatch(args)
+	portArg := portRegExp.FindStringSubmatch(args)
 
 	if len(portArg) < 2 {
 		return 0, false
@@ -98,8 +116,7 @@ func getPortFromArgs(args string) (int, bool) {
 }
 
 func getTokenFromArgs(args string) (string, bool) {
-	pattern := regexp.MustCompile("--remoting-auth-token=([a-zA-Z0-9-_]+)")
-	tokenArg := pattern.FindStringSubmatch(args)
+	tokenArg := tokenRegExp.FindStringSubmatch(args)
 
 	if len(tokenArg) < 2 {
 		return "", false
@@ -108,14 +125,29 @@ func getTokenFromArgs(args string) (string, bool) {
 	return tokenArg[1], true
 }
 
-func (c *Client) UpdateState(shell *util.Shell) string {
-	cmdOutput := lookForLCUInstance(shell)
-	_, portOk := getPortFromArgs(cmdOutput)
-	if !portOk {
-		return "NotLaunched"
+func getGameIdFromArgs(args string) (string, bool) {
+	gameIdArg := gameModeIdRegExp.FindStringSubmatch(args)
+
+	if len(gameIdArg) < 2 {
+		return "", false
 	}
 
-	ok := c.IsInLobby()
+	return gameIdArg[1], true
+}
+
+func (c *Client) UpdateState() string {
+	cmdOutput := lookForLCUInstance()
+	_, ok := getGameIdFromArgs(cmdOutput)
+	if ok {
+		return "InGame"
+	}
+
+	_, ok = getPortFromArgs(cmdOutput)
+	if !ok {
+		return "NotRunning"
+	}
+
+	ok = c.IsInLobby()
 	if ok {
 		return "InLobby"
 	}
@@ -223,24 +255,17 @@ func (c *Client) GetCurrentGameMode() (string, string) {
 	err = json.Unmarshal(body, &lobbyInfo)
 
 	if lobbyInfo.GameConfig.GameMode == gameModeClassic {
-		pickStrategy := ""
-		switch lobbyInfo.GameConfig.PickType {
-		case blindPickStrategy:
-			pickStrategy = blindPickName
-		case draftPickStrategy:
-			pickStrategy = draftPickName
-		case allRandomPickStrategy:
-			pickStrategy = allRandomPickName
-		}
-
-		return lobbyInfo.GameConfig.GameMode, fmt.Sprintf("%s (%s)", "Normal", pickStrategy)
+		return lobbyInfo.GameConfig.GameMode, "Normal"
 	}
 
 	return lobbyInfo.GameConfig.GameMode, lobbyInfo.GameConfig.GameMode
 }
 
 func (c *Client) GetCurrentChampion() (int, bool) {
-	resp, _ := c.get("lol-champ-select/v1/current-champion")
+	resp, err := c.get("lol-champ-select/v1/current-champion")
+	if err != nil {
+		return -1, false
+	}
 
 	if resp.StatusCode != 200 {
 		return -1, false
@@ -261,7 +286,10 @@ func (c *Client) GetCurrentChampion() (int, bool) {
 }
 
 func (c *Client) GetAssignedRole() (string, bool) {
-	resp, _ := c.get("lol-lobby-team-builder/champ-select/v1/session")
+	resp, err := c.get("lol-lobby-team-builder/champ-select/v1/session")
+	if err != nil {
+		return "", false
+	}
 
 	if resp.StatusCode != 200 {
 		return "", false

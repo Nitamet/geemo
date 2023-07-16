@@ -4,6 +4,13 @@ package util
 
 import "os/exec"
 
-func getCmd() *exec.Cmd {
-	return exec.Command("bash")
+func Execute(command string) string {
+	cmd = exec.Command("bash", "-c", command)
+
+	cmdOutput, err := cmd.Output()
+	if err != nil {
+		return ""
+	}
+
+	return string(cmdOutput)
 }

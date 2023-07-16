@@ -7,10 +7,16 @@ import (
 	"syscall"
 )
 
-func getCmd() *exec.Cmd {
-	cmd := exec.Command("powershell")
-	// Hide powershell window
+const windowsCreateNoWindowFlag = 0x08000000
+
+func Execute(command string) string {
+	cmd := exec.Command("powershell", "-NoProfile", "-NonInteractive", "-Command", command)
 	cmd.SysProcAttr = &syscall.SysProcAttr{CreationFlags: windowsCreateNoWindowFlag}
 
-	return cmd
+	cmdOutput, err := cmd.Output()
+	if err != nil {
+		return ""
+	}
+
+	return string(cmdOutput)
 }

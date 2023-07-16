@@ -6,14 +6,12 @@ import (
 	"context"
 	"fmt"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
-	"log"
 )
 
 // App struct
 type App struct {
 	ctx      context.Context
 	LCU      *lcu.Client
-	Shell    *util.Shell
 	Settings util.Settings
 }
 
@@ -25,7 +23,6 @@ func NewApp() *App {
 // startup is called at application startup
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
-	a.Shell = util.CreateShell()
 }
 
 // domReady is called after front-end resources have been loaded
@@ -42,10 +39,7 @@ func (a *App) beforeClose(ctx context.Context) (prevent bool) {
 
 // shutdown is called at application termination
 func (a *App) shutdown(ctx context.Context) {
-	err := a.Shell.Close()
-	if err != nil {
-		log.Fatalln(err)
-	}
+
 }
 
 // Greet returns a greeting for the given name
@@ -56,7 +50,7 @@ func (a *App) Greet(name string) string {
 // GetLCUState returns the current state of the LCU
 func (a *App) GetLCUState() string {
 	if a.LCU != nil {
-		state := a.LCU.UpdateState(a.Shell)
+		state := a.LCU.UpdateState()
 
 		// If we got "NotLaunched" state while we have a LCU instance, it means that the league client was closed
 		if state != "NotLaunched" {
@@ -67,14 +61,14 @@ func (a *App) GetLCUState() string {
 		a.LCU = nil
 	}
 
-	instance := lcu.TryToGetLCU(a.Shell)
+	instance := lcu.TryToGetLCU()
 	if instance == nil {
 		return "NotLaunched"
 	}
 
 	a.LCU = instance
 
-	return a.LCU.UpdateState(a.Shell)
+	return a.LCU.UpdateState()
 }
 
 func (a *App) GetSummoner() lcu.Summoner {

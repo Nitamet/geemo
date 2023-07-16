@@ -8,6 +8,7 @@ export enum LeagueState {
     NotLaunched = 'NotLaunched',
     NotInLobby = 'NotInLobby',
     InLobby = 'InLobby',
+    InGame = 'InGame',
     //  Playing = 'Playing',
     Unknown = 'Unknown',
 }
@@ -25,6 +26,8 @@ export const useApplicationStore = defineStore('application', {
                     return 'League of Legends is not launched.';
                 case LeagueState.NotInLobby:
                     return 'You are not in lobby.';
+                case LeagueState.InGame:
+                    return 'You are in game.';
                 case LeagueState.Unknown:
                     return 'Unknown state.';
                 default:
