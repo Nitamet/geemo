@@ -1,6 +1,10 @@
 <template>
     <q-layout view="lHh Lpr lFf ">
-        <q-bar v-if="!settingsStore.showNativeTitleBar" class="bar">
+        <q-bar
+            v-if="!settingsStore.showNativeTitleBar"
+            class="bar"
+            @dblclick="Maximize()"
+        >
             <q-space />
             <q-btn dense flat icon="minimize" @click="Minimize()" />
             <q-btn dense flat icon="crop_square" @click="Maximize()" />
