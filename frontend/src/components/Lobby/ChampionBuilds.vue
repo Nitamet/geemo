@@ -80,8 +80,9 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const championNone = -1;
 
-let currentChampion = ref(-1);
+let currentChampion = ref(championNone);
 let currentChampionName = ref('Champion');
 const currentChampionIconUrl = computed(() => {
     return `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/${currentChampion.value}.png`;
@@ -90,15 +91,14 @@ const currentChampionIconUrl = computed(() => {
 const buildCollections = new Map<string, BuildCollection[]>();
 
 const loadBuildCollection = async () => {
+    if (currentChampion.value === championNone) {
+        return;
+    }
+
     const resp = await fetch(
         `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champions/${currentChampion.value}.json`
     );
     const json: { name: string } = await resp.json();
-
-    // TODO: Temporary fix to champion name being none
-    if (json.name === 'none') {
-        return;
-    }
 
     currentChampionName.value = json.name;
 
