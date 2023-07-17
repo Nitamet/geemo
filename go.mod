@@ -1,4 +1,4 @@
-module changeme
+module github.com/Nitamet/geemo
 
 go 1.18
 

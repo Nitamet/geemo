@@ -2,12 +2,12 @@ package lcu
 
 import (
 	"bytes"
-	"changeme/internal/util"
 	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/Nitamet/geemo/internal/util"
 	"io"
 	"log"
 	"net/http"

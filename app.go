@@ -1,10 +1,10 @@
 package main
 
 import (
-	"changeme/internal/lcu"
-	"changeme/internal/util"
 	"context"
 	"fmt"
+	"github.com/Nitamet/geemo/internal/lcu"
+	"github.com/Nitamet/geemo/internal/util"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 

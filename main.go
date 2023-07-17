@@ -1,8 +1,8 @@
 package main
 
 import (
-	"changeme/internal/lolbuild"
 	"embed"
+	"github.com/Nitamet/geemo/internal/lolbuild"
 	"github.com/wailsapp/wails/v2/pkg/options/linux"
 	"log"
 
