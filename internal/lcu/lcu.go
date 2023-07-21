@@ -28,6 +28,13 @@ const (
 	AramMarkSummonerSpellId = 32
 )
 
+const (
+	NotLaunchedStatus = "NotLaunched"
+	NotInLobbyStatus  = "NotInLobby"
+	InLobbyStatus     = "InLobby"
+	InGameStatus      = "InGame"
+)
+
 type Client struct {
 	port     int
 	token    string
@@ -139,20 +146,20 @@ func (c *Client) UpdateState() string {
 	cmdOutput := lookForLCUInstance()
 	_, ok := getGameIdFromArgs(cmdOutput)
 	if ok {
-		return "InGame"
+		return InGameStatus
 	}
 
 	_, ok = getPortFromArgs(cmdOutput)
 	if !ok {
-		return "NotRunning"
+		return NotLaunchedStatus
 	}
 
 	ok = c.IsInLobby()
 	if ok {
-		return "InLobby"
+		return InLobbyStatus
 	}
 
-	return "NotInLobby"
+	return NotInLobbyStatus
 }
 
 func (c *Client) request(method, path string, body io.Reader) (*http.Response, error) {
