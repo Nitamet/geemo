@@ -130,6 +130,7 @@ export namespace lolbuild {
 	    name: string;
 	    slug: string;
 	    iconUrl: string;
+	    isMythic: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new Item(source);
@@ -141,28 +142,21 @@ export namespace lolbuild {
 	        this.name = source["name"];
 	        this.slug = source["slug"];
 	        this.iconUrl = source["iconUrl"];
+	        this.isMythic = source["isMythic"];
 	    }
 	}
-	export class Items {
-	    starting: Item[];
-	    core: Item[];
-	    mythic: Item;
-	    fourth: Item[];
-	    fifth: Item[];
-	    sixth: Item[];
+	export class ItemGroup {
+	    items: Item[];
+	    name: string;
 	
 	    static createFrom(source: any = {}) {
-	        return new Items(source);
+	        return new ItemGroup(source);
 	    }
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.starting = this.convertValues(source["starting"], Item);
-	        this.core = this.convertValues(source["core"], Item);
-	        this.mythic = this.convertValues(source["mythic"], Item);
-	        this.fourth = this.convertValues(source["fourth"], Item);
-	        this.fifth = this.convertValues(source["fifth"], Item);
-	        this.sixth = this.convertValues(source["sixth"], Item);
+	        this.items = this.convertValues(source["items"], Item);
+	        this.name = source["name"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -245,7 +239,8 @@ export namespace lolbuild {
 	    secondary: Rune;
 	    selectedPerks: Rune[];
 	    summonerSpells: SummonerSpell[];
-	    items: Items;
+	    itemGroups: ItemGroup[];
+	    mythic: Item;
 	
 	    static createFrom(source: any = {}) {
 	        return new Build(source);
@@ -260,7 +255,8 @@ export namespace lolbuild {
 	        this.secondary = this.convertValues(source["secondary"], Rune);
 	        this.selectedPerks = this.convertValues(source["selectedPerks"], Rune);
 	        this.summonerSpells = this.convertValues(source["summonerSpells"], SummonerSpell);
-	        this.items = this.convertValues(source["items"], Items);
+	        this.itemGroups = this.convertValues(source["itemGroups"], ItemGroup);
+	        this.mythic = this.convertValues(source["mythic"], Item);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

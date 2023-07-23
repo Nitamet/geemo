@@ -27,27 +27,10 @@
                 <span class="text-h5 text-weight-bold">ITEMS</span>
                 <div class="column q-gutter-y-sm">
                     <ItemGroup
-                        group-name="Starting"
-                        :items="selectedBuild.items.starting"
-                    />
-                    <ItemGroup
-                        group-name="Core"
-                        :items="[
-                            selectedBuild.items.mythic,
-                            ...selectedBuild.items.core,
-                        ]"
-                    />
-                    <ItemGroup
-                        group-name="Fourth"
-                        :items="selectedBuild.items.fourth"
-                    />
-                    <ItemGroup
-                        group-name="Fifth"
-                        :items="selectedBuild.items.fifth"
-                    />
-                    <ItemGroup
-                        group-name="Sixth"
-                        :items="selectedBuild.items.sixth"
+                        v-for="itemGroup in nonEmptyItemGroups"
+                        :key="itemGroup.name"
+                        :group-name="itemGroup.name"
+                        :items="itemGroup.items"
                     />
                 </div>
             </div>
@@ -63,9 +46,14 @@ import { storeToRefs } from 'pinia';
 import SummonerSpell from 'components/Lobby/SummonerSpell.vue';
 import Item from 'components/Lobby/Item.vue';
 import ItemGroup from 'components/Lobby/ItemGroup.vue';
+import { computed } from 'vue';
 
 const application = useApplicationStore();
 const { selectedBuild } = storeToRefs(application);
+
+const nonEmptyItemGroups = computed(() =>
+    selectedBuild.value?.itemGroups.filter((group) => group.items.length > 0)
+);
 </script>
 
 <style lang="scss">

@@ -23,7 +23,7 @@ const props = defineProps({
     },
 });
 
-const size = '48px';
+const size = '52px';
 </script>
 
 <style lang="scss">

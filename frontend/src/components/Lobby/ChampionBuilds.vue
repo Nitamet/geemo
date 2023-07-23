@@ -40,7 +40,7 @@
         <div class="footer">
             <q-btn
                 v-if="selectedBuild !== null"
-                class="button q-mr-lg full-width"
+                class="button q-mt-lg q-mr-lg full-width"
                 label="Import Selected Build"
                 size="16px"
                 color="primary"
@@ -60,7 +60,7 @@ import {
     ApplySummonerSpells,
     GetCurrentChampion,
 } from 'app/wailsjs/go/main/App';
-import { computed, Ref, ref, toRef, watch } from 'vue';
+import { computed, Ref, ref, watch } from 'vue';
 import { whenever } from '@vueuse/core';
 import { LeagueState, useApplicationStore } from 'stores/application-store';
 import { storeToRefs } from 'pinia';
@@ -68,11 +68,11 @@ import { lcu, lolbuild } from 'app/wailsjs/go/models';
 import { LoadBuilds } from 'app/wailsjs/go/lolbuild/Loader';
 import Build from 'components/Lobby/ChampionBuilds/Build.vue';
 import { GameMode, Role } from 'components/models';
+import RolePicker from 'components/RolePicker.vue';
+import { useSettingsStore } from 'stores/settings-store';
 import BuildCollection = lolbuild.BuildCollection;
 import BuildInfo = lolbuild.Build;
-import RolePicker from 'components/RolePicker.vue';
 import ItemSet = lcu.ItemSet;
-import { useSettingsStore } from 'stores/settings-store';
 
 interface Props {
     gameMode: GameMode;
@@ -104,7 +104,7 @@ const loadBuildCollection = async () => {
 
     const buildCollection = await LoadBuilds(
         currentChampionName.value,
-        ['ugg'],
+        ['ugg', 'mobalytics'],
         selectedRole.value
     );
 
@@ -190,6 +190,36 @@ const selectBuild = (build: BuildInfo, source: string) => {
     }
 };
 
+const getItemSet = (build: lolbuild.Build) => {
+    const itemBlocks: {
+        type: string;
+        items: { id: string; count: number }[];
+    }[] = [];
+    for (const itemGroup of build.itemGroups) {
+        itemBlocks.push({
+            type: itemGroup.name,
+            items: itemGroup.items.map((item) => ({
+                id: item.id.toString(),
+                count: 1,
+            })),
+        });
+    }
+
+    return {
+        title: `${currentChampionName.value}: ${build.name}`,
+        associatedChampions: [],
+        associatedMaps: [],
+        type: 'custom',
+        map: 'any',
+        mode: 'any',
+        startedFrom: 'blank',
+        uid: '1',
+        preferredItemSlots: [],
+        sortrank: 0,
+        blocks: itemBlocks,
+    };
+};
+
 const importBuild = (build: BuildInfo, source: string) => {
     const selectedPerks = build.selectedPerks.map((perk) => perk.id);
 
@@ -213,52 +243,9 @@ const importBuild = (build: BuildInfo, source: string) => {
         summonerSpells.secondSpellId
     );
 
-    const convertToItemSet = (items: lolbuild.Item[]) =>
-        items.map((item) => ({
-            id: item.id.toString(),
-            count: 1,
-        }));
+    const itemSetRaw = getItemSet(build);
 
-    const itemBlocks = [
-        {
-            type: 'Starting',
-            items: convertToItemSet(build.items.starting),
-        },
-        {
-            type: 'Core',
-            items: convertToItemSet(
-                build.items.core.concat(build.items.mythic)
-            ),
-        },
-        {
-            type: 'Fourth',
-            items: convertToItemSet(build.items.fourth),
-        },
-        {
-            type: 'Fifth',
-            items: convertToItemSet(build.items.fifth),
-        },
-        {
-            type: 'Sixth',
-            items: convertToItemSet(build.items.sixth),
-        },
-    ];
-
-    const itemSet = {
-        title: `${currentChampionName.value}: ${build.name}`,
-        associatedChampions: [],
-        associatedMaps: [],
-        type: 'custom',
-        map: 'any',
-        mode: 'any',
-        startedFrom: 'blank',
-        uid: '1',
-        preferredItemSlots: [],
-        sortrank: 0,
-        blocks: itemBlocks,
-    };
-
-    ApplyItemSet(ItemSet.createFrom(itemSet));
+    ApplyItemSet(ItemSet.createFrom(itemSetRaw));
 };
 
 const importSelectedBuild = () => {

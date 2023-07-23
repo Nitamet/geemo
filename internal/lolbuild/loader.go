@@ -58,18 +58,15 @@ type SummonerSpell struct {
 	Name    string `json:"name"`
 }
 type Item struct {
-	ID      int    `json:"id"`
-	Name    string `json:"name"`
-	Slug    string `json:"slug"`
-	IconUrl string `json:"iconUrl"`
+	ID       int    `json:"id"`
+	Name     string `json:"name"`
+	Slug     string `json:"slug"`
+	IconUrl  string `json:"iconUrl"`
+	IsMythic bool   `json:"isMythic"`
 }
-type Items struct {
-	Starting []Item `json:"starting"`
-	Core     []Item `json:"core"`
-	Mythic   Item   `json:"mythic"`
-	Fourth   []Item `json:"fourth"`
-	Fifth    []Item `json:"fifth"`
-	Sixth    []Item `json:"sixth"`
+type ItemGroup struct {
+	Items []Item `json:"items"`
+	Name  string `json:"name"`
 }
 
 type Build struct {
@@ -80,7 +77,8 @@ type Build struct {
 	Secondary      Rune            `json:"secondary"`
 	SelectedPerks  []Rune          `json:"selectedPerks"`
 	SummonerSpells []SummonerSpell `json:"summonerSpells"`
-	Items          Items           `json:"items"`
+	ItemGroups     []ItemGroup     `json:"itemGroups"`
+	Mythic         Item            `json:"mythic"`
 }
 
 type BuildCollection struct {
@@ -179,7 +177,8 @@ func (l *Loader) clearChampionName(championName string) string {
 
 func (l *Loader) getSourceName(source string) string {
 	names := map[string]string{
-		"ugg": "U.GG",
+		"ugg":        "U.GG",
+		"mobalytics": "Mobalytics",
 	}
 
 	name, ok := names[source]

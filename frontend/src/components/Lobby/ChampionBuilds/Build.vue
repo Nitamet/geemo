@@ -15,7 +15,7 @@
         <q-avatar size="42px" rounded>
             <img :src="getCoreItem().iconUrl" :alt="getCoreItem().name" />
         </q-avatar>
-        <div class="column">
+        <div class="build-name column">
             <span class="text-bold">
                 {{ props.build.name }}
             </span>
@@ -58,13 +58,21 @@ const emit = defineEmits<{
 }>();
 
 const getCoreItem = () => {
-    if ('' !== props.build.items.mythic.name) {
-        return props.build.items.mythic;
+    if ('' !== props.build.mythic.name) {
+        return props.build.mythic;
+    }
+
+    const coreItemGroup = props.build.itemGroups.find(
+        (itemGroup) => itemGroup.name === 'Core'
+    );
+
+    if (undefined === coreItemGroup) {
+        throw new Error('Core item group not found');
     }
 
     // If we don't have a mythic item, we'll use the second core item
     // Because the first core item is the boots
-    return props.build.items.core[1];
+    return coreItemGroup.items[1];
 };
 </script>
 
@@ -78,6 +86,16 @@ const getCoreItem = () => {
 
 .build:hover {
     cursor: pointer;
+}
+
+.build-name {
+    flex: 1;
+}
+
+@media (max-width: $breakpoint-md-max) {
+    .build-name {
+        font-size: 12px;
+    }
 }
 
 .selected {
