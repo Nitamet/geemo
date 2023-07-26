@@ -102,11 +102,13 @@ const loadBuildCollection = async () => {
 
     currentChampionName.value = json.name;
 
-    const buildCollection = await LoadBuilds(
-        currentChampionName.value,
-        ['ugg', 'mobalytics'],
-        selectedRole.value
-    );
+    const buildCollection = (
+        await LoadBuilds(
+            currentChampionName.value,
+            ['ugg', 'mobalytics'],
+            selectedRole.value
+        )
+    ).sort((a, b) => a.source.localeCompare(b.source));
 
     buildCollections.set(
         `${currentChampion.value}-${selectedRole.value}`,
