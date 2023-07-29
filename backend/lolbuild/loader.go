@@ -12,7 +12,7 @@ import (
 
 // URLs-related constants
 const (
-	buildCollectionsHost       = "https://pub-a6897392811e428684cf50a774ddc3fc.r2.dev"
+	buildCollectionsHost       = "https://geemo.app"
 	dataDragonVersionsUrl      = "https://ddragon.leagueoflegends.com/api/versions.json"
 	dataDragonRunesReforgedUrl = "http://ddragon.leagueoflegends.com/cdn/%s/data/en_US/runesReforged.json"
 	dataDragonAssetsUrl        = "https://ddragon.leagueoflegends.com/cdn/img/"
