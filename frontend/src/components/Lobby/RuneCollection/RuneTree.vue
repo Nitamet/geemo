@@ -28,7 +28,7 @@ import RuneTreeData = lolbuild.RuneTree;
 import { whenever } from '@vueuse/core';
 import { storeToRefs } from 'pinia';
 import { useApplicationStore } from 'stores/application-store';
-import { LoadRuneTree } from 'app/wailsjs/go/lolbuild/Loader';
+import { GetRuneTree } from 'app/wailsjs/go/lolbuild/Loader';
 import Perks from 'components/Lobby/RuneCollection/Perks.vue';
 
 const props = defineProps({
@@ -48,7 +48,7 @@ const loadTree = async () => {
         const name = props.secondary
             ? selectedBuild.value.secondary.name
             : selectedBuild.value.primary.name;
-        tree.value = await LoadRuneTree(name);
+        tree.value = await GetRuneTree(name);
     }
 };
 

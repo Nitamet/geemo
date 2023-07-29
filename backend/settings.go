@@ -1,4 +1,4 @@
-package util
+package backend
 
 import (
 	"encoding/json"
@@ -18,7 +18,7 @@ type Settings struct {
 func InitializeSettings() Settings {
 	configDir, err := os.UserConfigDir()
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	settingsPath := filepath.FromSlash(configDir + "/geemo/settings.json")
@@ -33,12 +33,12 @@ func InitializeSettings() Settings {
 	}
 	file, err := os.Open(settingsPath)
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	err = json.NewDecoder(file).Decode(&settings)
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	// print settings struct
@@ -53,7 +53,7 @@ func createNewSettingsFile(configDir string) Settings {
 
 	err := os.MkdirAll(path, os.ModePerm)
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	// Then create the settings file
@@ -61,7 +61,7 @@ func createNewSettingsFile(configDir string) Settings {
 
 	file, err := os.Create(path)
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 	defer file.Close()
 
@@ -79,12 +79,12 @@ func createNewSettingsFile(configDir string) Settings {
 	}
 	settingsJson, err := json.MarshalIndent(settings, "", "  ")
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	_, err = file.Write(settingsJson)
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	return settings
@@ -94,17 +94,17 @@ func (s *Settings) Save() {
 	// os.Create() truncates the file if it already exists
 	file, err := os.Create(s.path)
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 	defer file.Close()
 
 	settingsJson, err := json.MarshalIndent(s, "", "  ")
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	_, err = file.Write(settingsJson)
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 }

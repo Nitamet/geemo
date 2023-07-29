@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { GetLCUState } from 'app/wailsjs/go/main/App';
-import { delay } from 'src/util/misc';
+import { delay } from 'src/delay';
 import { lolbuild } from 'app/wailsjs/go/models';
 import Build = lolbuild.Build;
 
@@ -23,7 +23,7 @@ export const useApplicationStore = defineStore('application', {
         getLeagueStateMessage(): string {
             switch (this.leagueState) {
                 case LeagueState.NotLaunched:
-                    return 'League of Legends is not launched.';
+                    return 'League of Legends has not been launched.';
                 case LeagueState.NotInLobby:
                     return 'You are not in lobby.';
                 case LeagueState.InGame:

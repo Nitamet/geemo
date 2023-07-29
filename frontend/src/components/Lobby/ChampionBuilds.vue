@@ -53,7 +53,7 @@
 
 <script setup lang="ts">
 import Champion from 'components/Lobby/ChampionBuilds/Champion.vue';
-import { delay } from 'src/util/misc';
+import { delay } from 'src/delay';
 import {
     ApplyItemSet,
     ApplyRunes,

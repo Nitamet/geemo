@@ -1,3 +1,4 @@
+// Package lolbuild provides functions for loading builds from different sources
 package lolbuild
 
 import (
@@ -9,6 +10,7 @@ import (
 	"sync"
 )
 
+// URLs-related constants
 const (
 	buildCollectionsHost       = "https://pub-a6897392811e428684cf50a774ddc3fc.r2.dev"
 	dataDragonVersionsUrl      = "https://ddragon.leagueoflegends.com/api/versions.json"
@@ -17,10 +19,11 @@ const (
 )
 
 type Loader struct {
-	runeTrees RuneTrees
-	version   string
+	runeTrees RuneTrees // All game rune trees
+	version   string    // Latest version of the game
 }
 
+// RawRuneTree is a raw rune tree structure from data dragon
 type RawRuneTree struct {
 	ID    int    `json:"id"`
 	Key   string `json:"key"`
@@ -37,6 +40,8 @@ type RawRuneTree struct {
 		} `json:"runes"`
 	} `json:"slots"`
 }
+
+// RuneTree is a rune tree structure ready to be used in the app
 type RuneTree struct {
 	Name      string `json:"name"`
 	Keystones []Rune `json:"keystones"`
@@ -69,6 +74,7 @@ type ItemGroup struct {
 	Name  string `json:"name"`
 }
 
+// Build is a build structure ready to be used in the app
 type Build struct {
 	Name           string          `json:"name"`
 	Winrate        float64         `json:"winrate"`
@@ -81,12 +87,14 @@ type Build struct {
 	Mythic         Item            `json:"mythic"`
 }
 
+// BuildCollection is a collection of builds from a single source
 type BuildCollection struct {
 	Builds []Build `json:"builds"`
 	Source string  `json:"source"`
 }
 
-func (l *Loader) getRuneTrees() RuneTrees {
+// loadRuneTrees loads all rune trees from data dragon
+func (l *Loader) loadRuneTrees() RuneTrees {
 	if l.runeTrees != nil {
 		return l.runeTrees
 	}
@@ -108,8 +116,9 @@ func (l *Loader) getRuneTrees() RuneTrees {
 	return l.runeTrees
 }
 
-func (l *Loader) LoadRuneTree(name string) RuneTree {
-	runeTrees := l.getRuneTrees()
+// GetRuneTree returns a rune tree by its name
+func (l *Loader) GetRuneTree(name string) RuneTree {
+	runeTrees := l.loadRuneTrees()
 
 	for _, runeTree := range runeTrees {
 		if runeTree.Name == name {
@@ -117,9 +126,12 @@ func (l *Loader) LoadRuneTree(name string) RuneTree {
 		}
 	}
 
+	log.Printf("Unknown rune tree %s", name)
+
 	return RuneTree{}
 }
 
+// LoadBuilds loads builds for a given champion and role from specified sources
 func (l *Loader) LoadBuilds(championName string, sources []string, role string) []BuildCollection {
 	var wg sync.WaitGroup
 	builds := make([]BuildCollection, 0)
@@ -146,27 +158,32 @@ func (l *Loader) LoadBuilds(championName string, sources []string, role string) 
 	return builds
 }
 
+// loadBuild loads builds for a given champion and role from a specified source
 func (l *Loader) loadBuild(championName string, source string, role string) *BuildCollection {
-	println(fmt.Sprintf("%s/%s/%s/%s.json", buildCollectionsHost, source, role, l.clearChampionName(championName)))
-	resp, err := http.Get(fmt.Sprintf("%s/%s/%s/%s.json", buildCollectionsHost, source, role, l.clearChampionName(championName)))
+	buildUrl := fmt.Sprintf("%s/%s/%s/%s.json", buildCollectionsHost, source, role, l.clearChampionName(championName))
+
+	log.Printf("Loading build from %s", buildUrl)
+
+	resp, err := http.Get(buildUrl)
 	if err != nil {
-		println(err.Error())
-		return nil
+		log.Panic(err)
 	}
 
 	var buildCollection BuildCollection
 	err = json.NewDecoder(resp.Body).Decode(&buildCollection)
 
 	if err != nil {
-		println(err.Error())
-		return nil
+		log.Panic(err)
 	}
 
 	buildCollection.Source = l.getSourceName(source)
 
+	log.Println("Build loaded")
+
 	return &buildCollection
 }
 
+// clearChampionName clears champion name from spaces and apostrophes
 func (l *Loader) clearChampionName(championName string) string {
 	clearedChampionName := strings.Replace(championName, "'", "", -1)
 	clearedChampionName = strings.Replace(championName, " ", "", -1)
@@ -175,6 +192,7 @@ func (l *Loader) clearChampionName(championName string) string {
 	return clearedChampionName
 }
 
+// getSourceName returns a human-readable name for a given source
 func (l *Loader) getSourceName(source string) string {
 	names := map[string]string{
 		"ugg":        "U.GG",
@@ -189,6 +207,7 @@ func (l *Loader) getSourceName(source string) string {
 	return name
 }
 
+// getLatestVersion returns the latest version of the game
 func (l *Loader) getLatestVersion() string {
 	if l.version != "" {
 		return l.version
@@ -196,19 +215,23 @@ func (l *Loader) getLatestVersion() string {
 
 	resp, err := http.Get(dataDragonVersionsUrl)
 	if err != nil {
-		log.Fatalln("Error fetching versions")
+		log.Panic("Error fetching versions")
 	}
 
 	var versions []string
-	json.NewDecoder(resp.Body).Decode(&versions)
+	err = json.NewDecoder(resp.Body).Decode(&versions)
+	if err != nil {
+		log.Panic(err)
+	}
 
 	l.version = versions[0]
 
 	return l.version
 }
 
+// transformRawRuneTrees transforms raw rune trees from data dragon into rune trees that are ready to be used in the app
 func transformRawRuneTrees(rawRuneTrees []RawRuneTree) RuneTrees {
-	runeTrees := make(RuneTrees, 0)
+	runeTrees := make(RuneTrees, 0, len(rawRuneTrees))
 
 	for _, rawRuneTree := range rawRuneTrees {
 		runeTree := RuneTree{

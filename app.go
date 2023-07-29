@@ -3,21 +3,22 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/Nitamet/geemo/internal/lcu"
-	"github.com/Nitamet/geemo/internal/util"
+	"github.com/Nitamet/geemo/backend"
+	"github.com/Nitamet/geemo/backend/lcu"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"log"
 )
 
 // App struct
 type App struct {
 	ctx      context.Context
 	LCU      *lcu.Client
-	Settings util.Settings
+	Settings backend.Settings
 }
 
 // NewApp creates a new App application struct
 func NewApp() *App {
-	return &App{Settings: util.InitializeSettings()}
+	return &App{Settings: backend.InitializeSettings()}
 }
 
 // startup is called at application startup
@@ -52,8 +53,8 @@ func (a *App) GetLCUState() string {
 	if a.LCU != nil {
 		state := a.LCU.UpdateState()
 
-		// If we got "NotLaunched" state while we have a LCU instance, it means that the league client was closed
-		if state != lcu.NotLaunchedStatus {
+		// If we got "StateNotLaunched" state while we have a LCU instance, it means that the league client was closed
+		if state != lcu.StateNotLaunched {
 			return state
 		}
 
@@ -63,7 +64,7 @@ func (a *App) GetLCUState() string {
 
 	instance := lcu.TryToGetLCU()
 	if instance == nil {
-		return lcu.NotLaunchedStatus
+		return lcu.StateNotLaunched
 	}
 
 	a.LCU = instance
@@ -73,7 +74,7 @@ func (a *App) GetLCUState() string {
 
 func (a *App) GetSummoner() lcu.Summoner {
 	if a.LCU == nil {
-		return lcu.Summoner{}
+		log.Panic("LCU not found")
 	}
 
 	return a.LCU.CurrentSummoner()
@@ -81,40 +82,40 @@ func (a *App) GetSummoner() lcu.Summoner {
 
 func (a *App) GetCurrentChampion() int {
 	if a.LCU == nil {
-		return 0
+		log.Panic("LCU not found")
 	}
 
 	championId, _ := a.LCU.GetCurrentChampion()
 	return championId
 }
 
-func (a *App) ApplyRunes(runes lcu.RunePage) error {
+func (a *App) ApplyRunes(runes lcu.RunePage) {
 	if a.LCU == nil {
-		return fmt.Errorf("LCU not found")
+		log.Panic("LCU not found")
 	}
 
-	return a.LCU.ApplyRunes(runes)
+	a.LCU.ApplyRunes(runes)
 }
 
-func (a *App) ApplySummonerSpells(firstSpellId int, secondSpellId int) error {
+func (a *App) ApplySummonerSpells(firstSpellId int, secondSpellId int) {
 	if a.LCU == nil {
-		return fmt.Errorf("LCU not found")
+		log.Panic("LCU not found")
 	}
 
-	return a.LCU.ApplySummonerSpells(firstSpellId, secondSpellId)
+	a.LCU.ApplySummonerSpells(firstSpellId, secondSpellId)
 }
 
-func (a *App) ApplyItemSet(itemSet lcu.ItemSet) error {
+func (a *App) ApplyItemSet(itemSet lcu.ItemSet) {
 	if a.LCU == nil {
-		return fmt.Errorf("LCU not found")
+		log.Panic("LCU not found")
 	}
 
-	return a.LCU.ApplyItemSet(itemSet)
+	a.LCU.ApplyItemSet(itemSet)
 }
 
 func (a *App) GetGameMode() []string {
 	if a.LCU == nil {
-		return []string{"NONE"}
+		log.Panic("LCU not found")
 	}
 
 	gameMode, gameModeAsString := a.LCU.GetCurrentGameMode()
@@ -124,7 +125,7 @@ func (a *App) GetGameMode() []string {
 
 func (a *App) GetAssignedRole() string {
 	if a.LCU == nil {
-		return ""
+		log.Panic("LCU not found")
 	}
 
 	position, _ := a.LCU.GetAssignedRole()

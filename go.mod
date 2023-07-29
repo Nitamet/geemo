@@ -2,9 +2,13 @@ module github.com/Nitamet/geemo
 
 go 1.18
 
-require github.com/wailsapp/wails/v2 v2.5.1
+require (
+	github.com/natefinch/lumberjack v2.0.0+incompatible
+	github.com/wailsapp/wails/v2 v2.5.1
+)
 
 require (
+	github.com/BurntSushi/toml v1.3.2 // indirect
 	github.com/bep/debounce v1.2.1 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/google/uuid v1.1.2 // indirect
@@ -28,6 +32,8 @@ require (
 	golang.org/x/net v0.7.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect
 	golang.org/x/text v0.7.0 // indirect
+	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
 // replace github.com/wailsapp/wails/v2 v2.4.1 => /home/nikita/go/pkg/mod

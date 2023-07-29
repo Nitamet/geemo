@@ -1,3 +1,4 @@
+// Package lcu provides a client to work with the LCU API
 package lcu
 
 import (
@@ -5,9 +6,8 @@ import (
 	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"fmt"
-	"github.com/Nitamet/geemo/internal/util"
+	"github.com/Nitamet/geemo/backend/shell"
 	"io"
 	"log"
 	"net/http"
@@ -17,37 +17,46 @@ import (
 	"time"
 )
 
+// Game modes
 const (
 	gameModeNone    = "NONE"
 	gameModeAram    = "ARAM"
 	gameModeClassic = "CLASSIC"
 )
 
+// Summoner spell ids
 const (
-	UrfMarkSummonerSpellId  = 39
-	AramMarkSummonerSpellId = 32
+	SummonerSpellIdUrfMark  = 39
+	SummonerSpellIdAramMark = 32
 )
 
+// LCU states
 const (
-	NotLaunchedStatus = "NotLaunched"
-	NotInLobbyStatus  = "NotInLobby"
-	InLobbyStatus     = "InLobby"
-	InGameStatus      = "InGame"
+	StateNotLaunched = "NotLaunched"
+	StateNotInLobby  = "NotInLobby"
+	StateInLobby     = "InLobby"
+	StateInGame      = "InGame"
 )
 
+// Client represents a LCU client
 type Client struct {
-	port     int
-	token    string
-	http     *http.Client
-	summoner *Summoner
+	port     int          // Port of the LCU instance
+	token    string       // Token used to authenticate requests
+	http     *http.Client // HTTP client configured to work with the LCU (ignores SSL errors, etc...)
+	summoner *Summoner    // Logged in summoner
 }
 
+// Regexps used to get the port and token from the LCU command line arguments
 var portRegExp = regexp.MustCompile(`--app-port=(\d+)`)
 var tokenRegExp = regexp.MustCompile(`--remoting-auth-token=([a-zA-Z0-9-_]+)`)
-var gameModeIdRegExp = regexp.MustCompile(`-GameID=(\d+)`)
 
+// TryToGetLCU tries to get the LCU instance and returns a LCU client if it succeeds
 func TryToGetLCU() *Client {
-	cmdOutput := lookForLCUInstance()
+	cmdOutput, running := getLCUArgs()
+
+	if !running {
+		return nil
+	}
 
 	port, ok := getPortFromArgs(cmdOutput)
 	if !ok {
@@ -71,37 +80,41 @@ func TryToGetLCU() *Client {
 	}
 }
 
-func lookForLCUInstance() string {
+// getLCUArgs returns the command line arguments of the LCU instance and whether an instance is running
+func getLCUArgs() (string, bool) {
 	var output string
 
 	switch os := runtime.GOOS; os {
 	case "linux":
-		output = util.Execute("ps x -o args | grep 'LeagueClientUx'")
+		output = shell.Execute("ps x -o args | grep 'LeagueClientUx'")
 	case "windows":
 		lcuCommand := "Get-CimInstance Win32_Process -Filter \"name = 'LeagueClientUX.exe'\" | Select-Object -ExpandProperty CommandLine"
 		gameClientCommand := "Get-CimInstance Win32_Process -Filter \"name = 'League Of Legends.exe'\" | Select-Object -ExpandProperty CommandLine"
 
-		output = util.Execute(fmt.Sprintf("%s; %s", lcuCommand, gameClientCommand))
+		output = shell.Execute(fmt.Sprintf("%s; %s", lcuCommand, gameClientCommand))
 	default:
-		log.Fatalln("Unsupported OS")
+		log.Panicf("Unsupported OS %s", os)
 	}
 
-	return output
+	if output == "" {
+		return "", false
+	}
+
+	return output, true
 }
 
+// IsGameClientRunning checks whether the LoL Game Client is running or not
 func (c *Client) isGameClientRunning() bool {
 	var output string
 
 	switch os := runtime.GOOS; os {
 	case "linux":
-		output = util.Execute("ps x -o args | grep 'League Of Legends'")
+		output = shell.Execute("ps x -o args | grep 'League Of Legends'")
 	case "windows":
-		output = util.Execute("Get-CimInstance Win32_Process -Filter \"name = 'League Of Legends.exe'\" | Select-Object -ExpandProperty CommandLine")
+		output = shell.Execute("Get-CimInstance Win32_Process -Filter \"name = 'League Of Legends.exe'\" | Select-Object -ExpandProperty CommandLine")
 	default:
-		log.Fatalln("Unsupported OS")
+		log.Panicf("Unsupported OS %s", os)
 	}
-
-	println("output " + output)
 
 	if output == "" {
 		return false
@@ -110,6 +123,7 @@ func (c *Client) isGameClientRunning() bool {
 	return true
 }
 
+// getPortFromArgs returns the port of the LCU instance and whether it succeeded or not
 func getPortFromArgs(args string) (int, bool) {
 	portArg := portRegExp.FindStringSubmatch(args)
 
@@ -122,6 +136,7 @@ func getPortFromArgs(args string) (int, bool) {
 	return port, true
 }
 
+// getTokenFromArgs returns the token of the LCU instance and whether it succeeded or not
 func getTokenFromArgs(args string) (string, bool) {
 	tokenArg := tokenRegExp.FindStringSubmatch(args)
 
@@ -132,36 +147,26 @@ func getTokenFromArgs(args string) (string, bool) {
 	return tokenArg[1], true
 }
 
-func getGameIdFromArgs(args string) (string, bool) {
-	gameIdArg := gameModeIdRegExp.FindStringSubmatch(args)
-
-	if len(gameIdArg) < 2 {
-		return "", false
-	}
-
-	return gameIdArg[1], true
-}
-
+// UpdateState updates the state of the LCU instance and returns current state
 func (c *Client) UpdateState() string {
-	cmdOutput := lookForLCUInstance()
-	_, ok := getGameIdFromArgs(cmdOutput)
+	if c.isGameClientRunning() {
+		return StateInGame
+	}
+
+	_, running := getLCUArgs()
+	if !running {
+		return StateNotLaunched
+	}
+
+	ok := c.IsInLobby()
 	if ok {
-		return InGameStatus
+		return StateInLobby
 	}
 
-	_, ok = getPortFromArgs(cmdOutput)
-	if !ok {
-		return NotLaunchedStatus
-	}
-
-	ok = c.IsInLobby()
-	if ok {
-		return InLobbyStatus
-	}
-
-	return NotInLobbyStatus
+	return StateNotInLobby
 }
 
+// request sends a request to the LCU API
 func (c *Client) request(method, path string, body io.Reader) (*http.Response, error) {
 	req, err := http.NewRequest(method, fmt.Sprintf("https://127.0.0.1:%d/%s", c.port, path), body)
 	if err != nil {
@@ -182,26 +187,32 @@ func (c *Client) request(method, path string, body io.Reader) (*http.Response, e
 	return resp, nil
 }
 
+// get sends a GET request to the LCU API
 func (c *Client) get(path string) (*http.Response, error) {
 	return c.request("GET", path, nil)
 }
 
+// post sends a POST request to the LCU API
 func (c *Client) post(path string, body io.Reader) (*http.Response, error) {
 	return c.request("POST", path, body)
 }
 
+// put sends a PUT request to the LCU API
 func (c *Client) put(path string, body io.Reader) (*http.Response, error) {
 	return c.request("PUT", path, body)
 }
 
+// patch sends a PATCH request to the LCU API
 func (c *Client) patch(path string, body io.Reader) (*http.Response, error) {
 	return c.request("PATCH", path, body)
 }
 
+// delete sends a DELETE request to the LCU API
 func (c *Client) delete(path string) (*http.Response, error) {
 	return c.request("DELETE", path, nil)
 }
 
+// Summoner represents a summoner
 type Summoner struct {
 	AccountId     int64  `json:"accountId"`
 	Name          string `json:"displayName"`
@@ -209,6 +220,7 @@ type Summoner struct {
 	SummonerId    int64  `json:"summonerId"`
 }
 
+// CurrentSummoner returns the current logged in summoner
 func (c *Client) CurrentSummoner() Summoner {
 	if c.summoner != nil {
 		return *c.summoner
@@ -219,12 +231,12 @@ func (c *Client) CurrentSummoner() Summoner {
 	resp, _ := c.get("lol-summoner/v1/current-summoner")
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	err = json.Unmarshal(body, &summoner)
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	c.summoner = &summoner
@@ -232,8 +244,11 @@ func (c *Client) CurrentSummoner() Summoner {
 	return summoner
 }
 
+// IsInLobby checks whether the current summoner is in lobby
 func (c *Client) IsInLobby() bool {
 	resp, err := c.get("lol-lobby/v2/lobby")
+
+	// Don't panic if we get an error, it means that the client has not been started yet
 	if err != nil {
 		return false
 	}
@@ -241,6 +256,7 @@ func (c *Client) IsInLobby() bool {
 	return resp.StatusCode == 200
 }
 
+// GetCurrentGameMode returns both the LCU game mode name and the formatted game mode name
 func (c *Client) GetCurrentGameMode() (string, string) {
 	resp, err := c.get("lol-lobby/v2/lobby")
 	if err != nil {
@@ -249,7 +265,7 @@ func (c *Client) GetCurrentGameMode() (string, string) {
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	var lobbyInfo struct {
@@ -268,10 +284,11 @@ func (c *Client) GetCurrentGameMode() (string, string) {
 	return lobbyInfo.GameConfig.GameMode, lobbyInfo.GameConfig.GameMode
 }
 
+// GetCurrentChampion returns the current champion id and whether a champion is selected
 func (c *Client) GetCurrentChampion() (int, bool) {
 	resp, err := c.get("lol-champ-select/v1/current-champion")
 	if err != nil {
-		return -1, false
+		log.Panic(err)
 	}
 
 	if resp.StatusCode != 200 {
@@ -280,22 +297,24 @@ func (c *Client) GetCurrentChampion() (int, bool) {
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	var championId int
 	err = json.Unmarshal(body, &championId)
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	return championId, true
 }
 
+// GetAssignedRole returns the current assigned role and whether a role was assigned
 func (c *Client) GetAssignedRole() (string, bool) {
 	resp, err := c.get("lol-lobby-team-builder/champ-select/v1/session")
+
 	if err != nil {
-		return "", false
+		log.Panic(err)
 	}
 
 	if resp.StatusCode != 200 {
@@ -304,7 +323,7 @@ func (c *Client) GetAssignedRole() (string, bool) {
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	var session struct {
@@ -315,7 +334,7 @@ func (c *Client) GetAssignedRole() (string, bool) {
 	}
 	err = json.Unmarshal(body, &session)
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	position := ""
@@ -333,13 +352,14 @@ func (c *Client) GetAssignedRole() (string, bool) {
 	return position, true
 }
 
-func (c *Client) ApplySummonerSpells(firstSpellId int, secondSpellId int) error {
+// ApplySummonerSpells applies the given summoner spells
+func (c *Client) ApplySummonerSpells(firstSpellId int, secondSpellId int) {
 	// TODO: Temporary fix for ARAM
-	if firstSpellId == UrfMarkSummonerSpellId {
-		firstSpellId = AramMarkSummonerSpellId
+	if firstSpellId == SummonerSpellIdUrfMark {
+		firstSpellId = SummonerSpellIdAramMark
 	}
-	if secondSpellId == UrfMarkSummonerSpellId {
-		secondSpellId = AramMarkSummonerSpellId
+	if secondSpellId == SummonerSpellIdUrfMark {
+		secondSpellId = SummonerSpellIdAramMark
 	}
 
 	spellsJson := struct {
@@ -353,39 +373,45 @@ func (c *Client) ApplySummonerSpells(firstSpellId int, secondSpellId int) error 
 	encodedSpells, _ := json.Marshal(spellsJson)
 	resp, err := c.patch("lol-champ-select/v1/session/my-selection", bytes.NewBuffer(encodedSpells))
 	if err != nil {
-		return err
+		log.Panic(err)
 	}
 
-	if resp.StatusCode != 200 {
-		return errors.New("error applying summoner spells")
+	if resp.StatusCode != 204 {
+		log.Panicf("Error while applying summoner spells, got status code %d", resp.StatusCode)
 	}
 
-	return nil
+	log.Println("Applied summoner spells")
 }
 
+// Item represents a LoL item
 type Item struct {
 	Count int    `json:"count"`
 	Id    string `json:"id"`
 }
+
+// ItemBlock represents a group of items
 type ItemBlock struct {
 	Items []Item `json:"items"`
 	Type  string `json:"type"`
 }
+
+// ItemSet represents a set of item blocks associated with a champions and maps
 type ItemSet struct {
 	AssociatedChampions []int       `json:"associatedChampions"`
 	AssociatedMaps      []int       `json:"associatedMaps"`
 	Blocks              []ItemBlock `json:"blocks"`
 	Title               string      `json:"title"`
 }
+
+// ItemSets represents a group of item sets
 type ItemSets struct {
 	AccountId int64     `json:"accountId"`
 	ItemSets  []ItemSet `json:"itemSets"`
 	Timestamp int64     `json:"timestamp"`
 }
 
-func (c *Client) ApplyItemSet(itemSet ItemSet) error {
-	println("Apply item set")
-
+// ApplyItemSet applies the given item set
+func (c *Client) ApplyItemSet(itemSet ItemSet) {
 	currentSummoner := c.CurrentSummoner()
 
 	itemSets := ItemSets{
@@ -398,19 +424,17 @@ func (c *Client) ApplyItemSet(itemSet ItemSet) error {
 	println(fmt.Sprintf("Encoded item sets: %s", encodedItemSets))
 	resp, err := c.put(fmt.Sprintf("lol-item-sets/v1/item-sets/%d/sets", c.CurrentSummoner().SummonerId), bytes.NewBuffer(encodedItemSets))
 	if err != nil {
-		println(err.Error())
-		return err
+		log.Panic()
 	}
 
 	if resp.StatusCode != 201 {
-		return errors.New("could not apply item set")
+		log.Panicf("Error while applying item set, got status code %d", resp.StatusCode)
 	}
 
-	println("Applied item set")
-
-	return nil
+	log.Println("Applied item set")
 }
 
+// RunePage represents a LoL rune page
 type RunePage struct {
 	Name            string `json:"name"`
 	PrimaryStyleId  int    `json:"primaryStyleId"`
@@ -419,33 +443,34 @@ type RunePage struct {
 	Current         bool   `json:"current"`
 }
 
-func (c *Client) ApplyRunes(runes RunePage) error {
+// ApplyRunes applies the given rune page
+func (c *Client) ApplyRunes(runes RunePage) {
 	c.deleteCurrentRunePage()
 
 	encodedRunes, _ := json.Marshal(runes)
 	println(fmt.Sprintf("Encoded runes: %s", encodedRunes))
 	resp, err := c.post("lol-perks/v1/pages", bytes.NewBuffer(encodedRunes))
 	if err != nil {
-		println("return")
-		return err
+		log.Panic(err)
 	}
 
 	if resp.StatusCode != 200 {
-		return errors.New("could not apply runes")
+		log.Panicf("Error while applying runes, got status code %d", resp.StatusCode)
 	}
 
-	return nil
+	log.Println("Applied runes")
 }
 
+// deleteCurrentRunePage deletes the current rune page
 func (c *Client) deleteCurrentRunePage() {
 	resp, err := c.get("lol-perks/v1/currentpage")
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	var currentPage struct {
@@ -453,15 +478,17 @@ func (c *Client) deleteCurrentRunePage() {
 	}
 	err = json.Unmarshal(body, &currentPage)
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	resp, err = c.delete(fmt.Sprintf("lol-perks/v1/pages/%d", currentPage.Id))
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	if resp.StatusCode != 204 {
-		log.Fatalln("could not delete current rune page")
+		log.Panicf("Error while deleting current rune page, got status code %d", resp.StatusCode)
 	}
+
+	log.Println("Deleted current rune page")
 }

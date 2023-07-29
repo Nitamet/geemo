@@ -2,7 +2,8 @@ package main
 
 import (
 	"embed"
-	"github.com/Nitamet/geemo/internal/lolbuild"
+	"github.com/Nitamet/geemo/backend"
+	"github.com/Nitamet/geemo/backend/lolbuild"
 	"github.com/wailsapp/wails/v2/pkg/options/linux"
 	"log"
 
@@ -21,6 +22,10 @@ var assets embed.FS
 var icon []byte
 
 func main() {
+	backend.InitializeLog()
+
+	log.Println("Starting geemo...")
+
 	// Create an instance of the app structure
 	app := NewApp()
 	loader := &lolbuild.Loader{}
