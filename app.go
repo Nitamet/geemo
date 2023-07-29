@@ -2,11 +2,14 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/Nitamet/geemo/backend"
 	"github.com/Nitamet/geemo/backend/lcu"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"log"
+	"os"
+	"os/exec"
+	"path/filepath"
+	goruntime "runtime"
 )
 
 // App struct
@@ -24,6 +27,7 @@ func NewApp() *App {
 // startup is called at application startup
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+	backend.BindContext(ctx)
 }
 
 // domReady is called after front-end resources have been loaded
@@ -43,13 +47,10 @@ func (a *App) shutdown(ctx context.Context) {
 
 }
 
-// Greet returns a greeting for the given name
-func (a *App) Greet(name string) string {
-	return fmt.Sprintf("Hello %s, It's show time!", name)
-}
-
 // GetLCUState returns the current state of the LCU
 func (a *App) GetLCUState() string {
+	defer backend.LogPanic()
+
 	if a.LCU != nil {
 		state := a.LCU.UpdateState()
 
@@ -73,6 +74,8 @@ func (a *App) GetLCUState() string {
 }
 
 func (a *App) GetSummoner() lcu.Summoner {
+	defer backend.LogPanic()
+
 	if a.LCU == nil {
 		log.Panic("LCU not found")
 	}
@@ -81,6 +84,8 @@ func (a *App) GetSummoner() lcu.Summoner {
 }
 
 func (a *App) GetCurrentChampion() int {
+	defer backend.LogPanic()
+
 	if a.LCU == nil {
 		log.Panic("LCU not found")
 	}
@@ -90,6 +95,8 @@ func (a *App) GetCurrentChampion() int {
 }
 
 func (a *App) ApplyRunes(runes lcu.RunePage) {
+	defer backend.LogPanic()
+
 	if a.LCU == nil {
 		log.Panic("LCU not found")
 	}
@@ -98,6 +105,8 @@ func (a *App) ApplyRunes(runes lcu.RunePage) {
 }
 
 func (a *App) ApplySummonerSpells(firstSpellId int, secondSpellId int) {
+	defer backend.LogPanic()
+
 	if a.LCU == nil {
 		log.Panic("LCU not found")
 	}
@@ -106,6 +115,8 @@ func (a *App) ApplySummonerSpells(firstSpellId int, secondSpellId int) {
 }
 
 func (a *App) ApplyItemSet(itemSet lcu.ItemSet) {
+	defer backend.LogPanic()
+
 	if a.LCU == nil {
 		log.Panic("LCU not found")
 	}
@@ -114,6 +125,8 @@ func (a *App) ApplyItemSet(itemSet lcu.ItemSet) {
 }
 
 func (a *App) GetGameMode() []string {
+	defer backend.LogPanic()
+
 	if a.LCU == nil {
 		log.Panic("LCU not found")
 	}
@@ -124,6 +137,8 @@ func (a *App) GetGameMode() []string {
 }
 
 func (a *App) GetAssignedRole() string {
+	defer backend.LogPanic()
+
 	if a.LCU == nil {
 		log.Panic("LCU not found")
 	}
@@ -164,11 +179,39 @@ func (a *App) Close() {
 	runtime.Quit(a.ctx)
 }
 
+func (a *App) OpenLogFolder() {
+	configDir, err := os.UserConfigDir()
+	if err != nil {
+		log.Panic(err)
+	}
+
+	folderPath := filepath.FromSlash(configDir + "/geemo")
+
+	switch goos := goruntime.GOOS; goos {
+	case "windows":
+		cmd := exec.Command("explorer", folderPath)
+		err := cmd.Run()
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	case "linux":
+		cmd := exec.Command("xdg-open", folderPath)
+		err := cmd.Run()
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	}
+}
+
 func (a *App) GetAutoImportSetting() bool {
 	return a.Settings.AutoImport
 }
 
 func (a *App) SetAutoImportSetting(value bool) {
+	defer backend.LogPanic()
+
 	a.Settings.AutoImport = value
 	a.Settings.Save()
 }
@@ -178,6 +221,8 @@ func (a *App) GetShowNativeTitleBarSetting() bool {
 }
 
 func (a *App) SetShowNativeTitleBarSetting(value bool) {
+	defer backend.LogPanic()
+
 	a.Settings.ShowNativeTitleBar = value
 	a.Settings.Save()
 }

@@ -23,6 +23,7 @@ var icon []byte
 
 func main() {
 	backend.InitializeLog()
+	defer backend.LogPanic()
 
 	log.Println("Starting geemo...")
 
@@ -30,7 +31,6 @@ func main() {
 	app := NewApp()
 	loader := &lolbuild.Loader{}
 	showNativeTitleBar := app.GetShowNativeTitleBarSetting()
-	println(showNativeTitleBar)
 
 	// Create application with options
 	err := wails.Run(&options.App{

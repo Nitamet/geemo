@@ -24,11 +24,11 @@ export function GetShowNativeTitleBarSetting():Promise<boolean>;
 
 export function GetSummoner():Promise<lcu.Summoner>;
 
-export function Greet(arg1:string):Promise<string>;
-
 export function Maximize():Promise<void>;
 
 export function Minimize():Promise<void>;
+
+export function OpenLogFolder():Promise<void>;
 
 export function SetAutoImportSetting(arg1:boolean):Promise<void>;
 

@@ -5,9 +5,10 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 )
 
-const logFileName = "geemo.log"
+const logFileName = "log.log"
 
 func InitializeLog() {
 	configDir, err := os.UserConfigDir()
@@ -24,4 +25,18 @@ func InitializeLog() {
 		MaxAge:     15,   // days
 		Compress:   true, // disabled by default
 	})
+}
+
+func LogPanic() {
+	if r := recover(); r != nil {
+		log.Printf("Panic: %v", r)
+
+		// Save stack trace
+		buf := make([]byte, 1<<16)
+		stackSize := runtime.Stack(buf, true)
+		log.Println("Stack Trace: " + string(buf[0:stackSize]))
+
+		// Emit error to front-end
+		EmitError()
+	}
 }

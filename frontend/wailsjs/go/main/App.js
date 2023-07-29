@@ -46,16 +46,16 @@ export function GetSummoner() {
   return window['go']['main']['App']['GetSummoner']();
 }
 
-export function Greet(arg1) {
-  return window['go']['main']['App']['Greet'](arg1);
-}
-
 export function Maximize() {
   return window['go']['main']['App']['Maximize']();
 }
 
 export function Minimize() {
   return window['go']['main']['App']['Minimize']();
+}
+
+export function OpenLogFolder() {
+  return window['go']['main']['App']['OpenLogFolder']();
 }
 
 export function SetAutoImportSetting(arg1) {
