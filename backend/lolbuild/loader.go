@@ -186,7 +186,7 @@ func (l *Loader) loadBuild(championName string, source string, role string) *Bui
 // clearChampionName clears champion name from spaces and apostrophes
 func (l *Loader) clearChampionName(championName string) string {
 	clearedChampionName := strings.Replace(championName, "'", "", -1)
-	clearedChampionName = strings.Replace(championName, " ", "", -1)
+	clearedChampionName = strings.Replace(clearedChampionName, " ", "", -1)
 	clearedChampionName = strings.ToLower(clearedChampionName)
 
 	return clearedChampionName

@@ -116,11 +116,7 @@ func (c *Client) isGameClientRunning() bool {
 		log.Panicf("Unsupported OS %s", os)
 	}
 
-	if output == "" {
-		return false
-	}
-
-	return true
+	return output != ""
 }
 
 // getPortFromArgs returns the port of the LCU instance and whether it succeeded or not
@@ -276,6 +272,9 @@ func (c *Client) GetCurrentGameMode() (string, string) {
 	}
 
 	err = json.Unmarshal(body, &lobbyInfo)
+	if err != nil {
+		log.Panic(err)
+	}
 
 	if lobbyInfo.GameConfig.GameMode == gameModeClassic {
 		return lobbyInfo.GameConfig.GameMode, "Normal"
