@@ -34,6 +34,12 @@ jobs:
           path: ./binaries
           if_no_artifact_found: fail
 
+      - name: Rename executable to GOOS-GOARCH format
+        run: |
+          cd ./binaries
+          ls -R
+          mv geemo.exe windows-amd64
+
       - name: Install go-selfupdate
         run: go install github.com/sanbornm/go-selfupdate/cmd/go-selfupdate@latest
 

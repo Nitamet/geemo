@@ -46,7 +46,6 @@ jobs:
         run: |
           cd binaries
           ls -R
-          mv windows-amd64 geemo.exe
           zip -r geemo-${{github.ref_name}}.zip geemo.exe
 
       - name: Release
