@@ -32,8 +32,6 @@ jobs:
           github_token: ${{secrets.GITHUB_TOKEN}}
           workflow: release-app.yaml
           workflow_conclusion: success
-          branch: master
-          event: push
           path: ./binaries
           if_no_artifact_found: fail
 
