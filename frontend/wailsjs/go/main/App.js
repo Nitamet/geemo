@@ -34,12 +34,12 @@ export function GetGameMode() {
   return window['go']['main']['App']['GetGameMode']();
 }
 
-export function GetLCUState() {
-  return window['go']['main']['App']['GetLCUState']();
-}
-
 export function GetShowNativeTitleBarSetting() {
   return window['go']['main']['App']['GetShowNativeTitleBarSetting']();
+}
+
+export function GetState() {
+  return window['go']['main']['App']['GetState']();
 }
 
 export function GetSummoner() {

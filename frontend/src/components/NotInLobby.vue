@@ -21,7 +21,7 @@
 </template>
 
 <script setup>
-import { GetLCUState } from 'app/wailsjs/go/main/App';
+import { GetState } from 'app/wailsjs/go/main/App';
 import { LeagueState, useApplicationStore } from 'stores/application-store';
 import { computed } from 'vue';
 
@@ -37,7 +37,7 @@ const leagueState = computed({
     },
 });
 const updateState = async () => {
-    const leagueStateString = await GetLCUState();
+    const leagueStateString = await GetState();
 
     leagueState.value = LeagueState[leagueStateString] ?? LeagueState.Unknown;
 };

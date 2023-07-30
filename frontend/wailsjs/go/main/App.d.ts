@@ -18,9 +18,9 @@ export function GetCurrentChampion():Promise<number>;
 
 export function GetGameMode():Promise<Array<string>>;
 
-export function GetLCUState():Promise<string>;
-
 export function GetShowNativeTitleBarSetting():Promise<boolean>;
+
+export function GetState():Promise<string>;
 
 export function GetSummoner():Promise<lcu.Summoner>;
 

@@ -5,6 +5,7 @@ import (
 	"github.com/Nitamet/geemo/backend"
 	"github.com/Nitamet/geemo/backend/lcu"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"golang.org/x/exp/slices"
 	"log"
 	"os"
 	"os/exec"
@@ -47,8 +48,26 @@ func (a *App) shutdown(ctx context.Context) {
 
 }
 
-// GetLCUState returns the current state of the LCU
-func (a *App) GetLCUState() string {
+var supportedGameModes = []string{"CLASSIC", "ARAM"}
+
+const StateNotSupportedGameMode = "NotSupportedGameMode"
+
+func (a *App) isGameModeSupported() bool {
+	gameMode, _ := a.LCU.GetCurrentGameMode()
+
+	return slices.Contains(supportedGameModes, gameMode)
+}
+
+func (a *App) validateState(state string) string {
+	if state == lcu.StateInLobby && !a.isGameModeSupported() {
+		return StateNotSupportedGameMode
+	}
+
+	return state
+}
+
+// GetState returns the current state of the application
+func (a *App) GetState() string {
 	defer backend.LogPanic()
 
 	if a.LCU != nil {
@@ -56,7 +75,7 @@ func (a *App) GetLCUState() string {
 
 		// If we got "StateNotLaunched" state while we have a LCU instance, it means that the league client was closed
 		if state != lcu.StateNotLaunched {
-			return state
+			return a.validateState(state)
 		}
 
 		// So we can get rid of the old instance and try to get a new one
@@ -70,7 +89,7 @@ func (a *App) GetLCUState() string {
 
 	a.LCU = instance
 
-	return a.LCU.UpdateState()
+	return a.validateState(a.LCU.UpdateState())
 }
 
 func (a *App) GetSummoner() lcu.Summoner {

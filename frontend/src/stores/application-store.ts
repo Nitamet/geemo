@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { GetLCUState } from 'app/wailsjs/go/main/App';
+import { GetState } from 'app/wailsjs/go/main/App';
 import { delay } from 'src/delay';
 import { lolbuild } from 'app/wailsjs/go/models';
 import Build = lolbuild.Build;
@@ -7,6 +7,7 @@ import Build = lolbuild.Build;
 export enum LeagueState {
     NotLaunched = 'NotLaunched',
     NotInLobby = 'NotInLobby',
+    NotSupportedGameMode = 'NotSupportedGameMode',
     InLobby = 'InLobby',
     InGame = 'InGame',
     //  Playing = 'Playing',
@@ -24,6 +25,8 @@ export const useApplicationStore = defineStore('application', {
             switch (this.leagueState) {
                 case LeagueState.NotLaunched:
                     return 'League of Legends has not been launched.';
+                case LeagueState.NotSupportedGameMode:
+                    return 'This game mode is not supported.';
                 case LeagueState.NotInLobby:
                     return 'You are not in lobby.';
                 case LeagueState.InGame:
@@ -39,7 +42,7 @@ export const useApplicationStore = defineStore('application', {
         async startCheckingLeagueState() {
             await delay(1000);
 
-            const newState = await GetLCUState();
+            const newState = await GetState();
             this.leagueState =
                 LeagueState[newState as keyof typeof LeagueState] ??
                 LeagueState.Unknown;
