@@ -20,7 +20,7 @@ jobs:
 
       - uses: dAppServer/wails-build-action@v2.2
         with:
-          build-name: geemo
+          build-name: geemo.exe
           build-platform: windows/amd64
           package: false
           nsis: false
