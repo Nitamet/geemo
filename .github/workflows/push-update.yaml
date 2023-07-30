@@ -8,6 +8,8 @@ jobs:
   push-update-windows:
     name: Push Update
     runs-on: ubuntu-20.04
+    permissions:
+      actions: read
     steps:
       - uses: actions/checkout@v3
         with:
