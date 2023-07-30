@@ -42,5 +42,6 @@ jobs:
           aws_bucket: ${{ secrets.AWS_BUCKET }}
           endpoint: ${{ secrets.AWS_ENDPOINT }}
           source_dir: 'update'
-        
+          destination_dir: 'update'
+
 
