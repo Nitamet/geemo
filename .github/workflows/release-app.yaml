@@ -53,3 +53,4 @@ jobs:
         with:
           files: geemo-${{github.ref_name}}.zip
           draft: true
+          token: ${{ secrets.PRIVATE_REPO_TOKEN }}
