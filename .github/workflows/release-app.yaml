@@ -36,11 +36,16 @@ jobs:
     needs: build
     runs-on: ubuntu-20.04
     steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: windows-amd64
+
       - name: Zip
         run: |
-          cd ./build/bin
+          mv windows-amd64 geemo.exe
           zip -r geemo-${{github.ref_name}}.zip geemo.exe
-          mv geemo-${{github.ref_name}}.zip ../../
+
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
