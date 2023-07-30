@@ -4,6 +4,7 @@ export const useSettingsStore = defineStore('settings', {
     state: () => ({
         autoImport: false,
         showNativeTitleBar: true,
+        autoUpdate: true,
     }),
     getters: {},
     actions: {},

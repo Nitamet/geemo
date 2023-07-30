@@ -14,6 +14,8 @@ export function GetAssignedRole():Promise<string>;
 
 export function GetAutoImportSetting():Promise<boolean>;
 
+export function GetAutoUpdateSetting():Promise<boolean>;
+
 export function GetCurrentChampion():Promise<number>;
 
 export function GetGameMode():Promise<Array<string>>;
@@ -31,5 +33,7 @@ export function Minimize():Promise<void>;
 export function OpenLogFolder():Promise<void>;
 
 export function SetAutoImportSetting(arg1:boolean):Promise<void>;
+
+export function SetAutoUpdateSetting(arg1:boolean):Promise<void>;
 
 export function SetShowNativeTitleBarSetting(arg1:boolean):Promise<void>;

@@ -25,10 +25,6 @@ func main() {
 	backend.InitializeLog()
 	defer backend.LogPanic()
 
-	log.Println("Setup updater...")
-
-	setupUpdater()
-
 	log.Println("Starting geemo...")
 
 	// Create an instance of the app structure

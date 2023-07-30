@@ -29,6 +29,12 @@ func NewApp() *App {
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 	backend.BindContext(ctx)
+
+	if a.Settings.AutoUpdate {
+		log.Println("Setup updater...")
+
+		setupUpdater()
+	}
 }
 
 // domReady is called after front-end resources have been loaded
@@ -253,5 +259,16 @@ func (a *App) SetShowNativeTitleBarSetting(value bool) {
 	defer backend.LogPanic()
 
 	a.Settings.ShowNativeTitleBar = value
+	a.Settings.Save()
+}
+
+func (a *App) GetAutoUpdateSetting() bool {
+	return a.Settings.AutoUpdate
+}
+
+func (a *App) SetAutoUpdateSetting(value bool) {
+	defer backend.LogPanic()
+
+	a.Settings.AutoUpdate = value
 	a.Settings.Save()
 }

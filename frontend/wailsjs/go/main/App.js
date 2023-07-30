@@ -26,6 +26,10 @@ export function GetAutoImportSetting() {
   return window['go']['main']['App']['GetAutoImportSetting']();
 }
 
+export function GetAutoUpdateSetting() {
+  return window['go']['main']['App']['GetAutoUpdateSetting']();
+}
+
 export function GetCurrentChampion() {
   return window['go']['main']['App']['GetCurrentChampion']();
 }
@@ -60,6 +64,10 @@ export function OpenLogFolder() {
 
 export function SetAutoImportSetting(arg1) {
   return window['go']['main']['App']['SetAutoImportSetting'](arg1);
+}
+
+export function SetAutoUpdateSetting(arg1) {
+  return window['go']['main']['App']['SetAutoUpdateSetting'](arg1);
 }
 
 export function SetShowNativeTitleBarSetting(arg1) {

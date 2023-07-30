@@ -2,7 +2,6 @@ package backend
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -12,6 +11,7 @@ import (
 type Settings struct {
 	AutoImport         bool `json:"autoImport"`
 	ShowNativeTitleBar bool `json:"showNativeTitleBar"`
+	AutoUpdate         bool `json:"autoUpdate"`
 	path               string
 }
 
@@ -28,9 +28,8 @@ func InitializeSettings() Settings {
 		return createNewSettingsFile(configDir)
 	}
 
-	settings := Settings{
-		path: settingsPath,
-	}
+	settings := getDefaultSettings()
+	settings.path = settingsPath
 	file, err := os.Open(settingsPath)
 	if err != nil {
 		log.Panic(err)
@@ -41,10 +40,21 @@ func InitializeSettings() Settings {
 		log.Panic(err)
 	}
 
-	// print settings struct
-	fmt.Printf("%+v\n", settings)
-
 	return settings
+}
+
+func getDefaultSettings() Settings {
+	showNativeTitleBar := true
+	switch userOS := runtime.GOOS; userOS {
+	case "windows":
+		showNativeTitleBar = false
+	}
+
+	return Settings{
+		AutoImport:         false,
+		ShowNativeTitleBar: showNativeTitleBar,
+		AutoUpdate:         true,
+	}
 }
 
 func createNewSettingsFile(configDir string) Settings {
@@ -65,18 +75,8 @@ func createNewSettingsFile(configDir string) Settings {
 	}
 	defer file.Close()
 
-	showNativeTitleBar := true
-	switch userOS := runtime.GOOS; userOS {
-	case "windows":
-		showNativeTitleBar = false
-	}
-
 	// Write default settings to file
-	settings := Settings{
-		AutoImport:         false,
-		ShowNativeTitleBar: showNativeTitleBar,
-		path:               path,
-	}
+	settings := getDefaultSettings()
 	settingsJson, err := json.MarshalIndent(settings, "", "  ")
 	if err != nil {
 		log.Panic(err)
