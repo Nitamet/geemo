@@ -77,7 +77,9 @@ func (a *App) GetSummoner() lcu.Summoner {
 	defer backend.LogPanic()
 
 	if a.LCU == nil {
-		log.Panic("LCU not found")
+		log.Println("LCU not found")
+
+		return lcu.Summoner{}
 	}
 
 	return a.LCU.CurrentSummoner()
@@ -87,7 +89,9 @@ func (a *App) GetCurrentChampion() int {
 	defer backend.LogPanic()
 
 	if a.LCU == nil {
-		log.Panic("LCU not found")
+		log.Println("LCU not found")
+
+		return -1
 	}
 
 	championId, _ := a.LCU.GetCurrentChampion()
@@ -98,7 +102,7 @@ func (a *App) ApplyRunes(runes lcu.RunePage) {
 	defer backend.LogPanic()
 
 	if a.LCU == nil {
-		log.Panic("LCU not found")
+		log.Println("LCU not found")
 	}
 
 	a.LCU.ApplyRunes(runes)
@@ -108,7 +112,7 @@ func (a *App) ApplySummonerSpells(firstSpellId int, secondSpellId int) {
 	defer backend.LogPanic()
 
 	if a.LCU == nil {
-		log.Panic("LCU not found")
+		log.Println("LCU not found")
 	}
 
 	a.LCU.ApplySummonerSpells(firstSpellId, secondSpellId)
@@ -118,7 +122,7 @@ func (a *App) ApplyItemSet(itemSet lcu.ItemSet) {
 	defer backend.LogPanic()
 
 	if a.LCU == nil {
-		log.Panic("LCU not found")
+		log.Println("LCU not found")
 	}
 
 	a.LCU.ApplyItemSet(itemSet)
@@ -128,7 +132,9 @@ func (a *App) GetGameMode() []string {
 	defer backend.LogPanic()
 
 	if a.LCU == nil {
-		log.Panic("LCU not found")
+		log.Println("LCU not found")
+
+		return []string{"", ""}
 	}
 
 	gameMode, gameModeAsString := a.LCU.GetCurrentGameMode()
@@ -140,7 +146,9 @@ func (a *App) GetAssignedRole() string {
 	defer backend.LogPanic()
 
 	if a.LCU == nil {
-		log.Panic("LCU not found")
+		log.Println("LCU not found")
+
+		return ""
 	}
 
 	position, _ := a.LCU.GetAssignedRole()
@@ -153,6 +161,8 @@ func (a *App) GetAssignedRole() string {
 		"utility": "support",
 		"":        "",
 	}
+
+	log.Println("Mapped assigned role: " + lcuRoleToAppRole[position])
 
 	return lcuRoleToAppRole[position]
 }
