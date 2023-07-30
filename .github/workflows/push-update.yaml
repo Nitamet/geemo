@@ -1,0 +1,54 @@
+name: Push Update
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  push-update-windows:
+    name: Push Update
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+            fetch-depth: 0 # Required due to the way Git works, without it this action won't be able to find any or the correct tags
+
+      - name: 'Get Previous tag'
+        id: previoustag
+        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.20"
+
+      - name: Download artifact
+        id: download-artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          workflow: release-app.yaml
+          workflow_conclusion: success
+          branch: master
+          event: push
+          path: ./binaries
+          if_no_artifact_found: fail
+
+      - name: Install go-selfupdate
+        run: go install github.com/sanbornm/go-selfupdate/cmd/go-selfupdate@latest
+
+      - name: Create update manifest and archive
+        id: create_manifest_and_archive
+        shell: bash
+        run: |
+          go-selfupdate -o update ./binaries ${{ steps.previoustag.outputs.tag }}
+
+      - name: Upload update manifest and archive to S3
+        uses: shallwefootball/s3-upload-action@master
+        with:
+          aws_key_id: ${{ secrets.AWS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
+          aws_bucket: ${{ secrets.AWS_BUCKET }}
+          endpoint: ${{ secrets.AWS_ENDPOINT }}
+          source_dir: 'update'
+          destination_dir: 'update'
