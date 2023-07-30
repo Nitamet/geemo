@@ -1,0 +1,51 @@
+name: Build and Push Update
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-windows:
+    name: Build and Push Update (Windows)
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.20
+
+      - uses: dAppServer/wails-build-action@v2.2
+        with:
+          build-name: geemo
+          build-platform: windows/amd64
+          package: false
+
+      - name: Rename binary to GOOS-GOARCH format
+        id: rename_binary
+        shell: bash
+        run: |
+          cd ./build/bin
+          mv geemo.exe windows-amd64
+
+      - name: Install go-selfupdate
+        run: go install github.com/sanbornm/go-selfupdate/cmd/go-selfupdate@latest
+
+      - name: Create update manifest and archive
+        id: create_manifest_and_archive
+        shell: bash
+        run: |
+          go-selfupdate -o update ./build/bin 0.1
+
+      - name: Upload update manifest and archive to S3
+        uses: shallwefootball/s3-upload-action@master
+        with:
+          aws_key_id: ${{ secrets.AWS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
+          aws_bucket: ${{ secrets.AWS_BUCKET }}
+          source_dir: 'update'
+        
+
