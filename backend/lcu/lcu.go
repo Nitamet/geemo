@@ -310,6 +310,8 @@ func (c *Client) GetCurrentChampion() (int, bool) {
 
 // GetAssignedRole returns the current assigned role and whether a role was assigned
 func (c *Client) GetAssignedRole() (string, bool) {
+	log.Println("Getting assigned role")
+
 	resp, err := c.get("lol-lobby-team-builder/champ-select/v1/session")
 
 	if err != nil {
@@ -317,6 +319,8 @@ func (c *Client) GetAssignedRole() (string, bool) {
 	}
 
 	if resp.StatusCode != 200 {
+		log.Println("Can't get assigned role, got status code " + strconv.Itoa(resp.StatusCode))
+
 		return "", false
 	}
 
@@ -345,8 +349,12 @@ func (c *Client) GetAssignedRole() (string, bool) {
 	}
 
 	if position == "" {
+		log.Println("No role assigned")
+
 		return "", false
 	}
+
+	log.Println("Assigned role: " + position)
 
 	return position, true
 }

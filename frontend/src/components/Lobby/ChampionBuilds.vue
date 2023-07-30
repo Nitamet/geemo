@@ -9,7 +9,7 @@
                 <RolePicker
                     v-if="props.gameMode !== GameMode.ARAM"
                     @roleChanged="(newRole) => (selectedRole = newRole)"
-                    :assigned-role="props.assignedRole"
+                    :assigned-role="selectedRole"
                 />
             </div>
         </div>
@@ -58,9 +58,10 @@ import {
     ApplyItemSet,
     ApplyRunes,
     ApplySummonerSpells,
+    GetAssignedRole,
     GetCurrentChampion,
 } from 'app/wailsjs/go/main/App';
-import { computed, Ref, ref, watch } from 'vue';
+import { computed, onBeforeMount, Ref, ref, watch } from 'vue';
 import { whenever } from '@vueuse/core';
 import { LeagueState, useApplicationStore } from 'stores/application-store';
 import { storeToRefs } from 'pinia';
@@ -76,7 +77,6 @@ import ItemSet = lcu.ItemSet;
 
 interface Props {
     gameMode: GameMode;
-    assignedRole: Role;
 }
 
 const props = defineProps<Props>();
@@ -84,6 +84,7 @@ const championNone = -1;
 
 let currentChampion = ref(championNone);
 let currentChampionName = ref('Champion');
+
 const currentChampionIconUrl = computed(() => {
     return `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/${currentChampion.value}.png`;
 });
@@ -118,15 +119,7 @@ const loadBuildCollection = async () => {
     return buildCollection;
 };
 
-let selectedRole = ref(props.assignedRole);
-watch(
-    () => props.gameMode,
-    (value) => {
-        if (value === GameMode.ARAM) {
-            selectedRole.value = Role.ARAM;
-        }
-    }
-);
+let selectedRole = ref<Role>(Role.Mid);
 
 whenever(selectedRole, async () => {
     if (currentChampion.value === -1) {
@@ -258,6 +251,16 @@ const importSelectedBuild = () => {
         );
     }
 };
+
+onBeforeMount(async () => {
+    const leagueAssignedRole = await GetAssignedRole();
+    if ('' !== leagueAssignedRole) {
+        selectedRole.value = leagueAssignedRole as Role;
+    } else {
+        selectedRole.value =
+            GameMode.ARAM === props.gameMode ? Role.ARAM : Role.Mid;
+    }
+});
 </script>
 
 <style lang="scss">
