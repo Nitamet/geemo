@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/natefinch/lumberjack v2.0.0+incompatible
+	github.com/sanbornm/go-selfupdate v0.0.0-20230714125711-e1c03e3d6ac7
 	github.com/wailsapp/wails/v2 v2.5.1
 	golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17
 )
@@ -14,6 +15,7 @@ require (
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/google/uuid v1.1.2 // indirect
 	github.com/jchv/go-winloader v0.0.0-20210711035445-715c2860da7e // indirect
+	github.com/kr/binarydist v0.1.0 // indirect
 	github.com/labstack/echo/v4 v4.9.0 // indirect
 	github.com/labstack/gommon v0.3.1 // indirect
 	github.com/leaanthony/go-ansi-parser v1.0.1 // indirect
