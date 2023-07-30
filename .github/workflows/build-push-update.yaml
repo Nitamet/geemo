@@ -20,17 +20,10 @@ jobs:
 
       - uses: dAppServer/wails-build-action@v2.2
         with:
-          build-name: geemo.exe
+          build-name: windows-amd64
           build-platform: windows/amd64
           package: false
           nsis: false
-
-      - name: Rename binary to GOOS-GOARCH format
-        id: rename_binary
-        shell: bash
-        run: |
-          cd ./build/bin
-          mv geemo.exe windows-amd64
 
       - name: Install go-selfupdate
         run: go install github.com/sanbornm/go-selfupdate/cmd/go-selfupdate@latest
