@@ -41,6 +41,8 @@ jobs:
           cd ./artifact/windows-amd64
           ls -R
           mv geemo.exe ../../binaries/windows-amd64
+          cd ../../artifact/linux-amd64
+          mv geemo ../../binaries/linux-amd64
 
       - name: Install go-selfupdate
         run: go install github.com/sanbornm/go-selfupdate/cmd/go-selfupdate@latest
