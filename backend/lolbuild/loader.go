@@ -4,6 +4,7 @@ package lolbuild
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/Nitamet/geemo/backend"
 	"log"
 	"net/http"
 	"strings"
@@ -118,6 +119,8 @@ func (l *Loader) loadRuneTrees() RuneTrees {
 
 // GetRuneTree returns a rune tree by its name
 func (l *Loader) GetRuneTree(name string) RuneTree {
+	defer backend.LogPanic()
+
 	runeTrees := l.loadRuneTrees()
 
 	for _, runeTree := range runeTrees {
@@ -133,6 +136,8 @@ func (l *Loader) GetRuneTree(name string) RuneTree {
 
 // LoadBuilds loads builds for a given champion and role from specified sources
 func (l *Loader) LoadBuilds(championName string, sources []string, role string) []BuildCollection {
+	defer backend.LogPanic()
+
 	var wg sync.WaitGroup
 	builds := make([]BuildCollection, 0)
 
@@ -142,12 +147,17 @@ func (l *Loader) LoadBuilds(championName string, sources []string, role string) 
 
 	for _, source := range sources {
 		go func(source string) {
+			defer backend.LogPanic()
+
 			results <- *l.loadBuild(championName, source, role)
 		}(source)
 	}
 
 	go func() {
+		defer backend.LogPanic()
+
 		for result := range results {
+
 			builds = append(builds, result)
 			wg.Done()
 		}
@@ -183,9 +193,10 @@ func (l *Loader) loadBuild(championName string, source string, role string) *Bui
 	return &buildCollection
 }
 
-// clearChampionName clears champion name from spaces and apostrophes
+// clearChampionName clears champion name from spaces, apostrophes, dots and converts it to lowercase
 func (l *Loader) clearChampionName(championName string) string {
 	clearedChampionName := strings.Replace(championName, "'", "", -1)
+	clearedChampionName = strings.Replace(clearedChampionName, ".", "", -1)
 	clearedChampionName = strings.Replace(clearedChampionName, " ", "", -1)
 	clearedChampionName = strings.ToLower(clearedChampionName)
 
