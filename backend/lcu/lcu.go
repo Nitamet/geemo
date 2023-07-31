@@ -14,6 +14,7 @@ import (
 	"regexp"
 	"runtime"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -109,7 +110,9 @@ func (c *Client) isGameClientRunning() bool {
 
 	switch os := runtime.GOOS; os {
 	case "linux":
-		output = shell.Execute("ps x -o args | grep 'League Of Legends'")
+		output = shell.Execute("ps x -o args | grep 'League of Legends.exe'")
+
+		return strings.Contains(output, "-GameID")
 	case "windows":
 		output = shell.Execute("Get-CimInstance Win32_Process -Filter \"name = 'League Of Legends.exe'\" | Select-Object -ExpandProperty CommandLine")
 	default:
@@ -481,7 +484,7 @@ func (c *Client) deleteCurrentRunePage() {
 	}
 
 	var currentPage struct {
-		Id int `json:"id"`
+		Id int64 `json:"id"`
 	}
 	err = json.Unmarshal(body, &currentPage)
 	if err != nil {
@@ -494,7 +497,7 @@ func (c *Client) deleteCurrentRunePage() {
 	}
 
 	if resp.StatusCode != 204 {
-		log.Panicf("Error while deleting current rune page, got status code %d", resp.StatusCode)
+		log.Printf("Error while deleting current rune page, got status code %d", resp.StatusCode)
 	}
 
 	log.Println("Deleted current rune page")
