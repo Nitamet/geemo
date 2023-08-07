@@ -26,6 +26,8 @@
                     label="Autoimport selected build"
                     color="teal"
                 />
+                <br />
+                <span>App Version: {{ version }}</span>
             </div>
         </q-card>
     </q-dialog>
@@ -36,6 +38,7 @@ import { onBeforeMount, ref, watch } from 'vue';
 import {
     GetAutoImportSetting,
     GetAutoUpdateSetting,
+    GetCurrentVersion,
     GetShowNativeTitleBarSetting,
     SetAutoImportSetting,
     SetAutoUpdateSetting,
@@ -45,6 +48,7 @@ import { storeToRefs } from 'pinia';
 import { useSettingsStore } from 'stores/settings-store';
 
 const showSettings = ref(false);
+const version = ref('');
 
 const settingsStore = useSettingsStore();
 const { autoImport, showNativeTitleBar, autoUpdate } =
@@ -66,6 +70,7 @@ onBeforeMount(async () => {
     autoImport.value = await GetAutoImportSetting();
     showNativeTitleBar.value = await GetShowNativeTitleBarSetting();
     autoUpdate.value = await GetAutoUpdateSetting();
+    version.value = await GetCurrentVersion();
 });
 </script>
 

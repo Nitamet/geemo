@@ -272,3 +272,9 @@ func (a *App) SetAutoUpdateSetting(value bool) {
 	a.Settings.AutoUpdate = value
 	a.Settings.Save()
 }
+
+func (a *App) GetCurrentVersion() string {
+	defer backend.LogPanic()
+
+	return version
+}

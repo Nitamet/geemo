@@ -18,6 +18,8 @@ export function GetAutoUpdateSetting():Promise<boolean>;
 
 export function GetCurrentChampion():Promise<number>;
 
+export function GetCurrentVersion():Promise<string>;
+
 export function GetGameMode():Promise<Array<string>>;
 
 export function GetShowNativeTitleBarSetting():Promise<boolean>;

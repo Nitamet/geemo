@@ -34,6 +34,10 @@ export function GetCurrentChampion() {
   return window['go']['main']['App']['GetCurrentChampion']();
 }
 
+export function GetCurrentVersion() {
+  return window['go']['main']['App']['GetCurrentVersion']();
+}
+
 export function GetGameMode() {
   return window['go']['main']['App']['GetGameMode']();
 }
