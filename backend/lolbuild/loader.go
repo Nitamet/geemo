@@ -11,6 +11,8 @@ import (
 	"sync"
 )
 
+const buildDataVersion = 1
+
 // URLs-related constants
 const (
 	buildCollectionsHost       = "https://geemo.app"
@@ -149,7 +151,14 @@ func (l *Loader) LoadBuilds(championName string, sources []string, role string) 
 		go func(source string) {
 			defer backend.LogPanic()
 
-			results <- *l.loadBuild(championName, source, role)
+			// Try to load build from the latest version of the game and 2 previous versions if it fails
+			for i := buildDataVersion; i >= buildDataVersion-2 && i > 0; i-- {
+				build := l.loadBuild(championName, source, role, i)
+				if build != nil {
+					results <- *build
+					break
+				}
+			}
 		}(source)
 	}
 
@@ -157,7 +166,6 @@ func (l *Loader) LoadBuilds(championName string, sources []string, role string) 
 		defer backend.LogPanic()
 
 		for result := range results {
-
 			builds = append(builds, result)
 			wg.Done()
 		}
@@ -168,9 +176,9 @@ func (l *Loader) LoadBuilds(championName string, sources []string, role string) 
 	return builds
 }
 
-// loadBuild loads builds for a given champion and role from a specified source
-func (l *Loader) loadBuild(championName string, source string, role string) *BuildCollection {
-	buildUrl := fmt.Sprintf("%s/%s/%s/%s.json", buildCollectionsHost, source, role, l.clearChampionName(championName))
+// loadBuild loads builds for a given champion and role from a specified source and version
+func (l *Loader) loadBuild(championName, source, role string, version int) *BuildCollection {
+	buildUrl := fmt.Sprintf("%s/%s/%d/%s/%s.json", buildCollectionsHost, source, version, role, l.clearChampionName(championName))
 
 	log.Printf("Loading build from %s", buildUrl)
 
@@ -179,11 +187,16 @@ func (l *Loader) loadBuild(championName string, source string, role string) *Bui
 		log.Panic(err)
 	}
 
+	if resp.StatusCode == http.StatusNotFound {
+		return nil
+	}
+
 	var buildCollection BuildCollection
 	err = json.NewDecoder(resp.Body).Decode(&buildCollection)
 
 	if err != nil {
-		log.Panic(err)
+		log.Println("Error decoding build: ", err)
+		return nil
 	}
 
 	buildCollection.Source = l.getSourceName(source)

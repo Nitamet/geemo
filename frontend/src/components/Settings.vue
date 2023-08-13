@@ -10,6 +10,7 @@
 
     <q-dialog v-model="showSettings">
         <q-card style="width: 500px" class="settings q-pa-md column">
+            <span>App Version: {{ version }}</span>
             <div>
                 <q-checkbox
                     v-model="autoUpdate"
@@ -26,8 +27,6 @@
                     label="Autoimport selected build"
                     color="teal"
                 />
-                <br />
-                <span>App Version: {{ version }}</span>
             </div>
         </q-card>
     </q-dialog>
