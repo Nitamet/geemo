@@ -20,7 +20,7 @@
                 {{ props.build.name }}
             </span>
             <span class="text-caption">
-                {{ props.build.matches }}
+                ({{ props.build.matches }} matches)
             </span>
         </div>
         <div class="q-ml-auto row align-center">
