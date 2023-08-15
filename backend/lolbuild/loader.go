@@ -405,6 +405,10 @@ func (l *Loader) loadBuild(championName, source, role string, version int) *Buil
 
 				lolItem.Name = itemData.Name
 				lolItem.IconUrl = itemData.IconUrl
+
+				if lolItem.IsMythic {
+					build.Mythic = *lolItem
+				}
 			}
 		}
 	}
