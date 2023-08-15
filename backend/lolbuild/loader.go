@@ -12,7 +12,7 @@ import (
 	"sync"
 )
 
-const buildDataVersion = 1
+const buildDataVersion = 2
 
 // URLs-related constants
 const (
@@ -21,14 +21,15 @@ const (
 	dataDragonRunesReforgedUrl = "http://ddragon.leagueoflegends.com/cdn/%s/data/en_US/runesReforged.json"
 	dataDragonSpellsUrl        = "http://ddragon.leagueoflegends.com/cdn/%s/data/en_US/summoner.json"
 	dataDragonAssetsUrl        = "https://ddragon.leagueoflegends.com/cdn/img/"
-	dataDragonRuneIconUrl      = "https://ddragon.leagueoflegends.com/cdn/%s/img/item/%d.png"
 	dataDragonSpellIconUrl     = "http://ddragon.leagueoflegends.com/cdn/%s/img/spell/%s.png"
 	dataDragonItemUrl          = "http://ddragon.leagueoflegends.com/cdn/%s/data/en_US/item.json"
 	dataDragonItemIcon         = "https://ddragon.leagueoflegends.com/cdn/%s/img/item/%s.png"
+	dataDragonChampionUrl      = "http://ddragon.leagueoflegends.com/cdn/%s/data/en_US/champion.json"
 )
 
 type AssetData struct {
 	Name    string
+	Slug    string
 	IconUrl string
 }
 
@@ -36,6 +37,7 @@ type Loader struct {
 	runeTrees         RuneTrees // All game rune trees
 	runeData          map[int]AssetData
 	summonerSpellData map[int]AssetData
+	championData      map[int]AssetData
 	itemData          map[int]AssetData
 	version           string // Latest version of the game
 }
@@ -137,13 +139,13 @@ func (l *Loader) loadRuneTrees() RuneTrees {
 	for _, style := range rawRuneTrees {
 		l.runeData[style.ID] = AssetData{
 			Name:    style.Name,
-			IconUrl: fmt.Sprintf(dataDragonRuneIconUrl, l.getLatestVersion(), style.ID),
+			IconUrl: style.Icon,
 		}
 		for _, slot := range style.Slots {
 			for _, lolRune := range slot.Runes {
 				l.runeData[lolRune.ID] = AssetData{
 					Name:    lolRune.Name,
-					IconUrl: fmt.Sprintf(dataDragonRuneIconUrl, l.getLatestVersion(), lolRune.ID),
+					IconUrl: fmt.Sprintf(dataDragonAssetsUrl + lolRune.Icon),
 				}
 			}
 		}
@@ -178,6 +180,7 @@ func (l *Loader) loadItems() {
 
 	for id, lolItem := range lolItems.Data {
 		itemId, _ := strconv.Atoi(id)
+
 		l.itemData[itemId] = AssetData{
 			IconUrl: fmt.Sprintf(dataDragonItemIcon, l.getLatestVersion(), id),
 			Name:    lolItem.Name,
@@ -211,6 +214,63 @@ func (l *Loader) loadSummonerSpells() {
 			IconUrl: fmt.Sprintf(dataDragonSpellIconUrl, l.getLatestVersion(), spell.ID),
 			Name:    spell.Name,
 		}
+	}
+}
+
+func (l *Loader) loadChampions() {
+	resp, err := http.Get(fmt.Sprintf(dataDragonChampionUrl, l.getLatestVersion()))
+	if err != nil {
+		log.Fatalln("Error fetching champions data")
+	}
+
+	var champions struct {
+		Data map[string]struct {
+			Key  string `json:"key"`
+			Name string `json:"name"`
+			ID   string `json:"id"`
+		} `json:"data"`
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&champions)
+	if err != nil {
+		log.Fatalln("Error decoding champions data")
+		return
+	}
+
+	for _, champion := range champions.Data {
+		key, _ := strconv.Atoi(champion.Key)
+
+		l.championData[key] = AssetData{
+			IconUrl: "",
+			Name:    champion.Name,
+			Slug:    strings.ToLower(champion.ID),
+		}
+	}
+}
+
+type ChampionName struct {
+	Name string `json:"name"`
+	Slug string `json:"slug"`
+}
+
+func (l *Loader) GetChampionName(id int) ChampionName {
+	defer backend.LogPanic()
+
+	if l.championData == nil {
+		l.championData = make(map[int]AssetData)
+		l.loadChampions()
+	}
+
+	championData, ok := l.championData[id]
+	if !ok {
+		log.Printf("Unknown champion %d", id)
+
+		return ChampionName{}
+	}
+
+	return ChampionName{
+		Name: championData.Name,
+		Slug: championData.Slug,
 	}
 }
 
@@ -298,8 +358,18 @@ func (l *Loader) loadBuild(championName, source, role string, version int) *Buil
 
 	buildCollection.Source = l.getSourceName(source)
 
-	for _, build := range buildCollection.Builds {
-		for _, perk := range build.SelectedPerks {
+	for buildIdx := range buildCollection.Builds {
+		build := &buildCollection.Builds[buildIdx]
+
+		build.Primary.Name = l.runeData[build.Primary.ID].Name
+		build.Primary.IconUrl = l.runeData[build.Primary.ID].IconUrl
+
+		build.Secondary.Name = l.runeData[build.Secondary.ID].Name
+		build.Secondary.IconUrl = l.runeData[build.Secondary.ID].IconUrl
+
+		for perkIdx := range build.SelectedPerks {
+			perk := &build.SelectedPerks[perkIdx]
+
 			runeData, ok := l.runeData[perk.ID]
 			if !ok {
 				log.Printf("Unknown rune %d", perk.ID)
@@ -310,7 +380,9 @@ func (l *Loader) loadBuild(championName, source, role string, version int) *Buil
 			perk.IconUrl = runeData.IconUrl
 		}
 
-		for _, spell := range build.SummonerSpells {
+		for spellIdx := range build.SummonerSpells {
+			spell := &build.SummonerSpells[spellIdx]
+
 			spellData, ok := l.summonerSpellData[spell.ID]
 			if !ok {
 				log.Printf("Unknown summoner spell %d", spell.ID)
@@ -321,8 +393,10 @@ func (l *Loader) loadBuild(championName, source, role string, version int) *Buil
 			spell.IconUrl = spellData.IconUrl
 		}
 
-		for _, itemGroup := range build.ItemGroups {
-			for _, lolItem := range itemGroup.Items {
+		for itemGroupIdx := range build.ItemGroups {
+			for itemIdx := range build.ItemGroups[itemGroupIdx].Items {
+				lolItem := &build.ItemGroups[itemGroupIdx].Items[itemIdx]
+
 				itemData, ok := l.itemData[lolItem.ID]
 				if !ok {
 					log.Printf("Unknown item %d", lolItem.ID)
