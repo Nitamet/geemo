@@ -33,7 +33,7 @@
                 class="q-ml-sm"
                 width="38px"
                 height="38px"
-                :src="`https://ddragon.leagueoflegends.com/cdn/img/${props.build.selectedPerks[0].iconUrl}`"
+                :src="props.build.selectedPerks[0].iconUrl"
                 rounded
             />
         </div>

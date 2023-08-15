@@ -61,12 +61,12 @@ import {
     GetAssignedRole,
     GetCurrentChampion,
 } from 'app/wailsjs/go/main/App';
-import { computed, onBeforeMount, Ref, ref, watch } from 'vue';
+import { computed, onBeforeMount, Ref, ref } from 'vue';
 import { whenever } from '@vueuse/core';
 import { LeagueState, useApplicationStore } from 'stores/application-store';
 import { storeToRefs } from 'pinia';
 import { lcu, lolbuild } from 'app/wailsjs/go/models';
-import { LoadBuilds } from 'app/wailsjs/go/lolbuild/Loader';
+import { GetChampionName, LoadBuilds } from 'app/wailsjs/go/lolbuild/Loader';
 import Build from 'components/Lobby/ChampionBuilds/Build.vue';
 import { GameMode, Role } from 'components/models';
 import RolePicker from 'components/RolePicker.vue';
@@ -96,16 +96,12 @@ const loadBuildCollection = async () => {
         return [];
     }
 
-    const resp = await fetch(
-        `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champions/${currentChampion.value}.json`
-    );
-    const json: { name: string } = await resp.json();
-
-    currentChampionName.value = json.name;
+    const championName = await GetChampionName(currentChampion.value);
+    currentChampionName.value = championName.name;
 
     const buildCollection = (
         await LoadBuilds(
-            currentChampionName.value,
+            championName.slug,
             ['ugg', 'mobalytics'],
             selectedRole.value
         )

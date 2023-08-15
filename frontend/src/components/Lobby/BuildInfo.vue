@@ -44,7 +44,6 @@ import RuneTree from 'components/Lobby/RuneCollection/RuneTree.vue';
 import { useApplicationStore } from 'stores/application-store';
 import { storeToRefs } from 'pinia';
 import SummonerSpell from 'components/Lobby/SummonerSpell.vue';
-import Item from 'components/Lobby/Item.vue';
 import ItemGroup from 'components/Lobby/ItemGroup.vue';
 import { computed } from 'vue';
 
