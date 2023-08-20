@@ -278,3 +278,7 @@ func (a *App) GetCurrentVersion() string {
 
 	return version
 }
+
+func (a *App) Restart() {
+	RestartSelf()
+}

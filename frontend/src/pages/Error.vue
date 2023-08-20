@@ -13,11 +13,20 @@
                     push
                     @click="OpenLogFolder()"
                 />
+                <q-btn
+                    class="button q-mt-lg"
+                    label="Restart"
+                    size="xl"
+                    color="secondary"
+                    padding="xs lg"
+                    push
+                    @click="Restart()"
+                />
             </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { OpenLogFolder } from 'app/wailsjs/go/main/App';
+import { OpenLogFolder, Restart } from 'app/wailsjs/go/main/App';
 </script>

@@ -66,6 +66,10 @@ export function OpenLogFolder() {
   return window['go']['main']['App']['OpenLogFolder']();
 }
 
+export function Restart() {
+  return window['go']['main']['App']['Restart']();
+}
+
 export function SetAutoImportSetting(arg1) {
   return window['go']['main']['App']['SetAutoImportSetting'](arg1);
 }
