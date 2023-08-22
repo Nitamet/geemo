@@ -3,6 +3,7 @@ import { GetState } from 'app/wailsjs/go/main/App';
 import { delay } from 'src/delay';
 import { lolbuild } from 'app/wailsjs/go/models';
 import Build = lolbuild.Build;
+import { i18nInstance } from 'boot/i18n';
 
 export enum LeagueState {
     NotLaunched = 'NotLaunched',
@@ -24,17 +25,17 @@ export const useApplicationStore = defineStore('application', {
         getLeagueStateMessage(): string {
             switch (this.leagueState) {
                 case LeagueState.NotLaunched:
-                    return 'League of Legends has not been launched.';
+                    return i18nInstance.t('gameNotLaunched');
                 case LeagueState.NotSupportedGameMode:
-                    return 'This game mode is not supported.';
+                    return i18nInstance.t('notSupportedGameMode');
                 case LeagueState.NotInLobby:
-                    return 'You are not in lobby.';
+                    return i18nInstance.t('notInLobby');
                 case LeagueState.InGame:
-                    return 'You are in game.';
+                    return i18nInstance.t('inGame');
                 case LeagueState.Unknown:
-                    return 'Unknown state.';
+                    return i18nInstance.t('unknownState');
                 default:
-                    return 'An error occurred. Try to restart the app.';
+                    return i18nInstance.t('errorOccurred');
             }
         },
     },
