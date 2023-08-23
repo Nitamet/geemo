@@ -41,7 +41,7 @@
             <q-btn
                 v-if="selectedBuild !== null"
                 class="button q-mt-lg q-mr-lg full-width"
-                label="Import Selected Build"
+                :label="$t('importSelectedBuild')"
                 size="16px"
                 color="primary"
                 push

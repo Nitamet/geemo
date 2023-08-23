@@ -1,7 +1,9 @@
 <template>
     <div v-if="null !== selectedBuild" class="build-info q-pa-lg row no-wrap">
         <div class="runes">
-            <span class="text-h5 text-weight-bold">RUNES</span>
+            <span class="text-h5 text-weight-bold text-uppercase">{{
+                $t('runes')
+            }}</span>
             <div class="rune-trees row no-wrap q-mt-lg q-gutter-x-sm">
                 <RuneTree />
                 <div class="rune-tree column">
@@ -12,7 +14,9 @@
         </div>
         <div class="q-ml-lg column">
             <div class="summoner-spells">
-                <span class="text-h5 text-weight-bold">SPELLS</span>
+                <span class="text-h5 text-weight-bold text-uppercase">{{
+                    $t('spells')
+                }}</span>
                 <div class="row q-mt-md q-gutter-x-md">
                     <SummonerSpell
                         v-for="spell in selectedBuild.summonerSpells"
@@ -24,7 +28,9 @@
                 <q-separator class="q-mt-md full-width separator" />
             </div>
             <div class="items q-mt-md">
-                <span class="text-h5 text-weight-bold">ITEMS</span>
+                <span class="text-h5 text-weight-bold text-uppercase">{{
+                    $t('items')
+                }}</span>
                 <div class="column q-gutter-y-sm">
                     <ItemGroup
                         v-for="itemGroup in nonEmptyItemGroups"

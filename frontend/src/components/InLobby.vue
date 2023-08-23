@@ -2,7 +2,9 @@
     <div class="in-lobby q-pa-lg row items-center justify-evenly">
         <div class="lobby-info">
             <div class="row justify-between items-center">
-                <SummonerInfo :subtitle="`In Lobby — ${gameModeName}`" />
+                <SummonerInfo
+                    :subtitle="`${$t('inLobby')} — ${gameModeName}`"
+                />
             </div>
             <div class="main-container q-mt-lg row items-stretch">
                 <!-- Do not render unless we've checked preferred role  -->

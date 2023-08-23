@@ -10,21 +10,21 @@
 
     <q-dialog v-model="showSettings">
         <q-card style="width: 500px" class="settings q-pa-md column">
-            <span>App Version: {{ version }}</span>
+            <span>{{ $t('appVersion') }}: {{ version }}</span>
             <div>
                 <q-checkbox
                     v-model="autoUpdate"
-                    label="Auto update (restart required to take effect)"
+                    :label="$t('autoUpdateOption')"
                     color="teal"
                 />
                 <q-checkbox
                     v-model="showNativeTitleBar"
-                    label="Show native title bar (restart required to take effect)"
+                    :label="$t('showNativeTitleBarOption')"
                     color="teal"
                 />
                 <q-checkbox
                     v-model="autoImport"
-                    label="Autoimport selected build"
+                    :label="$t('autoImportSelectedBuildOption')"
                     color="teal"
                 />
             </div>
