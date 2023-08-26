@@ -80,7 +80,7 @@ interface Props {
 }
 
 const settingsStore = useSettingsStore();
-const { language } = storeToRefs(settingsStore);
+const { language, activeSources } = storeToRefs(settingsStore);
 
 const props = defineProps<Props>();
 const championNone = -1;
@@ -108,7 +108,7 @@ const loadBuildCollection = async () => {
     const buildCollection = (
         await LoadBuilds(
             championName.slug,
-            ['ugg', 'mobalytics'],
+            activeSources.value,
             selectedRole.value,
             language.value
         )
@@ -178,6 +178,12 @@ whenever(leagueState, () => {
 });
 
 whenever(language, async () => {
+    buildCollections.clear();
+    selectedBuild.value = null;
+    await loadBuilds();
+});
+
+whenever(activeSources, async () => {
     buildCollections.clear();
     selectedBuild.value = null;
     await loadBuilds();

@@ -18,6 +18,10 @@ export function Close() {
   return window['go']['main']['App']['Close']();
 }
 
+export function GetActiveSources() {
+  return window['go']['main']['App']['GetActiveSources']();
+}
+
 export function GetAssignedRole() {
   return window['go']['main']['App']['GetAssignedRole']();
 }
@@ -72,6 +76,10 @@ export function OpenLogFolder() {
 
 export function Restart() {
   return window['go']['main']['App']['Restart']();
+}
+
+export function SetActiveSources(arg1) {
+  return window['go']['main']['App']['SetActiveSources'](arg1);
 }
 
 export function SetAutoImportSetting(arg1) {

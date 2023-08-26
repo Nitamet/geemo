@@ -6,4 +6,6 @@ export function GetChampionName(arg1:number,arg2:string):Promise<lolbuild.Champi
 
 export function GetRuneTree(arg1:string,arg2:string):Promise<lolbuild.RuneTree>;
 
+export function GetSources():Promise<Array<lolbuild.BuildSource>>;
+
 export function LoadBuilds(arg1:string,arg2:Array<string>,arg3:string,arg4:string):Promise<Array<lolbuild.BuildCollection>>;

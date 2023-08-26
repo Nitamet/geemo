@@ -41,6 +41,7 @@ type Loader struct {
 	itemData          map[int]AssetData
 	language          string
 	version           string // Latest version of the game
+	allSources        map[string]string
 }
 
 // RawRuneTree is a raw rune tree structure from data dragon
@@ -449,12 +450,11 @@ func (l *Loader) clearChampionName(championName string) string {
 
 // getSourceName returns a human-readable name for a given source
 func (l *Loader) getSourceName(source string) string {
-	names := map[string]string{
-		"ugg":        "U.GG",
-		"mobalytics": "Mobalytics",
+	if l.allSources == nil {
+		l.loadSources()
 	}
 
-	name, ok := names[source]
+	name, ok := l.allSources[source]
 	if !ok {
 		return "Unknown"
 	}
@@ -529,4 +529,42 @@ func (l *Loader) setLanguage(language string) {
 	// Replace - with _ in language name
 	language = strings.Replace(language, "-", "_", -1)
 	l.language = language
+}
+
+type BuildSource struct {
+	Slug string `json:"slug"`
+	Name string `json:"name"`
+}
+
+func (l *Loader) loadSources() {
+	resp, err := http.Get(buildCollectionsHost + "/sources.json")
+	if err != nil {
+		log.Panic("Error fetching sources")
+	}
+
+	var sources struct {
+		Sources map[string]string `json:"sources"`
+	}
+	err = json.NewDecoder(resp.Body).Decode(&sources)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	l.allSources = sources.Sources
+}
+
+func (l *Loader) GetSources() []BuildSource {
+	if l.allSources == nil {
+		l.loadSources()
+	}
+
+	var result []BuildSource
+	for slug, name := range l.allSources {
+		result = append(result, BuildSource{
+			Slug: slug,
+			Name: name,
+		})
+	}
+
+	return result
 }

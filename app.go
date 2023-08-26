@@ -293,3 +293,14 @@ func (a *App) SetLanguage(language string) {
 	a.Settings.Language = language
 	a.Settings.Save()
 }
+
+func (a *App) GetActiveSources() []string {
+	return a.Settings.ActiveSources
+}
+
+func (a *App) SetActiveSources(sources []string) {
+	defer backend.LogPanic()
+
+	a.Settings.ActiveSources = sources
+	a.Settings.Save()
+}

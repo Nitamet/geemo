@@ -19,4 +19,7 @@ export default {
     restartApp: 'Restart',
     appLanguage: 'Language',
     retry: 'Retry',
+    activeSources: 'Active Sources',
+    other: 'Other',
+    appSettings: 'App Settings',
 };

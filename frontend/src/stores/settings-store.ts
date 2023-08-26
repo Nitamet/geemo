@@ -6,6 +6,7 @@ export const useSettingsStore = defineStore('settings', {
         showNativeTitleBar: true,
         autoUpdate: true,
         language: 'en-US',
+        activeSources: [] as string[],
     }),
     getters: {},
     actions: {},

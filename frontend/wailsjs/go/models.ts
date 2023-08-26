@@ -309,6 +309,20 @@ export namespace lolbuild {
 		    return a;
 		}
 	}
+	export class BuildSource {
+	    slug: string;
+	    name: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new BuildSource(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.slug = source["slug"];
+	        this.name = source["name"];
+	    }
+	}
 	export class ChampionName {
 	    name: string;
 	    slug: string;

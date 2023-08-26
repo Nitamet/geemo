@@ -10,6 +10,10 @@ export function GetRuneTree(arg1, arg2) {
   return window['go']['lolbuild']['Loader']['GetRuneTree'](arg1, arg2);
 }
 
+export function GetSources() {
+  return window['go']['lolbuild']['Loader']['GetSources']();
+}
+
 export function LoadBuilds(arg1, arg2, arg3, arg4) {
   return window['go']['lolbuild']['Loader']['LoadBuilds'](arg1, arg2, arg3, arg4);
 }

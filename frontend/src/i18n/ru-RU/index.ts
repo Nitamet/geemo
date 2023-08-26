@@ -19,4 +19,7 @@ export default {
     restartApp: 'Перезапустить',
     appLanguage: 'Язык',
     retry: 'Обновить',
+    activeSources: 'Активные источники',
+    other: 'Другое',
+    appSettings: 'Настройки приложения',
 };

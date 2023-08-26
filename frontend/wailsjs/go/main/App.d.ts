@@ -10,6 +10,8 @@ export function ApplySummonerSpells(arg1:number,arg2:number):Promise<void>;
 
 export function Close():Promise<void>;
 
+export function GetActiveSources():Promise<Array<string>>;
+
 export function GetAssignedRole():Promise<string>;
 
 export function GetAutoImportSetting():Promise<boolean>;
@@ -37,6 +39,8 @@ export function Minimize():Promise<void>;
 export function OpenLogFolder():Promise<void>;
 
 export function Restart():Promise<void>;
+
+export function SetActiveSources(arg1:Array<string>):Promise<void>;
 
 export function SetAutoImportSetting(arg1:boolean):Promise<void>;
 
