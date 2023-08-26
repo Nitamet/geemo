@@ -18,13 +18,13 @@ const buildDataVersion = 2
 const (
 	buildCollectionsHost       = "https://geemo.app"
 	dataDragonVersionsUrl      = "https://ddragon.leagueoflegends.com/api/versions.json"
-	dataDragonRunesReforgedUrl = "http://ddragon.leagueoflegends.com/cdn/%s/data/en_US/runesReforged.json"
-	dataDragonSpellsUrl        = "http://ddragon.leagueoflegends.com/cdn/%s/data/en_US/summoner.json"
+	dataDragonRunesReforgedUrl = "http://ddragon.leagueoflegends.com/cdn/%s/data/%s/runesReforged.json"
+	dataDragonSpellsUrl        = "http://ddragon.leagueoflegends.com/cdn/%s/data/%s/summoner.json"
 	dataDragonAssetsUrl        = "https://ddragon.leagueoflegends.com/cdn/img/"
 	dataDragonSpellIconUrl     = "http://ddragon.leagueoflegends.com/cdn/%s/img/spell/%s.png"
-	dataDragonItemUrl          = "http://ddragon.leagueoflegends.com/cdn/%s/data/en_US/item.json"
+	dataDragonItemUrl          = "http://ddragon.leagueoflegends.com/cdn/%s/data/%s/item.json"
 	dataDragonItemIcon         = "https://ddragon.leagueoflegends.com/cdn/%s/img/item/%s.png"
-	dataDragonChampionUrl      = "http://ddragon.leagueoflegends.com/cdn/%s/data/en_US/champion.json"
+	dataDragonChampionUrl      = "http://ddragon.leagueoflegends.com/cdn/%s/data/%s/champion.json"
 )
 
 type AssetData struct {
@@ -39,6 +39,7 @@ type Loader struct {
 	summonerSpellData map[int]AssetData
 	championData      map[int]AssetData
 	itemData          map[int]AssetData
+	language          string
 	version           string // Latest version of the game
 }
 
@@ -122,7 +123,7 @@ func (l *Loader) loadRuneTrees() RuneTrees {
 	l.summonerSpellData = make(map[int]AssetData)
 	l.itemData = make(map[int]AssetData)
 
-	resp, err := http.Get(fmt.Sprintf(dataDragonRunesReforgedUrl, l.getLatestVersion()))
+	resp, err := http.Get(fmt.Sprintf(dataDragonRunesReforgedUrl, l.getLatestVersion(), l.language))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -166,7 +167,7 @@ type items struct {
 }
 
 func (l *Loader) loadItems() {
-	resp, err := http.Get(fmt.Sprintf(dataDragonItemUrl, l.getLatestVersion()))
+	resp, err := http.Get(fmt.Sprintf(dataDragonItemUrl, l.getLatestVersion(), l.language))
 	if err != nil {
 		log.Fatalln("Error fetching items data")
 	}
@@ -189,7 +190,7 @@ func (l *Loader) loadItems() {
 }
 
 func (l *Loader) loadSummonerSpells() {
-	resp, err := http.Get(fmt.Sprintf(dataDragonSpellsUrl, l.getLatestVersion()))
+	resp, err := http.Get(fmt.Sprintf(dataDragonSpellsUrl, l.getLatestVersion(), l.language))
 	if err != nil {
 		log.Fatalln("Error fetching spells data")
 	}
@@ -218,7 +219,7 @@ func (l *Loader) loadSummonerSpells() {
 }
 
 func (l *Loader) loadChampions() {
-	resp, err := http.Get(fmt.Sprintf(dataDragonChampionUrl, l.getLatestVersion()))
+	resp, err := http.Get(fmt.Sprintf(dataDragonChampionUrl, l.getLatestVersion(), l.language))
 	if err != nil {
 		log.Fatalln("Error fetching champions data")
 	}
@@ -233,7 +234,7 @@ func (l *Loader) loadChampions() {
 
 	err = json.NewDecoder(resp.Body).Decode(&champions)
 	if err != nil {
-		log.Fatalln("Error decoding champions data")
+		log.Fatalln("Error decoding champions data " + err.Error())
 		return
 	}
 
@@ -253,8 +254,13 @@ type ChampionName struct {
 	Slug string `json:"slug"`
 }
 
-func (l *Loader) GetChampionName(id int) ChampionName {
+func (l *Loader) GetChampionName(id int, language string) ChampionName {
 	defer backend.LogPanic()
+
+	if l.language != language {
+		l.setLanguage(language)
+		l.championData = nil
+	}
 
 	if l.championData == nil {
 		l.championData = make(map[int]AssetData)
@@ -275,8 +281,13 @@ func (l *Loader) GetChampionName(id int) ChampionName {
 }
 
 // GetRuneTree returns a rune tree by its name
-func (l *Loader) GetRuneTree(name string) RuneTree {
+func (l *Loader) GetRuneTree(name string, language string) RuneTree {
 	defer backend.LogPanic()
+
+	if l.language != language {
+		l.setLanguage(language)
+		l.runeTrees = nil
+	}
 
 	runeTrees := l.loadRuneTrees()
 
@@ -292,8 +303,16 @@ func (l *Loader) GetRuneTree(name string) RuneTree {
 }
 
 // LoadBuilds loads builds for a given champion and role from specified sources
-func (l *Loader) LoadBuilds(championName string, sources []string, role string) []BuildCollection {
+func (l *Loader) LoadBuilds(championName string, sources []string, role, language string) []BuildCollection {
 	defer backend.LogPanic()
+
+	if l.language != language {
+		l.setLanguage(language)
+		l.runeTrees = nil
+		l.runeData = nil
+		l.summonerSpellData = nil
+		l.itemData = nil
+	}
 
 	l.loadRuneTrees()
 
@@ -504,4 +523,10 @@ func transformRawRuneTrees(rawRuneTrees []RawRuneTree) RuneTrees {
 	}
 
 	return runeTrees
+}
+
+func (l *Loader) setLanguage(language string) {
+	// Replace - with _ in language name
+	language = strings.Replace(language, "-", "_", -1)
+	l.language = language
 }

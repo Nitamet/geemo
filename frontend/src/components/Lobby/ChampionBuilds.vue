@@ -79,6 +79,9 @@ interface Props {
     gameMode: GameMode;
 }
 
+const settingsStore = useSettingsStore();
+const { language } = storeToRefs(settingsStore);
+
 const props = defineProps<Props>();
 const championNone = -1;
 
@@ -96,14 +99,18 @@ const loadBuildCollection = async () => {
         return [];
     }
 
-    const championName = await GetChampionName(currentChampion.value);
+    const championName = await GetChampionName(
+        currentChampion.value,
+        language.value
+    );
     currentChampionName.value = championName.name;
 
     const buildCollection = (
         await LoadBuilds(
             championName.slug,
             ['ugg', 'mobalytics'],
-            selectedRole.value
+            selectedRole.value,
+            language.value
         )
     ).sort((a, b) => a.source.localeCompare(b.source));
 
@@ -117,11 +124,7 @@ const loadBuildCollection = async () => {
 
 let selectedRole = ref<Role>(Role.Mid);
 
-whenever(selectedRole, async () => {
-    if (currentChampion.value === -1) {
-        return;
-    }
-
+const loadBuilds = async () => {
     const buildCollection = buildCollections.get(
         `${currentChampion.value}-${selectedRole.value}`
     );
@@ -135,6 +138,14 @@ whenever(selectedRole, async () => {
     if (builds.value.length > 0) {
         selectBuild(builds.value[0].builds[0], builds.value[0].source);
     }
+};
+
+whenever(selectedRole, async () => {
+    if (currentChampion.value === -1) {
+        return;
+    }
+
+    await loadBuilds();
 });
 
 const application = useApplicationStore();
@@ -156,11 +167,7 @@ startCheckingCurrentChampion();
 let builds: Ref<BuildCollection[]> = ref([]);
 
 whenever(currentChampion, async () => {
-    builds.value = await loadBuildCollection();
-
-    if (builds.value.length > 0) {
-        selectBuild(builds.value[0].builds[0], builds.value[0].source);
-    }
+    await loadBuilds();
 });
 
 whenever(leagueState, () => {
@@ -170,7 +177,11 @@ whenever(leagueState, () => {
     }
 });
 
-const settingsStore = useSettingsStore();
+whenever(language, async () => {
+    buildCollections.clear();
+    selectedBuild.value = null;
+    await loadBuilds();
+});
 
 const selectBuild = (build: BuildInfo, source: string) => {
     selectedBuild.value = build;

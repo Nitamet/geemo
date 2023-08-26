@@ -30,6 +30,7 @@ import { storeToRefs } from 'pinia';
 import { useApplicationStore } from 'stores/application-store';
 import { GetRuneTree } from 'app/wailsjs/go/lolbuild/Loader';
 import Perks from 'components/Lobby/RuneCollection/Perks.vue';
+import { useSettingsStore } from 'stores/settings-store';
 
 const props = defineProps({
     secondary: {
@@ -43,18 +44,25 @@ const tree: Ref<RuneTreeData | null> = ref(null);
 const application = useApplicationStore();
 const { selectedBuild } = storeToRefs(application);
 
+const settings = useSettingsStore();
+const { language } = storeToRefs(settings);
+
 const loadTree = async () => {
     if (selectedBuild.value) {
         const name = props.secondary
             ? selectedBuild.value.secondary.name
             : selectedBuild.value.primary.name;
-        tree.value = await GetRuneTree(name);
+        tree.value = await GetRuneTree(name, language.value);
     }
 };
 
 loadTree();
 
 whenever(selectedBuild, async () => {
+    await loadTree();
+});
+
+whenever(language, async () => {
     await loadTree();
 });
 </script>

@@ -62,7 +62,7 @@ const showSettings = ref(false);
 const version = ref('');
 
 const settingsStore = useSettingsStore();
-const { autoImport, showNativeTitleBar, autoUpdate } =
+const { autoImport, showNativeTitleBar, autoUpdate, language } =
     storeToRefs(settingsStore);
 
 watch(autoImport, async (value) => {
@@ -84,6 +84,7 @@ const localeOptions = [
 ];
 
 watch(locale, async (value) => {
+    language.value = value;
     await SetLanguage(value);
 });
 
