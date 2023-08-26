@@ -341,7 +341,7 @@ func (l *Loader) LoadBuilds(championName string, sources []string, role, languag
 	var wg sync.WaitGroup
 	builds := make([]BuildCollection, 0)
 
-	results := make(chan BuildCollection, len(sources))
+	results := make(chan *BuildCollection, len(sources))
 
 	wg.Add(len(sources))
 
@@ -351,9 +351,12 @@ func (l *Loader) LoadBuilds(championName string, sources []string, role, languag
 
 			// Try to load build from the latest version of the game and 2 previous versions if it fails
 			for i := buildDataVersion; i >= buildDataVersion-previousVersionsToTry && i > 0; i-- {
-				build := l.loadBuild(championName, source, role, i)
-				if build != nil {
-					results <- *build
+				buildCollection := l.loadBuildCollection(championName, source, role, i)
+
+				// If this is the last iteration, send any result to the channel
+				isLastIteration := i == 1 || i == (buildDataVersion-previousVersionsToTry)
+				if isLastIteration || buildCollection != nil {
+					results <- buildCollection
 					break
 				}
 			}
@@ -364,7 +367,10 @@ func (l *Loader) LoadBuilds(championName string, sources []string, role, languag
 		defer backend.LogPanic()
 
 		for result := range results {
-			builds = append(builds, result)
+			if result != nil {
+				builds = append(builds, *result)
+			}
+
 			wg.Done()
 		}
 	}()
@@ -374,11 +380,11 @@ func (l *Loader) LoadBuilds(championName string, sources []string, role, languag
 	return builds
 }
 
-// loadBuild loads builds for a given champion and role from a specified source and version
-func (l *Loader) loadBuild(championName, source, role string, version int) *BuildCollection {
+// loadBuildCollection loads builds for a given champion and role from a specified source and version
+func (l *Loader) loadBuildCollection(championName, source, role string, version int) *BuildCollection {
 	buildUrl := fmt.Sprintf("%s/%s/%d/%s/%s.json", buildCollectionsHost, source, version, role, l.clearChampionName(championName))
 
-	log.Printf("Loading build from %s", buildUrl)
+	log.Printf("Loading build collection from %s", buildUrl)
 
 	resp, err := http.Get(buildUrl)
 	if err != nil {
