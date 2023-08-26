@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/Nitamet/geemo/backend"
 	"github.com/Nitamet/geemo/backend/lcu"
+	"github.com/sanbornm/go-selfupdate/selfupdate"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"golang.org/x/exp/slices"
 	"log"
@@ -18,6 +19,7 @@ type App struct {
 	ctx      context.Context
 	LCU      *lcu.Client
 	Settings backend.Settings
+	updater  *selfupdate.Updater
 }
 
 // NewApp creates a new App application struct
@@ -30,10 +32,12 @@ func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 	backend.BindContext(ctx)
 
+	a.updater = setupUpdater()
+
 	if a.Settings.AutoUpdate {
 		log.Println("Setup updater...")
 
-		setupUpdater()
+		autoUpdate(a.updater)
 	}
 }
 
@@ -303,4 +307,22 @@ func (a *App) SetActiveSources(sources []string) {
 
 	a.Settings.ActiveSources = sources
 	a.Settings.Save()
+}
+
+func (a *App) IsUpdateAvailable() bool {
+	newVersion, err := a.updater.UpdateAvailable()
+
+	if err != nil {
+		log.Println("Error occurred while checking for updates: ", err)
+		return false
+	}
+
+	return newVersion != ""
+}
+
+func (a *App) Update() {
+	err := a.updater.Update()
+	if err != nil {
+		log.Println("Error occurred during update: ", err)
+	}
 }

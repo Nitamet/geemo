@@ -22,4 +22,5 @@ export default {
     activeSources: 'Active Sources',
     other: 'Other',
     appSettings: 'App Settings',
+    update: 'Update',
 };

@@ -32,6 +32,8 @@ export function GetState():Promise<string>;
 
 export function GetSummoner():Promise<lcu.Summoner>;
 
+export function IsUpdateAvailable():Promise<boolean>;
+
 export function Maximize():Promise<void>;
 
 export function Minimize():Promise<void>;
@@ -49,3 +51,5 @@ export function SetAutoUpdateSetting(arg1:boolean):Promise<void>;
 export function SetLanguage(arg1:string):Promise<void>;
 
 export function SetShowNativeTitleBarSetting(arg1:boolean):Promise<void>;
+
+export function Update():Promise<void>;

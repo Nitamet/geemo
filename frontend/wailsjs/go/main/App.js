@@ -62,6 +62,10 @@ export function GetSummoner() {
   return window['go']['main']['App']['GetSummoner']();
 }
 
+export function IsUpdateAvailable() {
+  return window['go']['main']['App']['IsUpdateAvailable']();
+}
+
 export function Maximize() {
   return window['go']['main']['App']['Maximize']();
 }
@@ -96,4 +100,8 @@ export function SetLanguage(arg1) {
 
 export function SetShowNativeTitleBarSetting(arg1) {
   return window['go']['main']['App']['SetShowNativeTitleBarSetting'](arg1);
+}
+
+export function Update() {
+  return window['go']['main']['App']['Update']();
 }

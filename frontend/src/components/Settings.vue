@@ -10,7 +10,19 @@
 
     <q-dialog v-model="showSettings">
         <q-card style="width: 500px" class="settings q-pa-md column">
-            <span>{{ $t('appVersion') }}: {{ version }}</span>
+            <div>
+                {{ $t('appVersion') }}: {{ version }}
+                <q-btn
+                    class="button"
+                    v-if="isUpdateAvailable"
+                    :label="$t('update')"
+                    size="md"
+                    color="primary"
+                    padding="sm"
+                    push
+                    @click="Update()"
+                />
+            </div>
             <div>
                 {{ $t('appSettings') }}:
                 <q-checkbox
@@ -63,11 +75,13 @@ import {
     GetCurrentVersion,
     GetLanguage,
     GetShowNativeTitleBarSetting,
+    IsUpdateAvailable,
     SetActiveSources,
     SetAutoImportSetting,
     SetAutoUpdateSetting,
     SetLanguage,
     SetShowNativeTitleBarSetting,
+    Update,
 } from 'app/wailsjs/go/main/App';
 import { storeToRefs } from 'pinia';
 import { useSettingsStore } from 'stores/settings-store';
@@ -105,10 +119,13 @@ const localeOptions = [
 
 watch(locale, async (value) => {
     language.value = value;
+
     await SetLanguage(value);
 });
 
 const allSources = ref<{ label: string; value: string }[]>([]);
+
+const isUpdateAvailable = ref(false);
 
 onBeforeMount(async () => {
     autoImport.value = await GetAutoImportSetting();
@@ -126,6 +143,8 @@ onBeforeMount(async () => {
     if (activeSources.value.length === 0) {
         activeSources.value = sources.map((source) => source.slug);
     }
+
+    isUpdateAvailable.value = await IsUpdateAvailable();
 });
 </script>
 

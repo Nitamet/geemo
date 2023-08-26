@@ -8,7 +8,7 @@ import (
 const version = "v0.2.1"
 const updaterURL = "https://geemo.app/"
 
-func setupUpdater() {
+func setupUpdater() *selfupdate.Updater {
 	updater := &selfupdate.Updater{
 		CurrentVersion: version, // the current version of your app used to determine if an update is necessary
 		ApiURL:         updaterURL,
@@ -22,10 +22,15 @@ func setupUpdater() {
 		},
 	}
 
+	return updater
+}
+
+func autoUpdate(updater *selfupdate.Updater) {
 	go func() {
 		err := updater.BackgroundRun()
 		if err != nil {
 			log.Println("Error occurred while updating: ", err)
 		}
 	}()
+
 }

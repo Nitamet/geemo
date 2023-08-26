@@ -22,4 +22,5 @@ export default {
     activeSources: 'Активные источники',
     other: 'Другое',
     appSettings: 'Настройки приложения',
+    update: 'Обновить',
 };
