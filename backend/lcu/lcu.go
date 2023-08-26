@@ -87,7 +87,7 @@ func getLCUArgs() (string, bool) {
 
 	switch os := runtime.GOOS; os {
 	case "linux":
-		output = shell.Execute("ps x -o args | grep 'LeagueClientUx.exe'")
+		output = shell.Execute("ps x -o args | grep 'LeagueClientUx.exe' | grep -v grep")
 	case "windows":
 		lcuCommand := "Get-CimInstance Win32_Process -Filter \"name = 'LeagueClientUX.exe'\" | Select-Object -ExpandProperty CommandLine"
 		gameClientCommand := "Get-CimInstance Win32_Process -Filter \"name = 'League Of Legends.exe'\" | Select-Object -ExpandProperty CommandLine"
@@ -250,8 +250,6 @@ func (c *Client) IsInLobby() bool {
 	// Don't panic if we get an error, it means that the client has not been started yet
 	if err != nil {
 		println(err.Error())
-		println(c.token)
-		println(c.port)
 		return false
 	}
 
