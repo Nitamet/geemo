@@ -14,6 +14,9 @@ import (
 
 const buildDataVersion = 2
 
+// previousVersionsToTry is a number of previous versions to try to load builds from if the latest version fails
+const previousVersionsToTry = 2
+
 // URLs-related constants
 const (
 	buildCollectionsHost       = "https://geemo.app"
@@ -42,6 +45,7 @@ type Loader struct {
 	language          string
 	version           string // Latest version of the game
 	allSources        map[string]string
+	mutex             sync.Mutex
 }
 
 // RawRuneTree is a raw rune tree structure from data dragon
@@ -116,13 +120,11 @@ type BuildCollection struct {
 
 // loadRuneTrees loads all rune trees from data dragon
 func (l *Loader) loadRuneTrees() RuneTrees {
-	if l.runeTrees != nil {
+	if l.runeTrees != nil && len(l.runeTrees) > 0 {
 		return l.runeTrees
 	}
 
 	l.runeData = make(map[int]AssetData)
-	l.summonerSpellData = make(map[int]AssetData)
-	l.itemData = make(map[int]AssetData)
 
 	resp, err := http.Get(fmt.Sprintf(dataDragonRunesReforgedUrl, l.getLatestVersion(), l.language))
 	if err != nil {
@@ -138,6 +140,7 @@ func (l *Loader) loadRuneTrees() RuneTrees {
 
 	l.runeTrees = transformRawRuneTrees(rawRuneTrees)
 
+	l.mutex.Lock()
 	for _, style := range rawRuneTrees {
 		l.runeData[style.ID] = AssetData{
 			Name:    style.Name,
@@ -152,9 +155,7 @@ func (l *Loader) loadRuneTrees() RuneTrees {
 			}
 		}
 	}
-
-	l.loadSummonerSpells()
-	l.loadItems()
+	l.mutex.Unlock()
 
 	return l.runeTrees
 }
@@ -168,6 +169,10 @@ type items struct {
 }
 
 func (l *Loader) loadItems() {
+	if l.itemData != nil && len(l.itemData) > 0 {
+		return
+	}
+
 	resp, err := http.Get(fmt.Sprintf(dataDragonItemUrl, l.getLatestVersion(), l.language))
 	if err != nil {
 		log.Fatalln("Error fetching items data")
@@ -180,6 +185,7 @@ func (l *Loader) loadItems() {
 		return
 	}
 
+	l.mutex.Lock()
 	for id, lolItem := range lolItems.Data {
 		itemId, _ := strconv.Atoi(id)
 
@@ -188,9 +194,14 @@ func (l *Loader) loadItems() {
 			Name:    lolItem.Name,
 		}
 	}
+	l.mutex.Unlock()
 }
 
 func (l *Loader) loadSummonerSpells() {
+	if l.summonerSpellData != nil && len(l.summonerSpellData) > 0 {
+		return
+	}
+
 	resp, err := http.Get(fmt.Sprintf(dataDragonSpellsUrl, l.getLatestVersion(), l.language))
 	if err != nil {
 		log.Fatalln("Error fetching spells data")
@@ -209,6 +220,7 @@ func (l *Loader) loadSummonerSpells() {
 		return
 	}
 
+	l.mutex.Lock()
 	for _, spell := range spells.Data {
 		key, _ := strconv.Atoi(spell.Key)
 
@@ -217,9 +229,14 @@ func (l *Loader) loadSummonerSpells() {
 			Name:    spell.Name,
 		}
 	}
+	l.mutex.Unlock()
 }
 
 func (l *Loader) loadChampions() {
+	if l.championData != nil && len(l.championData) > 0 {
+		return
+	}
+
 	resp, err := http.Get(fmt.Sprintf(dataDragonChampionUrl, l.getLatestVersion(), l.language))
 	if err != nil {
 		log.Fatalln("Error fetching champions data")
@@ -239,6 +256,7 @@ func (l *Loader) loadChampions() {
 		return
 	}
 
+	l.mutex.Lock()
 	for _, champion := range champions.Data {
 		key, _ := strconv.Atoi(champion.Key)
 
@@ -248,6 +266,7 @@ func (l *Loader) loadChampions() {
 			Slug:    strings.ToLower(champion.ID),
 		}
 	}
+	l.mutex.Unlock()
 }
 
 type ChampionName struct {
@@ -309,13 +328,15 @@ func (l *Loader) LoadBuilds(championName string, sources []string, role, languag
 
 	if l.language != language {
 		l.setLanguage(language)
-		l.runeTrees = nil
-		l.runeData = nil
-		l.summonerSpellData = nil
-		l.itemData = nil
+		l.runeTrees = make(RuneTrees, 0)
+		l.runeData = make(map[int]AssetData)
+		l.summonerSpellData = make(map[int]AssetData)
+		l.itemData = make(map[int]AssetData)
 	}
 
 	l.loadRuneTrees()
+	l.loadSummonerSpells()
+	l.loadItems()
 
 	var wg sync.WaitGroup
 	builds := make([]BuildCollection, 0)
@@ -329,7 +350,7 @@ func (l *Loader) LoadBuilds(championName string, sources []string, role, languag
 			defer backend.LogPanic()
 
 			// Try to load build from the latest version of the game and 2 previous versions if it fails
-			for i := buildDataVersion; i >= buildDataVersion-2 && i > 0; i-- {
+			for i := buildDataVersion; i >= buildDataVersion-previousVersionsToTry && i > 0; i-- {
 				build := l.loadBuild(championName, source, role, i)
 				if build != nil {
 					results <- *build
@@ -378,6 +399,7 @@ func (l *Loader) loadBuild(championName, source, role string, version int) *Buil
 
 	buildCollection.Source = l.getSourceName(source)
 
+	l.mutex.Lock()
 	for buildIdx := range buildCollection.Builds {
 		build := &buildCollection.Builds[buildIdx]
 
@@ -432,6 +454,7 @@ func (l *Loader) loadBuild(championName, source, role string, version int) *Buil
 			}
 		}
 	}
+	l.mutex.Unlock()
 
 	log.Println("Build loaded")
 
