@@ -15,4 +15,8 @@ export default {
         'Show native title bar (restart required to take effect)',
     autoImportSelectedBuildOption: 'Auto import selected build',
     appVersion: 'App Version',
+    showLog: 'Show Log',
+    restartApp: 'Restart',
+    appLanguage: 'Language',
+    retry: 'Retry',
 };

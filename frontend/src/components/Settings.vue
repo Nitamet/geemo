@@ -27,6 +27,15 @@
                     :label="$t('autoImportSelectedBuildOption')"
                     color="teal"
                 />
+                <q-select
+                    v-model="locale"
+                    :options="localeOptions"
+                    :label="$t('appLanguage')"
+                    outlined
+                    emit-value
+                    map-options
+                    dark
+                />
             </div>
         </q-card>
     </q-dialog>
@@ -38,13 +47,16 @@ import {
     GetAutoImportSetting,
     GetAutoUpdateSetting,
     GetCurrentVersion,
+    GetLanguage,
     GetShowNativeTitleBarSetting,
     SetAutoImportSetting,
     SetAutoUpdateSetting,
+    SetLanguage,
     SetShowNativeTitleBarSetting,
 } from 'app/wailsjs/go/main/App';
 import { storeToRefs } from 'pinia';
 import { useSettingsStore } from 'stores/settings-store';
+import { useI18n } from 'vue-i18n';
 
 const showSettings = ref(false);
 const version = ref('');
@@ -65,11 +77,22 @@ watch(autoUpdate, async (value) => {
     await SetAutoUpdateSetting(value);
 });
 
+const locale = useI18n({ useScope: 'global' }).locale;
+const localeOptions = [
+    { label: 'English', value: 'en-US' },
+    { label: 'Русский', value: 'ru-RU' },
+];
+
+watch(locale, async (value) => {
+    await SetLanguage(value);
+});
+
 onBeforeMount(async () => {
     autoImport.value = await GetAutoImportSetting();
     showNativeTitleBar.value = await GetShowNativeTitleBarSetting();
     autoUpdate.value = await GetAutoUpdateSetting();
     version.value = await GetCurrentVersion();
+    locale.value = await GetLanguage();
 });
 </script>
 

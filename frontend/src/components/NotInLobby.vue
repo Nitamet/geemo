@@ -10,7 +10,7 @@
         <h3>{{ props.message }}</h3>
         <q-btn
             class="button"
-            label="Retry"
+            :label="$t('retry')"
             size="xl"
             color="primary"
             padding="xs lg"

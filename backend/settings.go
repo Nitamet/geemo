@@ -9,9 +9,10 @@ import (
 )
 
 type Settings struct {
-	AutoImport         bool `json:"autoImport"`
-	ShowNativeTitleBar bool `json:"showNativeTitleBar"`
-	AutoUpdate         bool `json:"autoUpdate"`
+	AutoImport         bool   `json:"autoImport"`
+	ShowNativeTitleBar bool   `json:"showNativeTitleBar"`
+	AutoUpdate         bool   `json:"autoUpdate"`
+	Language           string `json:"language"`
 	path               string
 }
 
@@ -54,6 +55,7 @@ func getDefaultSettings() Settings {
 		AutoImport:         false,
 		ShowNativeTitleBar: showNativeTitleBar,
 		AutoUpdate:         true,
+		Language:           "en-US",
 	}
 }
 

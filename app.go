@@ -282,3 +282,14 @@ func (a *App) GetCurrentVersion() string {
 func (a *App) Restart() {
 	RestartSelf()
 }
+
+func (a *App) GetLanguage() string {
+	return a.Settings.Language
+}
+
+func (a *App) SetLanguage(language string) {
+	defer backend.LogPanic()
+
+	a.Settings.Language = language
+	a.Settings.Save()
+}

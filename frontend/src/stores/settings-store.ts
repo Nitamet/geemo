@@ -5,6 +5,7 @@ export const useSettingsStore = defineStore('settings', {
         autoImport: false,
         showNativeTitleBar: true,
         autoUpdate: true,
+        language: 'en-US',
     }),
     getters: {},
     actions: {},

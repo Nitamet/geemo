@@ -42,6 +42,10 @@ export function GetGameMode() {
   return window['go']['main']['App']['GetGameMode']();
 }
 
+export function GetLanguage() {
+  return window['go']['main']['App']['GetLanguage']();
+}
+
 export function GetShowNativeTitleBarSetting() {
   return window['go']['main']['App']['GetShowNativeTitleBarSetting']();
 }
@@ -76,6 +80,10 @@ export function SetAutoImportSetting(arg1) {
 
 export function SetAutoUpdateSetting(arg1) {
   return window['go']['main']['App']['SetAutoUpdateSetting'](arg1);
+}
+
+export function SetLanguage(arg1) {
+  return window['go']['main']['App']['SetLanguage'](arg1);
 }
 
 export function SetShowNativeTitleBarSetting(arg1) {

@@ -22,6 +22,8 @@ export function GetCurrentVersion():Promise<string>;
 
 export function GetGameMode():Promise<Array<string>>;
 
+export function GetLanguage():Promise<string>;
+
 export function GetShowNativeTitleBarSetting():Promise<boolean>;
 
 export function GetState():Promise<string>;
@@ -39,5 +41,7 @@ export function Restart():Promise<void>;
 export function SetAutoImportSetting(arg1:boolean):Promise<void>;
 
 export function SetAutoUpdateSetting(arg1:boolean):Promise<void>;
+
+export function SetLanguage(arg1:string):Promise<void>;
 
 export function SetShowNativeTitleBarSetting(arg1:boolean):Promise<void>;

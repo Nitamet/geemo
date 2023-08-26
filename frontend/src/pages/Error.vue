@@ -6,7 +6,7 @@
             <div class="q-mt-md row q-gutter-lg flex-center">
                 <q-btn
                     class="button q-mt-lg"
-                    label="Show log"
+                    :label="$t('showLog')"
                     size="xl"
                     color="primary"
                     padding="xs lg"
@@ -15,7 +15,7 @@
                 />
                 <q-btn
                     class="button q-mt-lg"
-                    label="Restart"
+                    :label="$t('restartApp')"
                     size="xl"
                     color="secondary"
                     padding="xs lg"
