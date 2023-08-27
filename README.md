@@ -32,7 +32,7 @@ This project is in its early stages of existence, so expect some bugs. Please re
 - No ads & no tracking
 - Self-updating
 - i18n support
-- - English
+  - English
   - Russian
   - ...
 
@@ -60,3 +60,6 @@ Then, in the project's root directory, you can run this command
 which will run the application in live development mode.
 
 Alternatively, you can run ```wails build``` command which will compile the binary into the ```build/bin``` folder.
+
+## Disclaimer
+geemo isn’t endorsed by Riot Games and doesn’t reflect the views or opinions of Riot Games or anyone officially involved in producing or managing League of Legends. League of Legends and Riot Games are trademarks or registered trademarks of Riot Games, Inc. League of Legends © Riot Games, Inc.
