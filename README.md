@@ -10,7 +10,7 @@
 </div>
 
 ## Note 
-This project is in its early stages of its existence, so expect some bugs. Please report any errors you find to the issues page if possible.
+This project is in its early stages of existence, so expect some bugs. Please report any errors you find to the issues page if possible.
 
 ## Features
 - Import builds directly into your LoL client on the fly
@@ -20,7 +20,7 @@ This project is in its early stages of its existence, so expect some bugs. Pleas
   - ...more sources will be added in the future
 - __Summoner's Rift / ARAM__ support
 - Different roles have different builds
-- Role is detected automatically in Draft Pick mode
+- Role is automatically detected in Draft Pick mode
 - Windows & __Linux__ support (Mac is not supported yet but it shouldn't be hard to add)
 - Relatively lightweight: binary size is ~9 MB; RAM usage is 130-160 MB
 - No ads & no tracking
