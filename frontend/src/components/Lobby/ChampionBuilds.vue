@@ -61,7 +61,7 @@ import {
     GetAssignedRole,
     GetCurrentChampion,
 } from 'app/wailsjs/go/main/App';
-import { computed, onBeforeMount, Ref, ref } from 'vue';
+import { computed, Ref, ref } from 'vue';
 import { whenever } from '@vueuse/core';
 import { LeagueState, useApplicationStore } from 'stores/application-store';
 import { storeToRefs } from 'pinia';
@@ -167,6 +167,14 @@ startCheckingCurrentChampion();
 let builds: Ref<BuildCollection[]> = ref([]);
 
 whenever(currentChampion, async () => {
+    const leagueAssignedRole = await GetAssignedRole();
+    if ('' !== leagueAssignedRole) {
+        selectedRole.value = leagueAssignedRole as Role;
+    } else {
+        selectedRole.value =
+            GameMode.ARAM === props.gameMode ? Role.ARAM : Role.Mid;
+    }
+
     await loadBuilds();
 });
 
@@ -264,16 +272,6 @@ const importSelectedBuild = () => {
         );
     }
 };
-
-onBeforeMount(async () => {
-    const leagueAssignedRole = await GetAssignedRole();
-    if ('' !== leagueAssignedRole) {
-        selectedRole.value = leagueAssignedRole as Role;
-    } else {
-        selectedRole.value =
-            GameMode.ARAM === props.gameMode ? Role.ARAM : Role.Mid;
-    }
-});
 </script>
 
 <style lang="scss">

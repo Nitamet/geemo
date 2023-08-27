@@ -1,7 +1,7 @@
 <template>
     <q-btn-dropdown
         color="primary"
-        :icon="`img:${roleIcons[selectedRole]}`"
+        :icon="currentRoleIcon"
         class="role-picker"
         content-class="role-picker-menu"
         size="15px"
@@ -57,7 +57,7 @@
 
 <script setup lang="ts">
 import { Role } from 'components/models';
-import { ref } from 'vue';
+import { computed } from 'vue';
 
 interface Props {
     assignedRole: Role;
@@ -69,14 +69,14 @@ const emit = defineEmits<{
     (e: 'roleChanged', value: Role): void;
 }>();
 
-let selectedRole = ref(props.assignedRole);
+let selectedRole = computed(() => props.assignedRole);
+let currentRoleIcon = computed(() => `img:${roleIcons[selectedRole.value]}`);
 
 const changeRole = (role: Role) => {
-    selectedRole.value = role;
     emit('roleChanged', role);
 };
 
-const roleIcons = {
+const roleIcons: { [key: string]: string } = {
     top: 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-clash/global/default/assets/images/position-selector/positions/icon-position-top.png',
     jungle: 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-clash/global/default/assets/images/position-selector/positions/icon-position-jungle.png',
     mid: 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-clash/global/default/assets/images/position-selector/positions/icon-position-middle.png',
