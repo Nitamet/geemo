@@ -1,7 +1,8 @@
 <div align="center" style="text-align: center">
-  <img src="https://geemo.app/appicon.png" height="50%" width="50%"/>
+  <img src="https://geemo.app/appicon.png" height="30%" width="30%"/>
   <h3><strong>geemo</strong></h3>
   A helper app to import builds from popular sites to League of Legends app.
+  <br/>
   Written in <strong>Go</strong> & <strong>TypeScript</strong>, using <a href="https://github.com/wailsapp/wails">Wails</a> and <a href="https://vuejs.org/">Vue 3</a>.
   <br/>
   <br/>
