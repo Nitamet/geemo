@@ -23,4 +23,11 @@ export default {
     other: 'Other',
     appSettings: 'App Settings',
     update: 'Update',
+    matches: 'matches',
+    adaptiveForce: 'Adaptive Force',
+    attackSpeed: 'Attack Speed',
+    abilityHaste: 'Ability Haste',
+    armor: 'Armor',
+    magicResist: 'Magic Resist',
+    health: 'Health',
 };

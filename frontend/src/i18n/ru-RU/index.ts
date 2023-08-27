@@ -23,4 +23,11 @@ export default {
     other: 'Другое',
     appSettings: 'Настройки приложения',
     update: 'Обновить',
+    matches: 'матчей',
+    adaptiveForce: 'Адаптивная сила',
+    attackSpeed: 'Скорость атаки',
+    abilityHaste: 'Ускорение умений',
+    armor: 'Броня',
+    magicResist: 'Сопротивление магии',
+    health: 'Здоровье',
 };

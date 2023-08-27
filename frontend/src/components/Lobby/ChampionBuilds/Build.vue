@@ -20,7 +20,7 @@
                 {{ props.build.name }}
             </span>
             <span class="text-caption">
-                ({{ props.build.matches }} matches)
+                ({{ matches }} {{ $t('matches') }})
             </span>
         </div>
         <div class="q-ml-auto row align-center">
@@ -43,6 +43,8 @@
 <script setup lang="ts">
 import { lolbuild } from 'app/wailsjs/go/models';
 import Build = lolbuild.Build;
+import { useI18n } from 'vue-i18n';
+import { computed } from 'vue';
 
 interface Props {
     build: Build;
@@ -56,6 +58,11 @@ const props = defineProps<Props>();
 const emit = defineEmits<{
     (e: 'buildClicked', value: { build: Build; source: string }): void;
 }>();
+
+const i18n = useI18n();
+const matches = computed(() =>
+    new Intl.NumberFormat(i18n.locale.value).format(props.build.matches)
+);
 
 const getCoreItem = () => {
     if ('' !== props.build.mythic.name) {

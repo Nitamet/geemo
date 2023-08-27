@@ -3,55 +3,55 @@
         <StatMod
             :row="1"
             :id="5008"
-            name="Adaptive Force"
+            :name="$t('adaptiveForce')"
             icon-url="https://ddragon.leagueoflegends.com/cdn/img/perk-images/StatMods/StatModsAdaptiveForceIcon.png"
         />
         <StatMod
             :row="1"
             :id="5005"
-            name="Attack Speed"
+            :name="$t('attackSpeed')"
             icon-url="https://ddragon.leagueoflegends.com/cdn/img/perk-images/StatMods/StatModsAttackSpeedIcon.png"
         />
         <StatMod
             :row="1"
             :id="5007"
-            name="Ability Haste"
+            :name="$t('abilityHaste')"
             icon-url="https://ddragon.leagueoflegends.com/cdn/img/perk-images/StatMods/StatModsCDRScalingIcon.png"
         />
         <StatMod
             :row="2"
             :id="5008"
-            name="Adaptive Force"
+            :name="$t('adaptiveForce')"
             icon-url="https://ddragon.leagueoflegends.com/cdn/img/perk-images/StatMods/StatModsAdaptiveForceIcon.png"
         />
         <StatMod
             :row="2"
             :id="5002"
-            name="Armor"
+            :name="$t('armor')"
             icon-url="https://ddragon.leagueoflegends.com/cdn/img/perk-images/StatMods/StatModsArmorIcon.png"
         />
         <StatMod
             :row="2"
             :id="5003"
-            name="Magic Resist"
+            :name="$t('magicResist')"
             icon-url="https://ddragon.leagueoflegends.com/cdn/img/perk-images/StatMods/StatModsMagicResIcon.png"
         />
         <StatMod
             :row="3"
             :id="5001"
-            name="Health"
+            :name="$t('health')"
             icon-url="https://ddragon.leagueoflegends.com/cdn/img/perk-images/StatMods/StatModsHealthScalingIcon.png"
         />
         <StatMod
             :row="3"
             :id="5002"
-            name="Armor"
+            :name="$t('armor')"
             icon-url="https://ddragon.leagueoflegends.com/cdn/img/perk-images/StatMods/StatModsArmorIcon.png"
         />
         <StatMod
             :row="3"
             :id="5003"
-            name="Magic Resist"
+            :name="$t('magicResist')"
             icon-url="https://ddragon.leagueoflegends.com/cdn/img/perk-images/StatMods/StatModsMagicResIcon.png"
         />
     </div>
