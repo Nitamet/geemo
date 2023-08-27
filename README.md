@@ -1,6 +1,12 @@
 <div align="center" style="text-align: center">
   <img src="https://geemo.app/appicon.png" height="30%" width="30%"/>
   <h3><strong>geemo</strong></h3>
+  <div>
+    <a href="https://github.com/Nitamet/geemo/releases/latest"><img alt="GitHub release (with filter)" src="https://img.shields.io/github/v/release/Nitamet/geemo?style=for-the-badge&logo=github"></a>
+    <a href="https://github.com/Nitamet/geemo/actions/workflows/release-app.yaml"><img alt="Build" src="https://img.shields.io/github/actions/workflow/status/Nitamet/geemo/release-app.yaml?style=for-the-badge&logo=github"/></a>
+    <a href="https://github.com/Nitamet/geemo/blob/main/LICENSE"><img alt="GitHub" src="https://img.shields.io/github/license/Nitamet/geemo?style=for-the-badge&logo=github"></a>
+    <a href="https://goreportcard.com/badge/github.com/Nitamet/geemo"><img alt="Go Report" src="https://goreportcard.com/badge/github.com/Nitamet/geemo?style=for-the-badge"></a>
+  </div>
   A helper app to import builds from popular sites to League of Legends app.
   <br/>
   Written in <strong>Go</strong> & <strong>TypeScript</strong>, using <a href="https://github.com/wailsapp/wails">Wails</a> and <a href="https://vuejs.org/">Vue 3</a>.
