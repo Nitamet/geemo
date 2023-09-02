@@ -39,6 +39,8 @@ func InitializeSettings() Settings {
 
 	err = json.NewDecoder(file).Decode(&settings)
 	if err != nil {
+		// Delete the settings file because it's corrupted
+		err = os.Remove(settingsPath)
 		log.Panic(err)
 	}
 
