@@ -12,9 +12,9 @@ import (
 	"sync"
 )
 
-const buildDataVersion = 2
+const buildDataVersion = 3
 
-// previousVersionsToTry is a number of previous versions to try to load builds from if the latest version fails
+// previousVersionsToTry is a number of previous build versions to try if the current one is unavailable
 const previousVersionsToTry = 2
 
 // URLs-related constants
@@ -88,11 +88,11 @@ type SummonerSpell struct {
 	Name    string `json:"name"`
 }
 type Item struct {
-	ID       int    `json:"id"`
-	Name     string `json:"name"`
-	Slug     string `json:"slug"`
-	IconUrl  string `json:"iconUrl"`
-	IsMythic bool   `json:"isMythic"`
+	ID         int    `json:"id"`
+	Name       string `json:"name"`
+	Slug       string `json:"slug"`
+	IconUrl    string `json:"iconUrl"`
+	IsCoreItem bool   `json:"IsCoreItem"`
 }
 type ItemGroup struct {
 	Items []Item `json:"items"`
@@ -109,7 +109,7 @@ type Build struct {
 	SelectedPerks  []Rune          `json:"selectedPerks"`
 	SummonerSpells []SummonerSpell `json:"summonerSpells"`
 	ItemGroups     []ItemGroup     `json:"itemGroups"`
-	Mythic         Item            `json:"mythic"`
+	CoreItem       Item            `json:"coreItem"`
 }
 
 // BuildCollection is a collection of builds from a single source
@@ -454,8 +454,8 @@ func (l *Loader) loadBuildCollection(championName, source, role string, version 
 				lolItem.Name = itemData.Name
 				lolItem.IconUrl = itemData.IconUrl
 
-				if lolItem.IsMythic {
-					build.Mythic = *lolItem
+				if lolItem.IsCoreItem {
+					build.CoreItem = *lolItem
 				}
 			}
 		}

@@ -130,7 +130,7 @@ export namespace lolbuild {
 	    name: string;
 	    slug: string;
 	    iconUrl: string;
-	    isMythic: boolean;
+	    IsCoreItem: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new Item(source);
@@ -142,7 +142,7 @@ export namespace lolbuild {
 	        this.name = source["name"];
 	        this.slug = source["slug"];
 	        this.iconUrl = source["iconUrl"];
-	        this.isMythic = source["isMythic"];
+	        this.IsCoreItem = source["IsCoreItem"];
 	    }
 	}
 	export class ItemGroup {
@@ -240,7 +240,7 @@ export namespace lolbuild {
 	    selectedPerks: Rune[];
 	    summonerSpells: SummonerSpell[];
 	    itemGroups: ItemGroup[];
-	    mythic: Item;
+	    coreItem: Item;
 	
 	    static createFrom(source: any = {}) {
 	        return new Build(source);
@@ -256,7 +256,7 @@ export namespace lolbuild {
 	        this.selectedPerks = this.convertValues(source["selectedPerks"], Rune);
 	        this.summonerSpells = this.convertValues(source["summonerSpells"], SummonerSpell);
 	        this.itemGroups = this.convertValues(source["itemGroups"], ItemGroup);
-	        this.mythic = this.convertValues(source["mythic"], Item);
+	        this.coreItem = this.convertValues(source["coreItem"], Item);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
