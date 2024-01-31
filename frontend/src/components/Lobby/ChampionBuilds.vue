@@ -149,13 +149,14 @@ whenever(selectedRole, async () => {
 });
 
 const application = useApplicationStore();
-const { leagueState, selectedBuild, selectedBuildSource } =
+const { leagueState, selectedBuild, selectedBuildSource, currentChampionId } =
     storeToRefs(application);
 const startCheckingCurrentChampion = async () => {
     await delay(3000);
     const champion = await GetCurrentChampion();
     if (champion !== 0) {
         currentChampion.value = champion;
+        currentChampionId.value = champion;
     }
 
     if (leagueState.value === LeagueState.InLobby) {

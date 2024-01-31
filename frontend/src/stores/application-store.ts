@@ -20,6 +20,7 @@ export const useApplicationStore = defineStore('application', {
         leagueState: LeagueState.NotLaunched,
         selectedBuild: null as Build | null,
         selectedBuildSource: null as string | null,
+        currentChampionId: null as number | null,
     }),
     getters: {
         getLeagueStateMessage(): string {

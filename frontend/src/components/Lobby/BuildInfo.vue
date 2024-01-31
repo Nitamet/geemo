@@ -1,23 +1,29 @@
 <template>
     <div v-if="null !== selectedBuild" class="build-info q-pa-lg row no-wrap">
-        <div class="runes">
+        <div class="runes-skills">
             <span class="text-h5 text-weight-bold text-uppercase">{{
                 $t('runes')
             }}</span>
-            <div class="rune-trees row no-wrap q-mt-lg q-gutter-x-sm">
+            <div
+                class="rune-trees row no-wrap q-mt-lg q-gutter-x-md justify-center"
+            >
                 <RuneTree />
                 <div class="rune-tree column">
                     <RuneTree secondary />
                     <StatMods />
                 </div>
             </div>
+            <span class="text-h5 text-weight-bold text-uppercase">{{
+                $t('skills')
+            }}</span>
+            <SkillOrder :skill-order="selectedBuild.skillOrder" />
         </div>
         <div class="q-ml-lg column">
             <div class="summoner-spells">
                 <span class="text-h5 text-weight-bold text-uppercase">{{
                     $t('spells')
                 }}</span>
-                <div class="row q-mt-md q-gutter-x-md">
+                <div class="row q-mt-sm q-gutter-x-sm">
                     <SummonerSpell
                         v-for="spell in selectedBuild.summonerSpells"
                         :name="spell.name"
@@ -52,6 +58,7 @@ import { storeToRefs } from 'pinia';
 import SummonerSpell from 'components/Lobby/SummonerSpell.vue';
 import ItemGroup from 'components/Lobby/ItemGroup.vue';
 import { computed } from 'vue';
+import SkillOrder from 'components/Lobby/SkillOrder.vue';
 
 const application = useApplicationStore();
 const { selectedBuild } = storeToRefs(application);
@@ -64,7 +71,7 @@ const nonEmptyItemGroups = computed(() =>
 <style lang="scss">
 @import '../../css/variables.scss';
 
-.runes {
+.runes-skills {
     border-right: 1px solid $divider-color;
     min-width: 75%;
 }

@@ -1,7 +1,7 @@
 <template>
     <div>
         <span class="text-subtitle2">{{ props.groupName }}</span>
-        <div class="row q-gutter-x-sm q-gutter-y-md">
+        <div class="row q-gutter-x-sm q-gutter-y-sm">
             <Item
                 v-for="item in props.items"
                 :key="item.id"

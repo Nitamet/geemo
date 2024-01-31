@@ -66,7 +66,7 @@ import StatMod from 'components/Lobby/RuneCollection/StatMod.vue';
     width: 80%;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 22px 6px;
+    gap: 16px 0;
     justify-items: center;
 }
 </style>

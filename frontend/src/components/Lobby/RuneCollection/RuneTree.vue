@@ -69,11 +69,11 @@ whenever(language, async () => {
 
 <style lang="scss">
 .rune-tree {
-    flex-basis: 50%;
+    flex-basis: 30%;
 
     .q-img {
         filter: grayscale(100%);
-        opacity: 0.35;
+        opacity: 0.45;
     }
 }
 </style>
