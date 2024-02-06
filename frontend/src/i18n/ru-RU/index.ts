@@ -30,4 +30,6 @@ export default {
     armor: 'Броня',
     magicResist: 'Сопротивление магии',
     health: 'Здоровье',
+    skills: 'Навыки',
+    skillMaxOrder: 'Приоритет:',
 };

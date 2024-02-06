@@ -13,10 +13,18 @@
                     <StatMods />
                 </div>
             </div>
-            <span class="text-h5 text-weight-bold text-uppercase">{{
-                $t('skills')
-            }}</span>
-            <SkillOrder :skill-order="selectedBuild.skillOrder" />
+            <span class="text-h5 text-weight-bold text-uppercase">
+                {{ $t('skills') }}
+            </span>
+            <div class="row">
+                <SkillOrder :skill-order="selectedBuild.skillOrder" />
+                <div class="column justify-center" style="flex: 1">
+                    <SkillMaxOrder
+                        class="self-center"
+                        :skill-max-order="selectedBuild.skillMaxOrder"
+                    />
+                </div>
+            </div>
         </div>
         <div class="q-ml-lg column">
             <div class="summoner-spells">
@@ -59,6 +67,7 @@ import SummonerSpell from 'components/Lobby/SummonerSpell.vue';
 import ItemGroup from 'components/Lobby/ItemGroup.vue';
 import { computed } from 'vue';
 import SkillOrder from 'components/Lobby/SkillOrder.vue';
+import SkillMaxOrder from 'components/Lobby/SkillMaxOrder.vue';
 
 const application = useApplicationStore();
 const { selectedBuild } = storeToRefs(application);

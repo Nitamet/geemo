@@ -30,4 +30,6 @@ export default {
     armor: 'Armor',
     magicResist: 'Magic Resist',
     health: 'Health',
+    skills: 'Skills',
+    skillMaxOrder: 'Max Order:',
 };

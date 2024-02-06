@@ -1,32 +1,33 @@
 <template>
-    <div :class="['box', 'skill-box']">
-        <Skill :skill="props.skill" v-if="maxOnThisLevel" />
-    </div>
+    <span :class="getSkillClass(props.skill)">
+        {{ getSkillKey(props.skill) }}
+    </span>
 </template>
 
 <style lang="scss">
-@import '../../css/variables.scss';
+.skill-q {
+    color: #a04bd5;
+}
 
-.skill-box {
-    background-color: $build-selection-background-color;
+.skill-w {
+    color: #bdbb2f;
+}
+
+.skill-e {
+    color: #42d782;
+}
+
+.skill-r {
+    color: cyan;
 }
 </style>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import Skill from 'components/Lobby/Skill.vue';
-
 interface Props {
-    skillOrder: number[];
-    index: number;
     skill: number;
 }
 
 const props = defineProps<Props>();
-
-const maxOnThisLevel = computed(
-    () => props.skillOrder[props.index - 1] === props.skill
-);
 
 const getSkillKey = (skill: number) => {
     switch (skill) {

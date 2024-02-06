@@ -94,14 +94,13 @@ const { currentChampionId } = storeToRefs(applicationStore);
 const championData: Ref<ChampionData | null> = ref(null);
 
 const getChampionData = async () => {
-    console.log(currentChampionId.value);
     if (currentChampionId.value !== null && currentChampionId.value !== -1) {
         championData.value = await GetChampionData(
             currentChampionId.value,
             language.value
         );
     }
-    console.log(championData.value);
+
     return null;
 };
 
