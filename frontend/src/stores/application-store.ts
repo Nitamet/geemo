@@ -31,6 +31,8 @@ export const useApplicationStore = defineStore('application', {
                     return i18nInstance.t('notSupportedGameMode');
                 case LeagueState.NotInLobby:
                     return i18nInstance.t('notInLobby');
+                case LeagueState.InLobby:
+                    return i18nInstance.t('inLobby');
                 case LeagueState.InGame:
                     return i18nInstance.t('inGame');
                 case LeagueState.Unknown:
@@ -38,6 +40,11 @@ export const useApplicationStore = defineStore('application', {
                 default:
                     return i18nInstance.t('errorOccurred');
             }
+        },
+        isInLobbyOrInGame(): boolean {
+            return [LeagueState.InLobby, LeagueState.InGame].includes(
+                this.leagueState
+            );
         },
     },
     actions: {
