@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-const version = "v0.3.2"
+const version = "v0.4.0"
 const updaterURL = "https://geemo.app/"
 
 func setupUpdater() *selfupdate.Updater {
