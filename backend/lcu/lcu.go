@@ -227,7 +227,13 @@ func (c *Client) CurrentSummoner() Summoner {
 
 	var summoner Summoner
 
-	resp, _ := c.get("lol-summoner/v1/current-summoner")
+	resp, err := c.get("lol-summoner/v1/current-summoner")
+	if err != nil {
+		log.Panic(err)
+	}
+
+	defer closeBody(resp)
+
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Panic(err)
@@ -253,6 +259,8 @@ func (c *Client) IsInLobby() bool {
 		return false
 	}
 
+	defer closeBody(resp)
+
 	return resp.StatusCode == 200
 }
 
@@ -262,6 +270,8 @@ func (c *Client) GetCurrentGameMode() (string, string) {
 	if err != nil {
 		return gameModeNone, gameModeNone
 	}
+
+	defer closeBody(resp)
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -289,10 +299,13 @@ func (c *Client) GetCurrentGameMode() (string, string) {
 
 // GetCurrentChampion returns the current champion id and whether a champion is selected
 func (c *Client) GetCurrentChampion() (int, bool) {
+	//return 60, true
 	resp, err := c.get("lol-champ-select/v1/current-champion")
 	if err != nil {
 		log.Panic(err)
 	}
+
+	defer closeBody(resp)
 
 	if resp.StatusCode != 200 {
 		return -1, false
@@ -317,10 +330,11 @@ func (c *Client) GetAssignedRole() (string, bool) {
 	log.Println("Getting assigned role")
 
 	resp, err := c.get("lol-lobby-team-builder/champ-select/v1/session")
-
 	if err != nil {
 		log.Panic(err)
 	}
+
+	defer closeBody(resp)
 
 	if resp.StatusCode != 200 {
 		log.Println("Can't get assigned role, got status code " + strconv.Itoa(resp.StatusCode))
@@ -387,6 +401,8 @@ func (c *Client) ApplySummonerSpells(firstSpellId int, secondSpellId int) {
 		log.Panic(err)
 	}
 
+	defer closeBody(resp)
+
 	if resp.StatusCode != 204 {
 		log.Panicf("Error while applying summoner spells, got status code %d", resp.StatusCode)
 	}
@@ -438,6 +454,8 @@ func (c *Client) ApplyItemSet(itemSet ItemSet) {
 		log.Panic()
 	}
 
+	defer closeBody(resp)
+
 	if resp.StatusCode != 201 {
 		log.Panicf("Error while applying item set, got status code %d", resp.StatusCode)
 	}
@@ -464,6 +482,8 @@ func (c *Client) ApplyRunes(runes RunePage) {
 	if err != nil {
 		log.Panic(err)
 	}
+
+	defer closeBody(resp)
 
 	if resp.StatusCode != 200 {
 		log.Panicf("Error while applying runes, got status code %d", resp.StatusCode)
@@ -497,9 +517,18 @@ func (c *Client) deleteCurrentRunePage() {
 		log.Panic(err)
 	}
 
+	defer closeBody(resp)
+
 	if resp.StatusCode != 204 {
 		log.Printf("Error while deleting current rune page, got status code %d", resp.StatusCode)
 	}
 
 	log.Println("Deleted current rune page")
+}
+
+func closeBody(resp *http.Response) {
+	err := resp.Body.Close()
+	if err != nil {
+		log.Panic(err)
+	}
 }
