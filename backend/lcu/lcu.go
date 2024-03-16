@@ -299,7 +299,6 @@ func (c *Client) GetCurrentGameMode() (string, string) {
 
 // GetCurrentChampion returns the current champion id and whether a champion is selected
 func (c *Client) GetCurrentChampion() (int, bool) {
-	//return 60, true
 	resp, err := c.get("lol-champ-select/v1/current-champion")
 	if err != nil {
 		log.Panic(err)
