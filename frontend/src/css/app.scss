@@ -41,6 +41,18 @@ body {
     background-color: $secondary;
 }
 
+.box {
+    width: 22px;
+    height: 22px;
+    display: flex;
+    justify-content: center;
+    margin: 1px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    border-radius: 3px;
+
+}
+
 /*
     FONTS
 */

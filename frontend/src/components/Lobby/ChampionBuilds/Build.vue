@@ -65,8 +65,8 @@ const matches = computed(() =>
 );
 
 const getCoreItem = () => {
-    if ('' !== props.build.mythic.name) {
-        return props.build.mythic;
+    if ('' !== props.build.coreItem.name) {
+        return props.build.coreItem;
     }
 
     const coreItemGroup = props.build.itemGroups.find(

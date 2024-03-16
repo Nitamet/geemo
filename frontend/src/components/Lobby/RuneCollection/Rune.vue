@@ -37,9 +37,9 @@ const props = defineProps({
 const application = useApplicationStore();
 const { selectedBuild } = storeToRefs(application);
 
-let size = '54px';
+let size = '44px';
 if (props.isKeystone) {
-    size = '84px';
+    size = '64px';
 }
 
 const findPerk = () => {

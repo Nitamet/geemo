@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-const version = "v0.3.1"
+const version = "v0.4.0"
 const updaterURL = "https://geemo.app/"
 
 func setupUpdater() *selfupdate.Updater {
@@ -32,5 +32,4 @@ func autoUpdate(updater *selfupdate.Updater) {
 			log.Println("Error occurred while updating: ", err)
 		}
 	}()
-
 }

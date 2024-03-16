@@ -39,7 +39,10 @@
         </div>
         <div class="footer">
             <q-btn
-                v-if="selectedBuild !== null"
+                v-if="
+                    selectedBuild !== null &&
+                    leagueState === LeagueState.InLobby
+                "
                 class="button q-mt-lg q-mr-lg full-width"
                 :label="$t('importSelectedBuild')"
                 size="16px"
@@ -149,13 +152,14 @@ whenever(selectedRole, async () => {
 });
 
 const application = useApplicationStore();
-const { leagueState, selectedBuild, selectedBuildSource } =
+const { leagueState, selectedBuild, selectedBuildSource, currentChampionId } =
     storeToRefs(application);
 const startCheckingCurrentChampion = async () => {
     await delay(3000);
     const champion = await GetCurrentChampion();
     if (champion !== 0) {
         currentChampion.value = champion;
+        currentChampionId.value = champion;
     }
 
     if (leagueState.value === LeagueState.InLobby) {
@@ -180,7 +184,7 @@ whenever(currentChampion, async () => {
 
 whenever(leagueState, () => {
     // Clear the selected build when the game starts or the lobby is closed
-    if (leagueState.value !== LeagueState.InLobby) {
+    if (!application.isInLobbyOrInGame) {
         selectedBuild.value = null;
     }
 });
@@ -265,6 +269,10 @@ const importBuild = (build: BuildInfo, source: string) => {
 };
 
 const importSelectedBuild = () => {
+    if (leagueState.value !== LeagueState.InLobby) {
+        return;
+    }
+
     if (selectedBuild.value) {
         importBuild(
             selectedBuild.value,

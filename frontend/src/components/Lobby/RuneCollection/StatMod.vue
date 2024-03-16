@@ -37,7 +37,7 @@ const props = defineProps({
 const application = useApplicationStore();
 const { selectedBuild } = storeToRefs(application);
 
-const size = '32px';
+const size = '26px';
 
 const findStatMod = () => {
     if (selectedBuild.value) {

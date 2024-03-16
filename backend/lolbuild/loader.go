@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/Nitamet/geemo/backend"
+	"golang.org/x/text/cases"
+	golangLanguage "golang.org/x/text/language"
 	"log"
 	"net/http"
 	"strconv"
@@ -12,22 +14,24 @@ import (
 	"sync"
 )
 
-const buildDataVersion = 2
+const buildDataVersion = 3
 
-// previousVersionsToTry is a number of previous versions to try to load builds from if the latest version fails
+// previousVersionsToTry is a number of previous build versions to try if the current one is unavailable
 const previousVersionsToTry = 2
 
 // URLs-related constants
 const (
 	buildCollectionsHost       = "https://geemo.app"
 	dataDragonVersionsUrl      = "https://ddragon.leagueoflegends.com/api/versions.json"
-	dataDragonRunesReforgedUrl = "http://ddragon.leagueoflegends.com/cdn/%s/data/%s/runesReforged.json"
-	dataDragonSpellsUrl        = "http://ddragon.leagueoflegends.com/cdn/%s/data/%s/summoner.json"
+	dataDragonRunesReforgedUrl = "https://ddragon.leagueoflegends.com/cdn/%s/data/%s/runesReforged.json"
+	dataDragonSpellsUrl        = "https://ddragon.leagueoflegends.com/cdn/%s/data/%s/summoner.json"
 	dataDragonAssetsUrl        = "https://ddragon.leagueoflegends.com/cdn/img/"
-	dataDragonSpellIconUrl     = "http://ddragon.leagueoflegends.com/cdn/%s/img/spell/%s.png"
-	dataDragonItemUrl          = "http://ddragon.leagueoflegends.com/cdn/%s/data/%s/item.json"
+	dataDragonSpellIconUrl     = "https://ddragon.leagueoflegends.com/cdn/%s/img/spell/%s.png"
+	dataDragonPassiveIconUrl   = "https://ddragon.leagueoflegends.com/cdn/%s/img/passive/%s.png"
+	dataDragonItemUrl          = "https://ddragon.leagueoflegends.com/cdn/%s/data/%s/item.json"
 	dataDragonItemIcon         = "https://ddragon.leagueoflegends.com/cdn/%s/img/item/%s.png"
-	dataDragonChampionUrl      = "http://ddragon.leagueoflegends.com/cdn/%s/data/%s/champion.json"
+	dataDragonChampionsUrl     = "https://ddragon.leagueoflegends.com/cdn/%s/data/%s/champion.json"
+	dataDragonChampionUrl      = "https://ddragon.leagueoflegends.com/cdn/%s/data/%s/champion/%s.json"
 )
 
 type AssetData struct {
@@ -45,7 +49,7 @@ type Loader struct {
 	language          string
 	version           string // Latest version of the game
 	allSources        map[string]string
-	mutex             sync.Mutex
+	mu                sync.Mutex
 }
 
 // RawRuneTree is a raw rune tree structure from data dragon
@@ -88,11 +92,11 @@ type SummonerSpell struct {
 	Name    string `json:"name"`
 }
 type Item struct {
-	ID       int    `json:"id"`
-	Name     string `json:"name"`
-	Slug     string `json:"slug"`
-	IconUrl  string `json:"iconUrl"`
-	IsMythic bool   `json:"isMythic"`
+	ID         int    `json:"id"`
+	Name       string `json:"name"`
+	Slug       string `json:"slug"`
+	IconUrl    string `json:"iconUrl"`
+	IsCoreItem bool   `json:"IsCoreItem"`
 }
 type ItemGroup struct {
 	Items []Item `json:"items"`
@@ -109,13 +113,34 @@ type Build struct {
 	SelectedPerks  []Rune          `json:"selectedPerks"`
 	SummonerSpells []SummonerSpell `json:"summonerSpells"`
 	ItemGroups     []ItemGroup     `json:"itemGroups"`
-	Mythic         Item            `json:"mythic"`
+	CoreItem       Item            `json:"coreItem"`
+	SkillMaxOrder  []int           `json:"skillMaxOrder"`
+	SkillOrder     []int           `json:"skillOrder"`
 }
 
 // BuildCollection is a collection of builds from a single source
 type BuildCollection struct {
 	Builds []Build `json:"builds"`
 	Source string  `json:"source"`
+}
+
+type SpellImage struct {
+	Full string `json:"full"`
+}
+type Spell struct {
+	Name  string     `json:"name"`
+	Image SpellImage `json:"image"`
+}
+type Passive struct {
+	Name  string     `json:"name"`
+	Image SpellImage `json:"image"`
+}
+type ChampionData struct {
+	Spells  []Spell `json:"spells"`
+	Passive Passive `json:"passive"`
+}
+type championDataResponse struct {
+	Data map[string]ChampionData `json:"data"`
 }
 
 // loadRuneTrees loads all rune trees from data dragon
@@ -128,19 +153,21 @@ func (l *Loader) loadRuneTrees() RuneTrees {
 
 	resp, err := http.Get(fmt.Sprintf(dataDragonRunesReforgedUrl, l.getLatestVersion(), l.language))
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
+
+	defer closeBody(resp)
 
 	var rawRuneTrees []RawRuneTree
 
 	err = json.NewDecoder(resp.Body).Decode(&rawRuneTrees)
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 
 	l.runeTrees = transformRawRuneTrees(rawRuneTrees)
 
-	l.mutex.Lock()
+	l.mu.Lock()
 	for _, style := range rawRuneTrees {
 		l.runeData[style.ID] = AssetData{
 			Name:    style.Name,
@@ -155,7 +182,7 @@ func (l *Loader) loadRuneTrees() RuneTrees {
 			}
 		}
 	}
-	l.mutex.Unlock()
+	l.mu.Unlock()
 
 	return l.runeTrees
 }
@@ -175,17 +202,19 @@ func (l *Loader) loadItems() {
 
 	resp, err := http.Get(fmt.Sprintf(dataDragonItemUrl, l.getLatestVersion(), l.language))
 	if err != nil {
-		log.Fatalln("Error fetching items data")
+		log.Panicln("Error fetching items data")
 	}
+
+	defer closeBody(resp)
 
 	var lolItems items
 	err = json.NewDecoder(resp.Body).Decode(&lolItems)
 	if err != nil {
-		log.Fatalln("Error decoding items data")
+		log.Panicln("Error decoding items data")
 		return
 	}
 
-	l.mutex.Lock()
+	l.mu.Lock()
 	for id, lolItem := range lolItems.Data {
 		itemId, _ := strconv.Atoi(id)
 
@@ -194,7 +223,7 @@ func (l *Loader) loadItems() {
 			Name:    lolItem.Name,
 		}
 	}
-	l.mutex.Unlock()
+	l.mu.Unlock()
 }
 
 func (l *Loader) loadSummonerSpells() {
@@ -204,8 +233,10 @@ func (l *Loader) loadSummonerSpells() {
 
 	resp, err := http.Get(fmt.Sprintf(dataDragonSpellsUrl, l.getLatestVersion(), l.language))
 	if err != nil {
-		log.Fatalln("Error fetching spells data")
+		log.Panicln("Error fetching spells data")
 	}
+
+	defer closeBody(resp)
 
 	var spells struct {
 		Data map[string]struct {
@@ -216,11 +247,11 @@ func (l *Loader) loadSummonerSpells() {
 	}
 	err = json.NewDecoder(resp.Body).Decode(&spells)
 	if err != nil {
-		log.Fatalln("Error decoding spells data")
+		log.Panicln("Error decoding spells data")
 		return
 	}
 
-	l.mutex.Lock()
+	l.mu.Lock()
 	for _, spell := range spells.Data {
 		key, _ := strconv.Atoi(spell.Key)
 
@@ -229,7 +260,7 @@ func (l *Loader) loadSummonerSpells() {
 			Name:    spell.Name,
 		}
 	}
-	l.mutex.Unlock()
+	l.mu.Unlock()
 }
 
 func (l *Loader) loadChampions() {
@@ -237,10 +268,12 @@ func (l *Loader) loadChampions() {
 		return
 	}
 
-	resp, err := http.Get(fmt.Sprintf(dataDragonChampionUrl, l.getLatestVersion(), l.language))
+	resp, err := http.Get(fmt.Sprintf(dataDragonChampionsUrl, l.getLatestVersion(), l.language))
 	if err != nil {
-		log.Fatalln("Error fetching champions data")
+		log.Panicln("Error fetching champions data")
 	}
+
+	defer closeBody(resp)
 
 	var champions struct {
 		Data map[string]struct {
@@ -252,11 +285,11 @@ func (l *Loader) loadChampions() {
 
 	err = json.NewDecoder(resp.Body).Decode(&champions)
 	if err != nil {
-		log.Fatalln("Error decoding champions data " + err.Error())
+		log.Panicln("Error decoding champions data " + err.Error())
 		return
 	}
 
-	l.mutex.Lock()
+	l.mu.Lock()
 	for _, champion := range champions.Data {
 		key, _ := strconv.Atoi(champion.Key)
 
@@ -266,7 +299,7 @@ func (l *Loader) loadChampions() {
 			Slug:    strings.ToLower(champion.ID),
 		}
 	}
-	l.mutex.Unlock()
+	l.mu.Unlock()
 }
 
 type ChampionName struct {
@@ -391,6 +424,8 @@ func (l *Loader) loadBuildCollection(championName, source, role string, version 
 		log.Panic(err)
 	}
 
+	defer closeBody(resp)
+
 	if resp.StatusCode == http.StatusNotFound {
 		return nil
 	}
@@ -405,7 +440,7 @@ func (l *Loader) loadBuildCollection(championName, source, role string, version 
 
 	buildCollection.Source = l.getSourceName(source)
 
-	l.mutex.Lock()
+	l.mu.Lock()
 	for buildIdx := range buildCollection.Builds {
 		build := &buildCollection.Builds[buildIdx]
 
@@ -454,13 +489,13 @@ func (l *Loader) loadBuildCollection(championName, source, role string, version 
 				lolItem.Name = itemData.Name
 				lolItem.IconUrl = itemData.IconUrl
 
-				if lolItem.IsMythic {
-					build.Mythic = *lolItem
+				if lolItem.IsCoreItem {
+					build.CoreItem = *lolItem
 				}
 			}
 		}
 	}
-	l.mutex.Unlock()
+	l.mu.Unlock()
 
 	log.Println("Build loaded")
 
@@ -501,6 +536,8 @@ func (l *Loader) getLatestVersion() string {
 	if err != nil {
 		log.Panic("Error fetching versions")
 	}
+
+	defer closeBody(resp)
 
 	var versions []string
 	err = json.NewDecoder(resp.Body).Decode(&versions)
@@ -571,6 +608,8 @@ func (l *Loader) loadSources() {
 		log.Panic("Error fetching sources")
 	}
 
+	defer closeBody(resp)
+
 	var sources struct {
 		Sources map[string]string `json:"sources"`
 	}
@@ -596,4 +635,71 @@ func (l *Loader) GetSources() []BuildSource {
 	}
 
 	return result
+}
+
+// GetChampionData loads champion data from data dragon
+func (l *Loader) GetChampionData(championId int, language string) *ChampionData {
+	// TODO: Add cache
+	if l.language != language {
+		l.setLanguage(language)
+	}
+
+	championSlug := l.GetChampionName(championId, language).Slug
+
+	championUrl := fmt.Sprintf(
+		dataDragonChampionUrl,
+		l.getLatestVersion(),
+		l.language,
+		cases.Title(golangLanguage.English, cases.NoLower).String(championSlug),
+	)
+
+	log.Printf("Loading championg data from %s", championUrl)
+
+	resp, err := http.Get(championUrl)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	defer closeBody(resp)
+
+	if resp.StatusCode == http.StatusNotFound {
+		return nil
+	}
+
+	var championDataResponse championDataResponse
+	err = json.NewDecoder(resp.Body).Decode(&championDataResponse)
+
+	if err != nil {
+		log.Println("Error decoding champion data: ", err)
+		return nil
+	}
+
+	var championData *ChampionData
+	for _, data := range championDataResponse.Data {
+		championData = &data
+		break
+	}
+
+	if championData == nil {
+		log.Println("Champion data response is empty")
+		return nil
+	}
+
+	for i := range championData.Spells {
+		spell := &championData.Spells[i]
+		spell.Image.Full = strings.Replace(spell.Image.Full, ".png", "", -1)
+		spell.Image.Full = fmt.Sprintf(dataDragonSpellIconUrl, l.getLatestVersion(), spell.Image.Full)
+	}
+
+	championData.Passive.Image.Full = strings.Replace(championData.Passive.Image.Full, ".png", "", -1)
+	championData.Passive.Image.Full = fmt.Sprintf(dataDragonPassiveIconUrl, l.getLatestVersion(), championData.Passive.Image.Full)
+
+	return championData
+}
+
+func closeBody(resp *http.Response) {
+	err := resp.Body.Close()
+	if err != nil {
+		log.Panic(err)
+	}
 }

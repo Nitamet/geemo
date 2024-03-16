@@ -2,9 +2,10 @@ export default {
     gameNotLaunched: 'League of Legends не запущена.',
     notSupportedGameMode: 'Этот режим не поддерживается.',
     notInLobby: 'Вы не в лобби.',
-    inGame: 'Вы в игре.',
+    inGame: 'В игре',
     unknownState: 'Неизвестное состояние.',
     errorOccurred: 'Произошла ошибка. Попробуйте перезапустить приложение.',
+    error: 'Ошибка',
     inLobby: 'В лобби',
     importSelectedBuild: 'Импортировать выбранный билд',
     runes: 'Руны',
@@ -30,4 +31,6 @@ export default {
     armor: 'Броня',
     magicResist: 'Сопротивление магии',
     health: 'Здоровье',
+    skills: 'Навыки',
+    skillMaxOrder: 'Приоритет:',
 };
