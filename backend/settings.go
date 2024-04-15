@@ -83,6 +83,8 @@ func createNewSettingsFile(configDir string) Settings {
 
 	// Write default settings to file
 	settings := getDefaultSettings()
+	settings.path = path
+
 	settingsJson, err := json.MarshalIndent(settings, "", "  ")
 	if err != nil {
 		log.Panic(err)
